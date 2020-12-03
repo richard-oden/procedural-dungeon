@@ -7,11 +7,7 @@ namespace ProceduralDungeon
         static void Main(string[] args)
         {
 
-            var test = new Tile(TileSize.Large, TileSize.Medium,
-            north: new TileBorder(TileSize.Large, Orientation.Horizontal, 1),
-            south: new TileBorder(TileSize.Large, Orientation.Horizontal, 2),
-            east: new TileBorder(TileSize.Medium, Orientation.Vertical, 0),
-            west: new TileBorder(TileSize.Medium, Orientation.Vertical, 1));
+            var test = new Tile(TileSize.Medium, TileSize.Large, 2, 1, 0, 1);
             
             test.PrintMap();
 
