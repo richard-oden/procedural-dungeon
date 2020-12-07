@@ -1,4 +1,5 @@
 ﻿using System;
+using static ProceduralDungeon.ExtensionsAndHelpers;
 
 namespace ProceduralDungeon
 {
@@ -6,17 +7,8 @@ namespace ProceduralDungeon
     {
         static void Main(string[] args)
         {
-
-            var test = new Tile(TileSize.Medium, TileSize.Large, 2, 1, 0, 1);
-            
+            var test = new Map(60, 40, 20, 100);
             test.PrintMap();
-
-            foreach(IMappable x in test.Assets)
-            if (x is IRectangular)
-            {
-                var xr = (IRectangular)x;
-                System.Console.WriteLine($"{xr.Location.ToString()} Width: {xr.Rect.Width} Height {xr.Rect.Height}");
-            }
         }
     }
 }

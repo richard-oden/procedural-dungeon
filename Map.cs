@@ -9,34 +9,131 @@ namespace ProceduralDungeon
     {
         public int Width {get; protected set;}
         public int Height {get; protected set;}
-        public List<IMappable> Assets {get; protected set;}
+        public List<IMappable> Assets {get; protected set;} = new List<IMappable>();
+        private List<Tile> _tiles {get; set;} = new List<Tile>();
         private List<int[]> _bloodSplatterCoordinates = new List<int[]>();
         
         public Map()
         {
-            Assets = new List<IMappable>();
+        }
+
+        public Map(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
+        public Map(int width, int height, int numTiles, int numAttempts)
+        {
+            Width = width;
+            Height = height;
+            generateTiles(numTiles, numAttempts);
+            fillSpaceBetweenTiles();
+            validateAssets(Assets);
+        }
+        private bool canAddTile(Tile tileToAdd)
+        {
+            if (tileToAdd.OpeningPoints.Any())
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int x = 0; x < Width; x++)
+                    {
+                        tileToAdd.TranslateAssets(new Point(x, y));
+                        if (WithinBorder(tileToAdd, 3) &&
+                            _tiles.Any(t => t.DoOpeningPointsMatch(tileToAdd)) &&
+                            _tiles.All(t => !t.DoesIntersectTile(tileToAdd)))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            tileToAdd.TranslateAssets(new Point(-x, -y));
+                        }
+                    }
+                }
+            }
+            return false;
         }
         
-        public bool OnMap(Point point)
+        private void generateTiles(int numTiles, int numAttempts)
+        {
+            var centralTile = new Tile(TileSize.Large, TileSize.Large, 2, 2, 2, 2); 
+            var centralTileStart = new Point(Width/2 - (int)TileSize.Large/2, Height/2 - (int)TileSize.Large/2);
+            centralTile.TranslateAssets(centralTileStart);
+            AddTile(centralTile);
+
+            int attempts = 0;
+            while (attempts < numAttempts && _tiles.Count < numTiles)
+            {
+                var tempTile = Tile.CreateRandom();
+                if (canAddTile(tempTile)) 
+                {
+                    AddTile(tempTile);
+                }
+                attempts++;
+            }
+        }
+        
+        private void fillSpaceBetweenTiles()
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var tempPoint = new Point(x, y);
+                    if (_tiles.All(t => !t.OnMap(tempPoint)))
+                    {
+                        AddAsset(new Wall(tempPoint));
+                    }
+                }
+            }
+        }
+        
+        public virtual bool OnMap(Point point)
         {
             return point.X >= 0 && point.X < Width && 
                    point.Y >= 0 && point.Y < Height;
         }
 
+        public bool OnMap(Rectangle rect)
+        {
+            for (int y = rect.YMin; y <= rect.YMax; y++)
+            {
+                for (int x = rect.XMin; x <= rect.XMax; x++)
+                {
+                    if (!OnMap(new Point(x, y))) return false;
+                }
+            }
+            return true;
+        }
+
+        public bool OnMap(Tile tile)
+        {
+            return tile.Assets.All(a => OnMap(a.Location)) &&
+                tile.Assets.All(a => a is IRectangular &&
+                OnMap((a as IRectangular).Rect));
+        }
+
+        public bool WithinBorder(Tile tile, int borderWidth)
+        {
+            return tile.startLocation.X >= borderWidth &&
+                tile.startLocation.Y >= borderWidth &&
+                new Map(Width-borderWidth, Height-(borderWidth-1)).OnMap(tile);
+        }
+
         private void validateAssets(List<IMappable> assets)
         {
             // All points and rectangles in map assets:
-            var points = assets.Where(a => !(a is IRectangular)).Select(a => (a as IMappable).Location);
+            var points = assets.Where(a => !(a is IRectangular)).Select(a => a.Location);
             var rects = assets.Where(a => a is IRectangular).Select(a => (a as IRectangular).Rect);
 
             // Invalid points:
             var pointsOutOfBounds = points.Where(p => !OnMap(p));
-            var pointDuplicates = points.Where(p1 => points.Any(p2 => p1.X == p2.X && p1.Y == p2.Y));
+            var pointDuplicates = points.Where(p1 => points.Any(p2 => p1 != p2 && p1.X == p2.X && p1.Y == p2.Y));
             var pointsWithinRects = points.Where(p => rects.Any(r => Rectangle.DoesRectContainPoint(p, r)));
 
             // Invalid rectangles:
-            var rectsOutOfBounds = rects.Where(r => !OnMap(r.NeCorner) || !OnMap(r.NwCorner) ||
-                !OnMap(r.SwCorner) || !OnMap(r.SeCorner));
+            var rectsOutOfBounds = rects.Where(r => !OnMap(r));
             var rectsIntersecting = rects.Where(r1 => rects.Any(r2 => r1 != r2 && Rectangle.DoRectsIntersect(r1, r2)));
 
             if (pointsOutOfBounds.Any())
@@ -59,20 +156,18 @@ namespace ProceduralDungeon
             else if (rectsIntersecting.Any())
             {
                 var rectsIntersectingStartPoints = rectsIntersecting.Select(r => r.StartLocation).ToString("and");
-                throw new OutOfMapBoundsException($"Rectangles at {rectsIntersectingStartPoints} are intersecting.");
+                throw new IntersectingRectanglesException($"Rectangles at {rectsIntersectingStartPoints} are intersecting.");
             }
         }
 
-        public void AddAsset(IMappable obj)
+        public void AddAsset(IMappable asset)
         {
-            Assets.Add(obj);
-            validateAssets(Assets);
+            Assets.Add(asset);
         }
 
         public void AddAssets(List<IMappable> assets)
         {
             Assets.AddRange(assets);
-            validateAssets(Assets);
         }
 
         public void AddAssets(List<IMappable> assets, Point start)
@@ -85,11 +180,23 @@ namespace ProceduralDungeon
             AddAssets(assets);
         }
 
-        public void RemoveAsset(IMappable obj)
+        public void AddTile(Tile tileToAdd)
         {
-            if (Assets.Contains(obj))
+            AddAssets(tileToAdd.Assets);
+            _tiles.Add(tileToAdd);
+        }
+        
+        public void AddTile(Tile tileToAdd, Point start)
+        {
+            AddAssets(tileToAdd.Assets, start);
+            _tiles.Add(tileToAdd);
+        }
+
+        public void RemoveAsset(IMappable asset)
+        {
+            if (Assets.Contains(asset))
             {
-                Assets.Remove(obj);
+                Assets.Remove(asset);
             }
             else
             {
@@ -97,6 +204,7 @@ namespace ProceduralDungeon
             }
         }
 
+        
         public int[][] GetOpenSpaces(IEnumerable<int[]> coordinates)
         {
            return coordinates.Where(c => !Assets.Any(o => o.Location.X == c[0] && o.Location.Y == c[1])).ToArray();

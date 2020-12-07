@@ -45,10 +45,10 @@ namespace ProceduralDungeon
                 throw new Exception("Unable to create point due to invalid orientation.");
             }
         }
-        public static bool DoesRectContainPoint(Point point, Rectangle shape)
+        public static bool DoesRectContainPoint(Point point, Rectangle rect)
         {
-            if (point.X >= shape.XMin && point.X <= shape.XMax &&
-                point.Y >= shape.YMin && point.Y <= shape.YMax)
+            if (point.X >= rect.XMin && point.X <= rect.XMax &&
+                point.Y >= rect.YMin && point.Y <= rect.YMax)
             {
                 return true;
             }
@@ -81,16 +81,14 @@ namespace ProceduralDungeon
 
         public static bool DoRectsIntersect(Rectangle rect1, Rectangle rect2)
         {
-            if (DoesRectContainPoint(rect1.NeCorner, rect2) ||
-                DoesRectContainPoint(rect1.NwCorner, rect2) ||
-                DoesRectContainPoint(rect1.SwCorner, rect2) ||
-                DoesRectContainPoint(rect1.SeCorner, rect2))
+            for (int y = rect1.YMin; y <= rect1.YMax; y++)
             {
-                return true;
+                for (int x = rect1.XMin; x <= rect1.XMax; x++)
+                {
+                    if (DoesRectContainPoint(new Point(x, y), rect2)) return true;
+                }
             }
-            {
-                return false;
-            }
+            return false;
         }     
     }
 }
