@@ -9,10 +9,11 @@ namespace ProceduralDungeon
         public Point startLocation {get; private set;} = new Point(0,0);
         public Dictionary<char, TileBorder> Borders {get; private set;}
         public List<Point> OpeningPoints {get; private set;} = new List<Point>();
-        // public TileInterior Interior {get; private set;}
+        public TileInterior Interior {get; private set;}
 
         public Tile(TileSize width, TileSize height, 
-            int northGates, int southGates, int eastGates, int westGates) : base()
+            int northGates, int southGates, int eastGates, int westGates,
+            TileInterior interior = null) : base()
         {
             Width = (int)width;
             Height = (int)height;
@@ -27,6 +28,9 @@ namespace ProceduralDungeon
             AddBorderAssets(Borders['E'], new Point(Width-1, 0));
             AddBorderAssets(Borders['W'], new Point(0, 0));
             fillCorners();
+
+            Interior = interior;
+            if (Interior != null) AddAssets(Interior.Assets, new Point(1, 1));
         }
 
         public static Tile CreateRandom()
@@ -37,7 +41,21 @@ namespace ProceduralDungeon
             var southGates = (width > TileSize.Tiny ? Dice.D3 : Dice.Coin).RollBaseZero();
             var eastGates = (height > TileSize.Tiny ? Dice.D3 : Dice.Coin).RollBaseZero();
             var westGates = (height > TileSize.Tiny ? Dice.D3 : Dice.Coin).RollBaseZero();
-            return new Tile(width, height, northGates, southGates, eastGates, westGates);
+            int interiorPresetInt;
+            if (height > TileSize.Small && width > TileSize.Small)
+            {
+                interiorPresetInt = Dice.D4.RollBaseZero();
+            }
+            else if (height > TileSize.Tiny && width > TileSize.Tiny)
+            {
+                interiorPresetInt = Dice.Coin.RollBaseZero();
+            }
+            else
+            {
+                interiorPresetInt = 0;
+            }
+            return new Tile(width, height, northGates, southGates, eastGates, westGates, 
+                new TileInterior(width, height, (InteriorPreset)interiorPresetInt));
         }
 
         private void fillCorners()

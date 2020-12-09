@@ -11,6 +11,7 @@ namespace ProceduralDungeon
         public int Height {get; protected set;}
         public List<IMappable> Assets {get; protected set;} = new List<IMappable>();
         private List<Tile> _tiles {get; set;} = new List<Tile>();
+        private Tile _centralTile {get; set;}
         private List<int[]> _bloodSplatterCoordinates = new List<int[]>();
         
         public Map()
@@ -28,6 +29,7 @@ namespace ProceduralDungeon
             Height = height;
             generateTiles(numTiles, numAttempts);
             fillSpaceBetweenTiles();
+            generateDoor();
             validateAssets(Assets);
         }
         private bool canAddTile(Tile tileToAdd)
@@ -57,9 +59,10 @@ namespace ProceduralDungeon
         
         private void generateTiles(int numTiles, int numAttempts)
         {
-            var centralTile = new Tile(TileSize.Large, TileSize.Large, 2, 2, 2, 2); 
+            var centralTile = new Tile(TileSize.Large, TileSize.Large, 1, 1, 1, 1, new TileInterior(TileSize.Large, TileSize.Large, InteriorPreset.IndentedCorners)); 
             var centralTileStart = new Point(Width/2 - (int)TileSize.Large/2, Height/2 - (int)TileSize.Large/2);
             centralTile.TranslateAssets(centralTileStart);
+            _centralTile = centralTile;
             AddTile(centralTile);
 
             int attempts = 0;
@@ -87,6 +90,18 @@ namespace ProceduralDungeon
                     }
                 }
             }
+        }
+        
+        private void generateDoor()
+        {
+            var validPoints = getAllEmptyPoints().Where(p =>
+                // Central tile does not contain point:
+                !_centralTile.OnMap(p) && 
+                // Tiles connected to central tile do not contain point:
+                _tiles.Where(t => t.DoOpeningPointsMatch(_centralTile)).All(tA => 
+                    !tA.OnMap(p)));
+            var spawnPoint = validPoints.RandomElement();
+            AddAsset(new Door(spawnPoint));
         }
         
         public virtual bool OnMap(Point point)
@@ -203,11 +218,26 @@ namespace ProceduralDungeon
                 Console.WriteLine("Map does not contain asset.");
             }
         }
-
         
-        public int[][] GetOpenSpaces(IEnumerable<int[]> coordinates)
+        private List<Point> getAllEmptyPoints()
         {
-           return coordinates.Where(c => !Assets.Any(o => o.Location.X == c[0] && o.Location.Y == c[1])).ToArray();
+            var emptyPoints = new List<Point>();
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var points = Assets.Where(a => !(a is IRectangular)).Select(a => a.Location);
+                    var rects = Assets.Where(a => a is IRectangular).Select(a => (a as IRectangular).Rect);
+                    
+                    var tempPoint = new Point(x, y);
+                    if (points.All(p => p.X != tempPoint.X || p.Y != tempPoint.Y) &&
+                        rects.All(r => !Rectangle.DoesRectContainPoint(tempPoint, r)))
+                    {
+                        emptyPoints.Add(tempPoint);
+                    }
+                }
+            }
+            return emptyPoints;
         }
         public int[][] GetCoordinatesWithin(int xStart, int xEnd, int yStart, int yEnd)
         {
@@ -245,7 +275,8 @@ namespace ProceduralDungeon
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    ConsoleColor fgColor = DarkGray;
+                    Console.ForegroundColor = DarkGray;
+                    
                     if (_bloodSplatterCoordinates.Any(c => c[0] == x && c[1] == y))
                     {
                         Console.BackgroundColor = DarkRed;
@@ -255,15 +286,7 @@ namespace ProceduralDungeon
                         Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
                     if (thisAsset != null)
                     {
-                        // if (thisAsset is Entity || thisAsset is Item)
-                        // {
-                        //     fgColor = White;
-                        //     if ((thisAsset is Entity) && (thisAsset as Entity).TakingTurn)
-                        //     {
-                        //         fgColor = DarkBlue;
-                        //     }
-                        // }
-                        Console.ForegroundColor = fgColor;
+                        if (thisAsset is Door) Console.ForegroundColor = White;
                         Console.Write(thisAsset.Symbol + " ");
                     }
                     else
