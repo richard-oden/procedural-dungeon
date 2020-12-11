@@ -12,6 +12,28 @@ namespace ProceduralDungeon
         public List<IMappable> Assets {get; protected set;} = new List<IMappable>();
         private List<Tile> _tiles {get; set;} = new List<Tile>();
         private Tile _centralTile {get; set;}
+        private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();
+        private Rectangle[] _assetRectLocations => Assets.Where(a => a is IRectangular).Select(a => (a as IRectangular).Rect).ToArray();
+        public List<Point> _emptyPoints
+        {
+            get
+            {
+                var emptyPoints = new List<Point>();
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int x = 0; x < Width; x++)
+                    {   
+                        var tempPoint = new Point(x, y);
+                        if (_assetPointLocations.All(p => p.X != tempPoint.X || p.Y != tempPoint.Y) &&
+                            _assetRectLocations.All(r => !Rectangle.DoesRectContainPoint(tempPoint, r)))
+                        {
+                            emptyPoints.Add(tempPoint);
+                        }
+                    }
+                }
+                return emptyPoints;
+            }
+        }
         private List<int[]> _bloodSplatterCoordinates = new List<int[]>();
         
         public Map()
@@ -30,6 +52,7 @@ namespace ProceduralDungeon
             generateTiles(numTiles, numAttempts);
             fillSpaceBetweenTiles();
             generateDoor();
+            generateItems(ItemsRepository.Commons, 30);
             validateAssets(Assets);
         }
         private bool canAddTile(Tile tileToAdd)
@@ -94,7 +117,7 @@ namespace ProceduralDungeon
         
         private void generateDoor()
         {
-            var validPoints = getAllEmptyPoints().Where(p =>
+            var validPoints = _emptyPoints.Where(p =>
                 // Central tile does not contain point:
                 !_centralTile.OnMap(p) && 
                 // Tiles connected to central tile do not contain point:
@@ -102,6 +125,22 @@ namespace ProceduralDungeon
                     !tA.OnMap(p)));
             var spawnPoint = validPoints.RandomElement();
             AddAsset(new Door(spawnPoint));
+        }
+
+        private void generateItems(Item[] repository, int numItems)
+        {
+            for (int i = 0; i < numItems; i++)
+            {
+                var itemToAdd = new Item(repository.RandomElement());
+                var validPoints = _emptyPoints.Where(p =>
+                    // Central tile does not contain items:
+                    !_centralTile.OnMap(p) && 
+                    // Tiles can only have up to 3 items:
+                    _tiles.Where(t => t.Assets.Where(a => a is Item).Count() > 3).All(tA =>
+                        !tA.OnMap(p)));
+                itemToAdd.Location = validPoints.RandomElement();
+                AddAsset(itemToAdd);
+            }
         }
         
         public virtual bool OnMap(Point point)
@@ -138,18 +177,14 @@ namespace ProceduralDungeon
 
         private void validateAssets(List<IMappable> assets)
         {
-            // All points and rectangles in map assets:
-            var points = assets.Where(a => !(a is IRectangular)).Select(a => a.Location);
-            var rects = assets.Where(a => a is IRectangular).Select(a => (a as IRectangular).Rect);
-
             // Invalid points:
-            var pointsOutOfBounds = points.Where(p => !OnMap(p));
-            var pointDuplicates = points.Where(p1 => points.Any(p2 => p1 != p2 && p1.X == p2.X && p1.Y == p2.Y));
-            var pointsWithinRects = points.Where(p => rects.Any(r => Rectangle.DoesRectContainPoint(p, r)));
+            var pointsOutOfBounds = _assetPointLocations.Where(p => !OnMap(p));
+            var pointDuplicates = _assetPointLocations.Where(p1 => _assetPointLocations.Any(p2 => p1 != p2 && p1.X == p2.X && p1.Y == p2.Y));
+            var pointsWithinRects = _assetPointLocations.Where(p => _assetRectLocations.Any(r => Rectangle.DoesRectContainPoint(p, r)));
 
             // Invalid rectangles:
-            var rectsOutOfBounds = rects.Where(r => !OnMap(r));
-            var rectsIntersecting = rects.Where(r1 => rects.Any(r2 => r1 != r2 && Rectangle.DoRectsIntersect(r1, r2)));
+            var rectsOutOfBounds = _assetRectLocations.Where(r => !OnMap(r));
+            var rectsIntersecting = _assetRectLocations.Where(r1 => _assetRectLocations.Any(r2 => r1 != r2 && Rectangle.DoRectsIntersect(r1, r2)));
 
             if (pointsOutOfBounds.Any())
             {
@@ -218,27 +253,7 @@ namespace ProceduralDungeon
                 Console.WriteLine("Map does not contain asset.");
             }
         }
-        
-        private List<Point> getAllEmptyPoints()
-        {
-            var emptyPoints = new List<Point>();
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    var points = Assets.Where(a => !(a is IRectangular)).Select(a => a.Location);
-                    var rects = Assets.Where(a => a is IRectangular).Select(a => (a as IRectangular).Rect);
-                    
-                    var tempPoint = new Point(x, y);
-                    if (points.All(p => p.X != tempPoint.X || p.Y != tempPoint.Y) &&
-                        rects.All(r => !Rectangle.DoesRectContainPoint(tempPoint, r)))
-                    {
-                        emptyPoints.Add(tempPoint);
-                    }
-                }
-            }
-            return emptyPoints;
-        }
+
         public int[][] GetCoordinatesWithin(int xStart, int xEnd, int yStart, int yEnd)
         {
             var coords = new List<int[]>();
@@ -252,7 +267,7 @@ namespace ProceduralDungeon
             return coords.ToArray();
         }
 
-         public List<IMappable> GetAssetsInRangeOf(Point origin, int range)
+        public List<IMappable> GetAssetsInRangeOf(Point origin, int range)
         {
             // Allows points that are diagonally adjacent to be considered within range:
             if (range == 1)
@@ -269,6 +284,7 @@ namespace ProceduralDungeon
             }
             return Assets.Where(o => origin.InRangeOf(o.Location, range)).ToList();
         }
+        
         public void PrintMap()
         {
             for (int y = 0; y < Height; y++)
@@ -287,6 +303,8 @@ namespace ProceduralDungeon
                     if (thisAsset != null)
                     {
                         if (thisAsset is Door) Console.ForegroundColor = White;
+                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Player) Console.ForegroundColor = Blue;
                         Console.Write(thisAsset.Symbol + " ");
                     }
                     else
@@ -297,6 +315,16 @@ namespace ProceduralDungeon
                 }
                 Console.WriteLine();
             }
+        }
+    
+        public void Move(IMappable assetToMove, ConsoleKeyInfo input)
+        {
+            var tempLocation = new Point(assetToMove.Location);
+            tempLocation.Translate(input);
+            bool isDestinationValid = OnMap(tempLocation) &&
+                _assetPointLocations.All(p => p.X != tempLocation.X || p.Y != tempLocation.Y) &&
+                _assetRectLocations.All(r => !Rectangle.DoesRectContainPoint(tempLocation, r));
+            if (isDestinationValid) assetToMove.Location.Translate(input);
         }
     }
 }

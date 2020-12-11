@@ -36,6 +36,12 @@ namespace ProceduralDungeon
                 throw new Exception("List does not contain element.");
             }
         }
+
+        public static IList<T> Clone<T>(this IList<T> listToClone) where T: ICloneable
+        {
+            return listToClone.Select(item => (T)item.Clone()).ToList();
+        }
+
         public static string ToString(this IEnumerable<string> source, string conjunction)
         {
             if (source == null || !source.Any()) return null;

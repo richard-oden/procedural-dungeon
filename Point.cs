@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using static ProceduralDungeon.ExtensionsAndHelpers;
 
 namespace ProceduralDungeon
 {
@@ -31,6 +32,12 @@ namespace ProceduralDungeon
             {
                 throw new Exception("Unable to create point due to invalid orientation.");
             }
+        }
+
+        public Point(Point pointToClone)
+        {
+            X = pointToClone.X;
+            Y = pointToClone.Y;
         }
         
         public decimal DistanceTo(int x, int y)
@@ -141,19 +148,19 @@ namespace ProceduralDungeon
         {
             switch (input.Key)
             {
-                case ConsoleKey.E:
+                case ConsoleKey.W:
                     Y -= 1;
                     break;
                 case ConsoleKey.X:
                     Y += 1;
                     break;
-                case ConsoleKey.F:
+                case ConsoleKey.D:
                     X += 1;
                     break;
                 case ConsoleKey.A:
                     X -= 1;
                     break;
-                case ConsoleKey.R:
+                case ConsoleKey.E:
                     Y -= 1;
                     X += 1;
                     break;
@@ -171,6 +178,7 @@ namespace ProceduralDungeon
                     break;
                 default:
                     Console.WriteLine("Invalid key.");
+                    PressAnyKeyToContinue();
                     break;
             }
         }
