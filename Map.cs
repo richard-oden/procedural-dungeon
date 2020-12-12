@@ -14,7 +14,7 @@ namespace ProceduralDungeon
         private Tile _centralTile {get; set;}
         private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();
         private Rectangle[] _assetRectLocations => Assets.Where(a => a is IRectangular).Select(a => (a as IRectangular).Rect).ToArray();
-        public List<Point> _emptyPoints
+        private List<Point> _emptyPoints
         {
             get
             {
@@ -242,6 +242,20 @@ namespace ProceduralDungeon
             _tiles.Add(tileToAdd);
         }
 
+        public void AddPlayer(Player player)
+        {
+            var validSpawns = _emptyPoints.Where(eP => _centralTile.OnMap(eP));
+            player.Location = validSpawns.RandomElement();
+            AddAsset(player);
+        }
+        
+        public void AddNpc(Npc npc)
+        {
+            var validSpawns = _emptyPoints.Where(eP => !_centralTile.OnMap(eP));
+            npc.Location = validSpawns.RandomElement();
+            AddAsset(npc);
+        }
+        
         public void RemoveAsset(IMappable asset)
         {
             if (Assets.Contains(asset))
@@ -293,16 +307,16 @@ namespace ProceduralDungeon
                 {
                     Console.ForegroundColor = DarkGray;
                     
-                    if (_bloodSplatterCoordinates.Any(c => c[0] == x && c[1] == y))
-                    {
-                        Console.BackgroundColor = DarkRed;
-                    }
+                    // if (_bloodSplatterCoordinates.Any(c => c[0] == x && c[1] == y))
+                    // {
+                    //     Console.BackgroundColor = DarkRed;
+                    // }
                     var thisAsset = Assets.FirstOrDefault(a => 
                         a.Location.X == x && a.Location.Y == y || a is IRectangular && 
                         Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
                     if (thisAsset != null)
                     {
-                        if (thisAsset is Door) Console.ForegroundColor = White;
+                        if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
                         if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
                         if (thisAsset is Player) Console.ForegroundColor = Blue;
                         Console.Write(thisAsset.Symbol + " ");
@@ -325,6 +339,55 @@ namespace ProceduralDungeon
                 _assetPointLocations.All(p => p.X != tempLocation.X || p.Y != tempLocation.Y) &&
                 _assetRectLocations.All(r => !Rectangle.DoesRectContainPoint(tempLocation, r));
             if (isDestinationValid) assetToMove.Location.Translate(input);
+        }
+
+        protected List<IMappable> getPathObstructions(Point pathStart, Point pathEnd)
+        {
+            return Assets.Where(a => a != pathStart && a != pathEnd && 
+                a is IRectangular ? Rectangle.DoesLineIntersectRect(pathStart, pathEnd, (a as IRectangular).Rect) :
+                Point.IsPointOnLineSegment(pathStart, pathEnd, a.Location)).ToList();
+        }
+
+        public void Wander(Npc npc)
+        {
+            var validDestinations = _emptyPoints.Where(eP => npc.Location.InRangeOf(eP, 1));
+            npc.Location = validDestinations.RandomElement();
+        }
+
+        public void MoveToward(Npc npc, Point target)
+        {
+            int getDiff(int coord1, int coord2)
+            {
+                if (coord1 > coord2)
+                {
+                    return 1;
+                }
+                else if (coord1 < coord2)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            
+            int xDiff = getDiff(target.X, npc.Location.X);
+            int yDiff = getDiff(target.Y, npc.Location.Y);
+            
+            var potentialDestinations = new List<Point>()
+            {
+                new Point(npc.Location.X + xDiff, npc.Location.Y + yDiff),
+                new Point(npc.Location.X, npc.Location.Y + yDiff),
+                new Point(npc.Location.X + xDiff, npc.Location.Y)
+            };
+
+            var chosenDestination = potentialDestinations.FirstOrDefault(pD =>
+                // Destination cannot be the same as current location:
+                (pD.X != npc.Location.X || pD.Y != npc.Location.Y) &&
+                // Destination must be an empty point:
+                _emptyPoints.Any(eP => eP.X == pD.X && eP.Y == pD.Y));
+            if (chosenDestination != null) npc.Location = chosenDestination;
         }
     }
 }

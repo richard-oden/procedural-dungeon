@@ -183,6 +183,11 @@ namespace ProceduralDungeon
             }
         }
     
+        public void Translate(Point point)
+        {
+            X += point.X;
+            Y += point.Y;
+        }
         public string DirectionTo(Point that)
         {
             string output = "";

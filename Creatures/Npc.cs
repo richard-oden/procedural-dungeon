@@ -4,11 +4,19 @@ using System.Linq;
 
 namespace ProceduralDungeon
 {
-    public class Player : Creature
+    public class Npc : Creature
     {
-        public Player(string name, int id, int hp, int speed, Point location = null,
+        public override char Symbol => Symbols.Npc;
+        public Npc(string name, int id, int hp, int speed, Point location = null,
             List<IMappable> inventory = null, List<IMappable> memory = null) :
             base (name, id, hp, speed, location, inventory, memory)
         {}
+    }
+
+    public enum Aggression
+    {
+        Friendly,
+        Passive,
+        Hostile
     }
 }

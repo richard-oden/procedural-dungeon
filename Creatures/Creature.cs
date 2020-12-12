@@ -15,17 +15,17 @@ namespace ProceduralDungeon
         protected int _speed {get; set;}
         public List<IMappable> Inventory {get; protected set;} = new List<IMappable>();
         protected List<IMappable> _memory {get; set;} = new List<IMappable>();
-        public Point Location {get; protected set;}
-        public char Symbol {get; protected set;} = Symbols.Player;
+        public Point Location {get; set;}
+        public virtual char Symbol {get; protected set;} = Symbols.Player;
 
-        public Creature(string name, int id, int hp, int speed, Point location,
+        public Creature(string name, int id, int hp, int speed, Point location = null,
             List<IMappable> inventory = null, List<IMappable> memory = null)
         {
             Name = name;
             Id = id;
             _hp = hp;
             _speed = speed;
-            Location = location;
+            if (location != null) Location = location;
             if (inventory != null) Inventory = inventory;
             if (memory != null) _memory = memory;
         }

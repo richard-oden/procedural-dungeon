@@ -6,6 +6,7 @@ namespace ProceduralDungeon
         public static readonly char Door = '\u041F';
         public static readonly char Chest = '\u25A1';
         public static readonly char Player = '\u0445';
+        public static readonly char Npc = '\u00F6';
         public static readonly char Friendly = '\u263A';
         public static readonly char Hostile = '\u2639';
         public static readonly char Dead = '\u2126';
