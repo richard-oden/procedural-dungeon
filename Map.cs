@@ -341,9 +341,11 @@ namespace ProceduralDungeon
             if (isDestinationValid) assetToMove.Location.Translate(input);
         }
 
-        protected List<IMappable> getPathObstructions(Point pathStart, Point pathEnd)
+        public List<IMappable> GetPathObstructions(Point pathStart, Point pathEnd)
         {
-            return Assets.Where(a => a != pathStart && a != pathEnd && 
+            var otherAssets = Assets.Where(a => a.Location.X != pathStart.X && a.Location.Y != pathStart.Y &&
+                a.Location.X != pathEnd.X && a.Location.Y != pathEnd.Y);
+            return otherAssets.Where(a =>
                 a is IRectangular ? Rectangle.DoesLineIntersectRect(pathStart, pathEnd, (a as IRectangular).Rect) :
                 Point.IsPointOnLineSegment(pathStart, pathEnd, a.Location)).ToList();
         }

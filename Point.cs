@@ -63,34 +63,33 @@ namespace ProceduralDungeon
             return start.DistanceTo(middle) + middle.DistanceTo(end) == start.DistanceTo(end);
         }
 
-        // Based on an algorithm in Andre LeMothe's "Tricks of the Windows Game Programming Gurus"
-        // Found here: https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-        public static bool DoLinesIntersect(Point line1Start, Point line1End, 
-            Point line2Start, Point line2End)
+        // Implementation found here: https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+        public static bool DoLineSegmentsIntersect(Point A, Point B, Point C, Point D)
         {
-            int line1Width, line1Height, line2Width, line2Height;
-            line1Width = line1End.X - line1Start.X;     line1Height = line1End.Y - line1Start.Y;
-            line2Width = line2End.X - line2Start.X;     line2Height = line2End.Y - line2Start.Y;
-
-            decimal s, t;
-            s = (-line1Height * (line1Start.X - line2Start.X) + line1Width * (line1Start.Y - line2Start.Y)) / 
-                (-line2Width * line1Height + line1Width * line2Height);
-            t = ( line2Width * (line1Start.Y - line2Start.Y) - line2Height * (line1Start.X - line2Start.X)) / 
-                (-line2Width * line1Height + line1Width * line2Height);
-
-            if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+            Point CmP = new Point(C.X - A.X, C.Y - A.Y);
+            Point r = new Point(B.X - A.X, B.Y - A.Y);
+            Point s = new Point(D.X - C.X, D.Y - C.Y);
+    
+            float CmPxr = CmP.X * r.Y - CmP.Y * r.X;
+            float CmPxs = CmP.X * s.Y - CmP.Y * s.X;
+            float rxs = r.X * s.Y - r.Y * s.X;
+    
+            if (CmPxr == 0f)
             {
-                // Collision detected
-                // if (i_x != NULL)
-                //     *i_x = line1Start.X + (t * line1Width);
-                // if (i_y != NULL)
-                //     *i_y = line1Start.Y + (t * line1Height);
-                return true;
+                // Lines are collinear, and so intersect if they have any overlap
+    
+                return ((C.X - A.X < 0f) != (C.X - B.X < 0f)) ||
+                    ((C.Y - A.Y < 0f) != (C.Y - B.Y < 0f));
             }
-            else
-            {
-                return false; // No collision
-            }
+    
+            if (rxs == 0f)
+                return false; // Lines are parallel.
+    
+            float rxsr = 1f / rxs;
+            float t = CmPxs * rxsr;
+            float u = CmPxr * rxsr;
+    
+            return (t >= 0f) && (t <= 1f) && (u >= 0f) && (u <= 1f);
         }
 
         public List<int[]> GetAdjacentCoordinates()

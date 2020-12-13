@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static ProceduralDungeon.ExtensionsAndHelpers;
 
@@ -28,9 +29,34 @@ namespace ProceduralDungeon
                 testMap.PrintMap();
                 var moveInput = Console.ReadKey();
                 testMap.Move(testPlayer, moveInput);
-                foreach (var npc in testNpcs) testMap.MoveToward(npc, testPlayer.Location);
+                foreach (var npc in testNpcs) 
+                {
+                    if (testMap.GetPathObstructions(npc.Location, testPlayer.Location).Any())
+                    {
+                        testMap.Wander(npc);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"{npc.Location} Can see player");
+                        testMap.MoveToward(npc, testPlayer.Location);
+                    }
+                }
+                PressAnyKeyToContinue();
                 Console.Clear();
             }
+
+            // var m = new Map(30, 10);
+            // var r = new Rectangle(new Point(5,5), 10, 0);
+            // var p1 = new Point(10, 3);
+            // var p2 = new Point(5, 4);
+            // m.AddAssets(new List<IMappable>(){new Barrier(r), new Wall(p1), new Wall(p2)});
+            // System.Console.WriteLine($"{r.NeCorner}, {r.NwCorner}, {r.SeCorner}, {r.SwCorner}");
+            // // System.Console.WriteLine(Point.DoLinesIntersect(r.NwCorner, r.SwCorner, p1, p2));
+            // // System.Console.WriteLine(Point.DoLinesIntersect(r.NwCorner, r.NeCorner, p1, p2));
+            // // System.Console.WriteLine(Point.DoLinesIntersect(r.SeCorner, r.NeCorner, p1, p2));
+            // // System.Console.WriteLine(Point.DoLinesIntersect(r.SeCorner, r.SwCorner, p1, p2));
+            // System.Console.WriteLine(m.GetPathObstructions(p1, p2).Select(o => o.Location).ToString("and"));
+            // m.PrintMap();
         }
     }
 }

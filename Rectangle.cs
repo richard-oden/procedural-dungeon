@@ -14,9 +14,9 @@ namespace ProceduralDungeon
         public int XMin => StartLocation.X;
         public int XMax => StartLocation.X + Width;
         public Point NwCorner => new Point(XMin, YMin);
-        public Point NeCorner => new Point(XMax, YMin);
-        public Point SwCorner => new Point(XMin, YMax);
-        public Point SeCorner => new Point(XMax, YMax);
+        public Point NeCorner => new Point(XMax-1, YMin);
+        public Point SwCorner => new Point(XMin, YMax-1);
+        public Point SeCorner => new Point(XMax-1, YMax-1);
 
         public bool Completed {get; set;} = false;
 
@@ -66,10 +66,18 @@ namespace ProceduralDungeon
             {
                 return true;
             }
-            else if (Point.DoLinesIntersect(lineStart, lineEnd, rect.NeCorner, rect.NwCorner) ||
-                Point.DoLinesIntersect(lineStart, lineEnd, rect.NwCorner, rect.SwCorner) ||
-                Point.DoLinesIntersect(lineStart, lineEnd, rect.SwCorner, rect.SeCorner) ||
-                Point.DoLinesIntersect(lineStart, lineEnd, rect.SeCorner, rect.NeCorner))
+            else if (rect.Height == 0)
+            {
+                return Point.DoLineSegmentsIntersect(lineStart, lineEnd, rect.NeCorner, rect.NwCorner);
+            }
+            else if (rect.Width == 0)
+            {
+                return Point.DoLineSegmentsIntersect(lineStart, lineEnd, rect.NeCorner, rect.SeCorner);
+            }
+            else if (Point.DoLineSegmentsIntersect(lineStart, lineEnd, rect.NeCorner, rect.NwCorner) ||
+                Point.DoLineSegmentsIntersect(lineStart, lineEnd, rect.NwCorner, rect.SwCorner) ||
+                Point.DoLineSegmentsIntersect(lineStart, lineEnd, rect.SwCorner, rect.SeCorner) ||
+                Point.DoLineSegmentsIntersect(lineStart, lineEnd, rect.SeCorner, rect.NeCorner))
             {
                 return true;
             }
