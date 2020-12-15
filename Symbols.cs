@@ -11,5 +11,6 @@ namespace ProceduralDungeon
         public static readonly char Hostile = '\u2639';
         public static readonly char Dead = '\u2126';
         public static readonly char Item = '\u263C';
+        public static readonly char Key = '\u2640';
     }
 }

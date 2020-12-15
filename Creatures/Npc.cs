@@ -8,7 +8,7 @@ namespace ProceduralDungeon
     {
         public override char Symbol => Symbols.Npc;
         public Npc(string name, int id, int hp, int speed, Point location = null,
-            List<IMappable> inventory = null, List<IMappable> memory = null) :
+            List<Item> inventory = null, List<IMappable> memory = null) :
             base (name, id, hp, speed, location, inventory, memory)
         {}
     }

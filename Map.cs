@@ -52,7 +52,11 @@ namespace ProceduralDungeon
             generateTiles(numTiles, numAttempts);
             fillSpaceBetweenTiles();
             generateDoor();
-            generateItems(ItemsRepository.Commons, 30);
+            generateKey();
+            generateItems(ItemsRepository.CommonMisc, numTiles/2);
+            generateItems(ItemsRepository.UncommonMisc, numTiles/4);
+            generateItems(ItemsRepository.RareMisc, 2);
+            generateItems(ItemsRepository.VeryRareMisc, 1);
             validateAssets(Assets);
         }
         private bool canAddTile(Tile tileToAdd)
@@ -125,6 +129,24 @@ namespace ProceduralDungeon
                     !tA.OnMap(p)));
             var spawnPoint = validPoints.RandomElement();
             AddAsset(new Door(spawnPoint));
+        }
+
+        private void generateKey()
+        {
+            var doorTile = _tiles.Single(t => t.OnMap(Assets.Single(a => a is Door).Location));
+            var validPoints = _emptyPoints.Where(p =>
+                // Central tile does not contain point:
+                !_centralTile.OnMap(p) && 
+                // Tiles connected to central tile do not contain point:
+                _tiles.Where(t => t.DoOpeningPointsMatch(_centralTile)).All(tA => 
+                    !tA.OnMap(p)) &&
+                // Door tile does not contain point:
+                !doorTile.OnMap(p) &&
+                // Tiles connected to door tile do not contain point:
+                _tiles.Where(t => t.DoOpeningPointsMatch(doorTile)).All(tA => 
+                    !tA.OnMap(p)));
+            var spawnPoint = validPoints.RandomElement();
+            AddAsset(new Key(spawnPoint));
         }
 
         private void generateItems(Item[] repository, int numItems)
@@ -215,6 +237,13 @@ namespace ProceduralDungeon
             Assets.Add(asset);
         }
 
+        public void AddAsset(IMappable asset, Point start)
+        {
+            asset.Location.X = start.X;
+            asset.Location.Y = start.Y;
+            Assets.Add(asset);
+        }
+
         public void AddAssets(List<IMappable> assets)
         {
             Assets.AddRange(assets);
@@ -268,6 +297,11 @@ namespace ProceduralDungeon
             }
         }
 
+        public IMappable[] GetAssetsByName(string name)
+        {
+            return Assets.Where(a => a is INameable && (a as INameable).Name == name).ToArray();
+        }
+        
         public int[][] GetCoordinatesWithin(int xStart, int xEnd, int yStart, int yEnd)
         {
             var coords = new List<int[]>();
@@ -331,7 +365,7 @@ namespace ProceduralDungeon
             }
         }
     
-        public void Move(IMappable assetToMove, ConsoleKeyInfo input)
+        public bool Move(IMappable assetToMove, ConsoleKeyInfo input)
         {
             var tempLocation = new Point(assetToMove.Location);
             tempLocation.Translate(input);
@@ -339,6 +373,7 @@ namespace ProceduralDungeon
                 _assetPointLocations.All(p => p.X != tempLocation.X || p.Y != tempLocation.Y) &&
                 _assetRectLocations.All(r => !Rectangle.DoesRectContainPoint(tempLocation, r));
             if (isDestinationValid) assetToMove.Location.Translate(input);
+            return isDestinationValid;
         }
 
         public List<IMappable> GetPathObstructions(Point pathStart, Point pathEnd)
@@ -390,6 +425,22 @@ namespace ProceduralDungeon
                 // Destination must be an empty point:
                 _emptyPoints.Any(eP => eP.X == pD.X && eP.Y == pD.Y));
             if (chosenDestination != null) npc.Location = chosenDestination;
+        }
+
+        public void DropItem(Creature creature, Item itemToDrop)
+        {
+            var validLocations = _emptyPoints.Where(eP => creature.Location.InRangeOf(eP, 1));
+            if (validLocations.Any())
+            {
+                if (creature.RemoveItemFromInventory(itemToDrop))
+                {
+                    AddAsset(itemToDrop, validLocations.RandomElement());
+                }
+                else
+                {
+                    System.Console.WriteLine($"There's nowhere to drop the {itemToDrop.Name}");
+                }
+            }
         }
     }
 }

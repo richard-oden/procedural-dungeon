@@ -37,11 +37,9 @@ namespace ProceduralDungeon
                     }
                     else
                     {
-                        System.Console.WriteLine($"{npc.Location} Can see player");
                         testMap.MoveToward(npc, testPlayer.Location);
                     }
                 }
-                PressAnyKeyToContinue();
                 Console.Clear();
             }
 
