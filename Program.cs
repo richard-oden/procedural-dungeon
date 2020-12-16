@@ -26,18 +26,19 @@ namespace ProceduralDungeon
 
             while (true)
             {
-                testMap.PrintMap();
-                var moveInput = Console.ReadKey();
-                testMap.Move(testPlayer, moveInput);
+                testMap.PrintMap(testPlayer);
+                var input = Console.ReadKey();
+                System.Console.WriteLine();
+                testPlayer.ParseInput(testMap, input);
                 foreach (var npc in testNpcs) 
                 {
                     if (testMap.GetPathObstructions(npc.Location, testPlayer.Location).Any())
                     {
-                        testMap.Wander(npc);
+                        npc.Wander(testMap);
                     }
                     else
                     {
-                        testMap.MoveToward(npc, testPlayer.Location);
+                        npc.MoveToward(testMap, testPlayer.Location);
                     }
                 }
                 Console.Clear();

@@ -1,6 +1,6 @@
 namespace ProceduralDungeon
 {
-    public class Item : IMappable, INameable
+    public class Item : IMappable, INameable, IDescribable
     {
         public string Name {get; protected set;}
         public double Weight {get; protected set;}

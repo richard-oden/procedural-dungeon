@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static System.ConsoleColor;
+using static ProceduralDungeon.ExtensionsAndHelpers;
 
 namespace ProceduralDungeon
 {
@@ -14,7 +15,7 @@ namespace ProceduralDungeon
         private Tile _centralTile {get; set;}
         private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();
         private Rectangle[] _assetRectLocations => Assets.Where(a => a is IRectangular).Select(a => (a as IRectangular).Rect).ToArray();
-        private List<Point> _emptyPoints
+        public List<Point> EmptyPoints
         {
             get
             {
@@ -121,7 +122,7 @@ namespace ProceduralDungeon
         
         private void generateDoor()
         {
-            var validPoints = _emptyPoints.Where(p =>
+            var validPoints = EmptyPoints.Where(p =>
                 // Central tile does not contain point:
                 !_centralTile.OnMap(p) && 
                 // Tiles connected to central tile do not contain point:
@@ -134,7 +135,7 @@ namespace ProceduralDungeon
         private void generateKey()
         {
             var doorTile = _tiles.Single(t => t.OnMap(Assets.Single(a => a is Door).Location));
-            var validPoints = _emptyPoints.Where(p =>
+            var validPoints = EmptyPoints.Where(p =>
                 // Central tile does not contain point:
                 !_centralTile.OnMap(p) && 
                 // Tiles connected to central tile do not contain point:
@@ -154,7 +155,7 @@ namespace ProceduralDungeon
             for (int i = 0; i < numItems; i++)
             {
                 var itemToAdd = new Item(repository.RandomElement());
-                var validPoints = _emptyPoints.Where(p =>
+                var validPoints = EmptyPoints.Where(p =>
                     // Central tile does not contain items:
                     !_centralTile.OnMap(p) && 
                     // Tiles can only have up to 3 items:
@@ -273,14 +274,14 @@ namespace ProceduralDungeon
 
         public void AddPlayer(Player player)
         {
-            var validSpawns = _emptyPoints.Where(eP => _centralTile.OnMap(eP));
+            var validSpawns = EmptyPoints.Where(eP => _centralTile.OnMap(eP));
             player.Location = validSpawns.RandomElement();
             AddAsset(player);
         }
         
         public void AddNpc(Npc npc)
         {
-            var validSpawns = _emptyPoints.Where(eP => !_centralTile.OnMap(eP));
+            var validSpawns = EmptyPoints.Where(eP => !_centralTile.OnMap(eP));
             npc.Location = validSpawns.RandomElement();
             AddAsset(npc);
         }
@@ -315,22 +316,9 @@ namespace ProceduralDungeon
             return coords.ToArray();
         }
 
-        public List<IMappable> GetAssetsInRangeOf(Point origin, int range)
+        public IMappable[] GetAssetsInRangeOf(Point origin, int range)
         {
-            // Allows points that are diagonally adjacent to be considered within range:
-            if (range == 1)
-            {
-                var adjacentAssets = new List<IMappable>();
-                foreach (var coord in origin.GetAdjacentCoordinates())
-                {
-                    var adjacentAsset = Assets.SingleOrDefault(o => 
-                        o.Location.X == coord[0] && o.Location.Y == coord[1] &&
-                        o.Location != origin);
-                    if (adjacentAsset != null) adjacentAssets.Add(adjacentAsset);
-                }
-                return adjacentAssets;
-            }
-            return Assets.Where(o => origin.InRangeOf(o.Location, range)).ToList();
+            return Assets.Where(o => origin.InRangeOf(o.Location, range)).ToArray();
         }
         
         public void PrintMap()
@@ -365,6 +353,43 @@ namespace ProceduralDungeon
             }
         }
     
+        // Prints map from perspective of a creature:
+        public void PrintMap(Creature creature)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var thisPoint = new Point(x, y);
+                    var thisAsset = Assets.FirstOrDefault(a => 
+                        a.Location.X == x && a.Location.Y == y || a is IRectangular && 
+                        Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
+
+                    Console.ForegroundColor = DarkGray;
+                    bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
+                    if (inSearchRange) 
+                    {
+                        Console.ForegroundColor = Gray;
+                        Console.BackgroundColor = DarkGray;
+                    }
+
+                    if (thisAsset != null &&
+                        !(thisAsset is INameable && !inSearchRange))
+                    {
+                        if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
+                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
+                        Console.Write(thisAsset.Symbol + " ");
+                    }
+                    else
+                    {
+                        Console.Write("  ");
+                    }
+                    Console.ResetColor();
+                }
+                Console.WriteLine();
+            }
+        }
         public bool Move(IMappable assetToMove, ConsoleKeyInfo input)
         {
             var tempLocation = new Point(assetToMove.Location);
@@ -385,62 +410,38 @@ namespace ProceduralDungeon
                 Point.IsPointOnLineSegment(pathStart, pathEnd, a.Location)).ToList();
         }
 
-        public void Wander(Npc npc)
+        public static void ShowLegend()
         {
-            var validDestinations = _emptyPoints.Where(eP => npc.Location.InRangeOf(eP, 1));
-            npc.Location = validDestinations.RandomElement();
-        }
+            Console.WriteLine("Map Legend:");
 
-        public void MoveToward(Npc npc, Point target)
-        {
-            int getDiff(int coord1, int coord2)
-            {
-                if (coord1 > coord2)
-                {
-                    return 1;
-                }
-                else if (coord1 < coord2)
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            
-            int xDiff = getDiff(target.X, npc.Location.X);
-            int yDiff = getDiff(target.Y, npc.Location.Y);
-            
-            var potentialDestinations = new List<Point>()
-            {
-                new Point(npc.Location.X + xDiff, npc.Location.Y + yDiff),
-                new Point(npc.Location.X, npc.Location.Y + yDiff),
-                new Point(npc.Location.X + xDiff, npc.Location.Y)
-            };
+            Console.ForegroundColor = DarkBlue;
+            Console.Write(Symbols.Player);
+            Console.ForegroundColor = White;
+            Console.WriteLine("  - player character");
 
-            var chosenDestination = potentialDestinations.FirstOrDefault(pD =>
-                // Destination cannot be the same as current location:
-                (pD.X != npc.Location.X || pD.Y != npc.Location.Y) &&
-                // Destination must be an empty point:
-                _emptyPoints.Any(eP => eP.X == pD.X && eP.Y == pD.Y));
-            if (chosenDestination != null) npc.Location = chosenDestination;
-        }
+            Console.WriteLine($"{Symbols.Npc}  - enemy");
+            Console.WriteLine($"{Symbols.Dead}  - dead body");
 
-        public void DropItem(Creature creature, Item itemToDrop)
-        {
-            var validLocations = _emptyPoints.Where(eP => creature.Location.InRangeOf(eP, 1));
-            if (validLocations.Any())
-            {
-                if (creature.RemoveItemFromInventory(itemToDrop))
-                {
-                    AddAsset(itemToDrop, validLocations.RandomElement());
-                }
-                else
-                {
-                    System.Console.WriteLine($"There's nowhere to drop the {itemToDrop.Name}");
-                }
-            }
+            Console.ForegroundColor = DarkYellow;
+            Console.Write(Symbols.Item);
+            Console.ForegroundColor = White;
+            Console.WriteLine("  - item that may be picked up");
+
+            Console.ForegroundColor = DarkYellow;
+            Console.Write(Symbols.Key);
+            Console.ForegroundColor = White;
+            Console.WriteLine("  - key used to open doors");
+
+            Console.ForegroundColor = DarkGray;
+            Console.Write(Symbols.Barrier);
+            Console.ForegroundColor = White;
+            Console.WriteLine("  - wall or other barrier");
+
+            Console.WriteLine($"{Symbols.Door}  - door to access the next floor");
+
+            PressAnyKeyToContinue();
+            Console.ResetColor();
         }
+        
     }
 }
