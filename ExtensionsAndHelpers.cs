@@ -37,11 +37,39 @@ namespace ProceduralDungeon
             }
         }
 
+        public static void ListDistanceAndDirectionFrom(this IEnumerable<IMappable> assets, Point origin)
+        {
+            foreach (var a in assets)
+            {
+                Console.Write("- ");
+                if (a is INameable) 
+                {
+                    Console.Write((a as INameable).Name);
+                }
+                else
+                {
+                    Console.Write(a.GetType().Name);
+                }
+
+                if (a.Location != null)
+                {
+                    Console.Write($" located {Math.Round(origin.DistanceTo(a.Location)*5)} feet {origin.DirectionTo(a.Location)}");
+                }
+                System.Console.WriteLine();
+            }
+        }
+        
+        public static INameable GetByName(this IEnumerable<INameable> assets, string name)
+        {
+            return assets.FirstOrDefault(a => a.Name.ToLower() == name.ToLower());
+        }
+
         public static IList<T> Clone<T>(this IList<T> listToClone) where T: ICloneable
         {
             return listToClone.Select(item => (T)item.Clone()).ToList();
         }
 
+        
         public static string ToString(this IEnumerable<string> source, string conjunction)
         {
             if (source == null || !source.Any()) return null;
@@ -56,6 +84,7 @@ namespace ProceduralDungeon
             return output;
         }
 
+        
         public static string ToString(this IEnumerable<Point> source, string conjunction)
         {
             return source.Select(p => p.ToString()).ToString("and");

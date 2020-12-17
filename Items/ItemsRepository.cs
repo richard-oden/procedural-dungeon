@@ -11,7 +11,7 @@ namespace ProceduralDungeon
             new Item("Rusty Pickaxe",       10, 5, 
                 "Doesn't seem to be usable anymore, although you could sell it as scrap metal."),
             new Item("Humanoid Skull",      3, 2, 
-                "Hard to tell what race it is. Might be work a little money for the right buyer."),
+                "Hard to tell what race it is. Might be worth a little money for the right buyer."),
             new Item("Leather Scraps",      0.7, 0, 
                 "It may have been part of a fancy purse at some point."),
             new Item("Large Femur",         4, 2, 
@@ -60,7 +60,7 @@ namespace ProceduralDungeon
                 "Each eye socket contains a large ruby, and some of the teeth are replaced with gems. Creepy."),
             new Item("Gold Ingot",         60, 140, 
                 "A gold ingot used in blacksmithing."),
-            new Item("Arane Mannacles",    20, 160, 
+            new Item("Arcane Mannacles",    20, 160, 
                 "A set of steel mannacles inscribed with various glowing runes.")
         };
 

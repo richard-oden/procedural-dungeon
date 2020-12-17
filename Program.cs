@@ -12,6 +12,10 @@ namespace ProceduralDungeon
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             var testMap = new Map(60, 40, 20, 80);
             var testPlayer = new Player(name: "Bill", id: 001, hp: 10, speed: 1);
+            testPlayer.AddItemToInventory(ItemsRepository.CommonMisc.RandomElement());
+            testPlayer.AddItemToInventory(ItemsRepository.UncommonMisc.RandomElement());
+            testPlayer.AddItemToInventory(ItemsRepository.RareMisc.RandomElement());
+            testPlayer.AddItemToInventory(ItemsRepository.VeryRareMisc.RandomElement());
             var testNpcs = new Npc[]
             {
                 new Npc(name: "Giant Rat", id: 002, hp: 10, speed: 1),

@@ -11,6 +11,8 @@ namespace ProceduralDungeon
         public int Width {get; protected set;}
         public int Height {get; protected set;}
         public List<IMappable> Assets {get; protected set;} = new List<IMappable>();
+        public List<Item> Items => (from a in Assets where a is Item select (Item)a).ToList();
+        public List<Creature> Creatures => (from a in Assets where a is Creature select (Creature)a).ToList();
         private List<Tile> _tiles {get; set;} = new List<Tile>();
         private Tile _centralTile {get; set;}
         private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();

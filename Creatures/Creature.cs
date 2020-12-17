@@ -41,6 +41,8 @@ namespace ProceduralDungeon
             if (_currentCarryWeight + itemToAdd.Weight <= _maxCarryWeight)
             {
                 Inventory.Add(itemToAdd);
+                AddToMemory(itemToAdd);
+                itemToAdd.Location = null;
             }
             else
             {
