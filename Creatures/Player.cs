@@ -24,10 +24,10 @@ namespace ProceduralDungeon
             else if (input.Key == M) {}// Open menu
             else if (input.Key == I) ListInventory();
             else if (input.Key == P) PickUpItem(map);
-            else if (input.Key == O) {}// Drop item
+            else if (input.Key == O) DropItem(map);
             else if (input.Key == U) {}// Use item
             else if (input.Key == J) {}// Interact
-            else if (input.Key == F) {}// Attack
+            else if (input.Key == F) Attack(map);// Attack
             else if (input.Key == R) Recall();
             else if (input.Key == T) Describe();
             else if (input.Key == Escape) {}// Quit menu
@@ -89,21 +89,57 @@ namespace ProceduralDungeon
 
         public void PickUpItem(Map map)
         {
-            var validItems = map.Items.Where(i => Location.InRangeOf(i.Location, 1) && _memory.Contains(i));
-            if (validItems.Any())
+            Console.WriteLine("Enter name of item to pick up:");
+            var itemToPickUp = map.Items.GetByName(Console.ReadLine());
+            if (itemToPickUp != null)
             {
-                Console.WriteLine("Enter name of item to pick up:");
-                var itemToPickUp = validItems.GetByName(Console.ReadLine());
-                if (itemToPickUp != null)
+                base.PickUpItem(map, itemToPickUp as Item);
+                System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
+            }
+            else
+            {
+                System.Console.WriteLine($"{Name} could not find the item!");
+            }
+            PressAnyKeyToContinue();
+        }
+        
+        public void DropItem(Map map)
+        {
+            if (Inventory.Any())
+            {
+                System.Console.WriteLine("Enter name of item to drop:");
+                var itemToDrop = Inventory.GetByName(Console.ReadLine());
+                if (itemToDrop != null)
                 {
-                    base.PickUpItem(itemToPickUp as Item);
-                    System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
+                    base.DropItem(map, itemToDrop as Item);
+                    System.Console.WriteLine($"{Name} dropped the {itemToDrop.Name}.");
+                }
+                else
+                {
+                    System.Console.WriteLine($"{Name} could not find the item!");
                 }
             }
             else
             {
-                System.Console.WriteLine("There is nothing to pick up!");
+                System.Console.WriteLine($"{Name} has nothing to drop!");
             }
+            PressAnyKeyToContinue();
+        }
+    
+        public void Attack(Map map)
+        {
+            Console.WriteLine("Enter the name of the creature to attack:");
+            var targets = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange));
+            var target = targets.GetByName(Console.ReadLine());
+            if (target != null)
+            {
+                base.Attack(map, target as Creature);
+            }
+            else
+            {
+                System.Console.WriteLine($"{Name} does not know of the creature or it is out of range!");
+            }
+            PressAnyKeyToContinue();
         }
     }
 }

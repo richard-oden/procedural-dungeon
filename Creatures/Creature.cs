@@ -12,8 +12,12 @@ namespace ProceduralDungeon
         // public AbilityScores AbilityScores {get; protected set;}
         protected int _maxHp {get; set;}
         protected int _currentHp {get; set;}
-        protected int _attackModifier {get; set;}
-        protected Die[] _damageDice {get; set;}
+        protected int _attackModifier {get; set;} = 0;
+        protected int _attackRange {get; set;} = 1;
+        public int ArmorClass {get; protected set;} = 10;
+        public int DamageResistance {get; protected set;} = 0;
+        protected Die[] _damageDice {get; set;} = new[]{Dice.D6};
+        protected int _damageModifier {get; set;} = 0;
         protected int _speed {get; set;}
         public int SearchRange {get; set;}
         protected double _maxCarryWeight {get; set;}
@@ -34,6 +38,14 @@ namespace ProceduralDungeon
             if (location != null) Location = location;
             if (inventory != null) Inventory = inventory;
             if (memory != null) _memory = memory;
+
+            // Placeholders:
+            _attackModifier = 0;
+            _attackRange = 1;
+            ArmorClass = 10;
+            DamageResistance = 0;
+            _damageDice = new[]{Dice.D8};
+            _damageModifier = 2;
         }
 
         public void AddItemToInventory(Item itemToAdd)
@@ -50,10 +62,11 @@ namespace ProceduralDungeon
             }
         }
 
-        public virtual void PickUpItem(Item itemToPickUp)
+        public virtual void PickUpItem(Map map, Item itemToPickUp)
         {
-            if (Location.InRangeOf(itemToPickUp.Location, 1))
+            if (validateTargetOnMap(map, itemToPickUp, 1))
             {
+                map.RemoveAsset(itemToPickUp);
                 AddItemToInventory(itemToPickUp);
             }
             else
@@ -114,8 +127,10 @@ namespace ProceduralDungeon
             var foundAssets = GetVisibleAssets(map).Where(a => a is INameable);
             foreach (var fA in foundAssets) AddToMemory(fA as INameable);
         }
+        
         public void ChangeHp(int amount)
         {
+            if (amount < 0) amount += DamageResistance;
             if (_currentHp + amount > _maxHp)
             {
                 _currentHp = _maxHp;
@@ -129,7 +144,67 @@ namespace ProceduralDungeon
                 _currentHp += amount;
             }
         }
-    
+        
+        protected bool validateTargetOnMap(Map map, IMappable target, int range)
+        {
+            string targetName = target is INameable ? (target as INameable).Name : target.GetType().Name;
+            // If target is INameable, it must be within memory:
+            if ((target is INameable && _memory.Contains(target as INameable)) ||
+                !(target is INameable))
+            {
+                if (GetVisibleAssets(map).Contains(target))
+                {
+                    if (Location.InRangeOf(target.Location, _attackRange))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"{targetName} is out of {Name}'s reach!");
+                    }
+                }
+                else
+                {
+                    System.Console.WriteLine($"{Name} cannot see {targetName}!");
+                }
+            }
+            else
+            {
+                System.Console.WriteLine($"{Name} does not know know about the {targetName}!");
+            }
+            return false;
+        }
+        
+        public bool AttackRoll(Creature targetCreature)
+        {
+            int attackResult = Dice.D20.Roll(1, _attackModifier, true);
+            return attackResult >= targetCreature.ArmorClass;
+        }
 
+        public int DamageRoll()
+        {
+            int damageSum = 0;
+            foreach (var die in _damageDice) damageSum += die.Roll(1, _damageModifier, true);
+            return damageSum;
+        }
+
+        public void Attack(Map map, Creature targetCreature)
+        {
+            if (validateTargetOnMap(map, targetCreature, _attackRange))
+            {
+                System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
+                if (AttackRoll(targetCreature))
+                {
+                    int damage = DamageRoll();
+                    System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
+                    targetCreature.ChangeHp(-damage);
+                    targetCreature.AddToMemory(this);
+                }
+                else
+                {
+                    System.Console.WriteLine($"{Name} missed the attack!");
+                }
+            }
+        }
     }
 }
