@@ -90,10 +90,15 @@ namespace ProceduralDungeon
             return source.Select(p => p.ToString()).ToString("and");
         }
 
+        // public static string ToString(this EquipmentSlot slot)
+        // {
+        //     return Enum.GetName(typeof(EquipmentSlot), slot).FromTitleOrCamelCase();
+        // }
         public static string FromTitleOrCamelCase(this string source)
         {
             string output = Regex.Replace(source, @"([A-Z])", " " + "$1").ToLower();
             output = Regex.Replace(output, @"_", "");
+            if (output[0] == ' ') output.ToCharArray().ToList().RemoveAt(0);
             return output;
         }
 

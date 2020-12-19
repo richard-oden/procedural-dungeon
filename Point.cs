@@ -187,6 +187,7 @@ namespace ProceduralDungeon
             X += point.X;
             Y += point.Y;
         }
+        
         public string DirectionTo(Point that)
         {
             string output = "";
@@ -197,6 +198,7 @@ namespace ProceduralDungeon
             return output;
         }
 
+        
         public override string ToString()
         {
             return $"({X}, {Y})";

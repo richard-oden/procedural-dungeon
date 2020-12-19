@@ -242,9 +242,16 @@ namespace ProceduralDungeon
 
         public void AddAsset(IMappable asset, Point start)
         {
-            asset.Location.X = start.X;
-            asset.Location.Y = start.Y;
-            Assets.Add(asset);
+            if (!(asset is Barrier))
+            {
+                asset.Location.X = start.X;
+                asset.Location.Y = start.Y;
+                Assets.Add(asset);
+            }
+            else
+            {
+                throw new Exception("ProceduralDungeon.Map.AddAsset(IMappable asset, Point start) cannot be used with barriers.");
+            }
         }
 
         public void AddAssets(List<IMappable> assets)
@@ -262,6 +269,12 @@ namespace ProceduralDungeon
             AddAssets(assets);
         }
 
+        public void AddItem(Item itemToAdd, Point start)
+        {
+            itemToAdd.Location = new Point(start);
+            Assets.Add(itemToAdd);
+        }
+        
         public void AddTile(Tile tileToAdd)
         {
             AddAssets(tileToAdd.Assets);

@@ -1,6 +1,6 @@
 namespace ProceduralDungeon
 {
-    public interface Equippable
+    public interface IEquippable
     {
         EquipmentSlot Slot {get;}
     }

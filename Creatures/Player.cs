@@ -25,7 +25,8 @@ namespace ProceduralDungeon
             else if (input.Key == I) ListInventory();
             else if (input.Key == P) PickUpItem(map);
             else if (input.Key == O) DropItem(map);
-            else if (input.Key == U) {}// Use item
+            else if (input.Key == U) EquipItem();
+            else if (input.Key == Y) UnequipItem();
             else if (input.Key == J) {}// Interact
             else if (input.Key == F) Attack(map);// Attack
             else if (input.Key == R) Recall();
@@ -81,6 +82,10 @@ namespace ProceduralDungeon
             foreach(var i in Inventory)
             {
                 Console.WriteLine(i.GetDetails());
+                if (i is IEquippable && EquippedItems.Contains(i as IEquippable))
+                {
+                    Console.WriteLine($"Currently equipped:{(i as IEquippable).Slot.ToString().FromTitleOrCamelCase()} slot");
+                }
                 if (Inventory.IndexOf(i) != Inventory.Count -1) Console.WriteLine("---");
             }
             Console.WriteLine();
@@ -94,7 +99,6 @@ namespace ProceduralDungeon
             if (itemToPickUp != null)
             {
                 base.PickUpItem(map, itemToPickUp as Item);
-                System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
             }
             else
             {
@@ -112,7 +116,6 @@ namespace ProceduralDungeon
                 if (itemToDrop != null)
                 {
                     base.DropItem(map, itemToDrop as Item);
-                    System.Console.WriteLine($"{Name} dropped the {itemToDrop.Name}.");
                 }
                 else
                 {
@@ -126,6 +129,59 @@ namespace ProceduralDungeon
             PressAnyKeyToContinue();
         }
     
+        public void EquipItem()
+        {
+            if (Inventory.Any())
+            {
+                System.Console.WriteLine("Enter name of item to equip:");
+                var itemToEquip = _memory.Where(a => 
+                    a is IEquippable && !EquippedItems.Contains(a as IEquippable))
+                    .GetByName(Console.ReadLine());
+                if (itemToEquip != null)
+                {
+                    base.EquipItem(itemToEquip as Item);
+                }
+                else
+                {
+                    System.Console.WriteLine($"Invalid item! It might not exist, might be unequippable, might not be in memory, or might already be equipped.");
+                }
+            }
+            else
+            {
+                System.Console.WriteLine($"{Name} has nothing to equip!");
+            }
+            PressAnyKeyToContinue();
+        }
+        
+        public void UnequipItem()
+        {
+            if (EquippedItems.Any())
+            {
+                System.Console.WriteLine("Enter name of item to unequip:");
+                var itemToEquip = _memory.GetByName(Console.ReadLine());
+                if (itemToEquip != null)
+                {
+                    if (itemToEquip is Item)
+                    {
+                        base.UnequipItem(itemToEquip as Item);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"{itemToEquip.Name} is not an item!");
+                    }
+                }
+                else
+                {
+                    System.Console.WriteLine($"{Name} could not find the item!");
+                }
+            }
+            else
+            {
+                System.Console.WriteLine($"{Name} has nothing equipped!");
+            }
+            PressAnyKeyToContinue();
+        }
+        
         public void Attack(Map map)
         {
             Console.WriteLine("Enter the name of the creature to attack:");

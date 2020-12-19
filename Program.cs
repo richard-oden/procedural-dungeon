@@ -13,9 +13,9 @@ namespace ProceduralDungeon
             var testMap = new Map(60, 40, 20, 80);
             var testPlayer = new Player(name: "Bill", id: 001, hp: 10, speed: 1);
             testPlayer.AddItemToInventory(ItemsRepository.CommonMisc.RandomElement());
-            testPlayer.AddItemToInventory(ItemsRepository.UncommonMisc.RandomElement());
-            testPlayer.AddItemToInventory(ItemsRepository.RareMisc.RandomElement());
-            testPlayer.AddItemToInventory(ItemsRepository.VeryRareMisc.RandomElement());
+            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[0]);
+            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[1]);
+            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[2]);
             var testNpcs = new Npc[]
             {
                 new Npc(name: "Giant Rat", id: 002, hp: 10, speed: 1),
@@ -36,13 +36,16 @@ namespace ProceduralDungeon
                 testPlayer.ParseInput(testMap, input);
                 foreach (var npc in testNpcs) 
                 {
-                    if (testMap.GetPathObstructions(npc.Location, testPlayer.Location).Any())
+                    if (!npc.IsDead)
                     {
-                        npc.Wander(testMap);
-                    }
-                    else
-                    {
-                        npc.MoveToward(testMap, testPlayer.Location);
+                        if (testMap.GetPathObstructions(npc.Location, testPlayer.Location).Any())
+                        {
+                            npc.Wander(testMap);
+                        }
+                        else
+                        {
+                            npc.MoveToward(testMap, testPlayer.Location);
+                        }
                     }
                 }
                 Console.Clear();
