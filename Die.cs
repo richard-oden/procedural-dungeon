@@ -32,7 +32,7 @@ namespace ProceduralDungeon
 
         public int Roll(int multiplier, bool printOutput)
         {
-            string output = $"Rolling {multiplier}d{NumSides}: ";
+            string output = $"Rolling {multiplier}{this}: ";
             int total = 0;
             for (int i = 0; i < multiplier; i++) 
             {   
@@ -55,7 +55,7 @@ namespace ProceduralDungeon
 
         public int Roll(int multiplier, int modifier, bool printOutput)
         {
-            string output = $"Rolling {multiplier}d{NumSides}+{modifier}: ";
+            string output = $"Rolling {multiplier}{this}+{modifier}: ";
             int total = 0;
             for (int i = 0; i < multiplier; i++) 
             {   
@@ -91,7 +91,7 @@ namespace ProceduralDungeon
         // Useful when access to natural roll is needed:
         public Result RollGetResult(int multiplier = 1, int modifier = 0, bool printOutput = false)
         {
-            string output = $"Rolling {multiplier}d{NumSides}+{modifier}: ";
+            string output = $"Rolling {multiplier}{this}+{modifier}: ";
             var naturalResults = new List<int>();
             int total = 0;
             for (int i = 0; i < multiplier; i++) 
@@ -109,6 +109,11 @@ namespace ProceduralDungeon
                 Console.WriteLine(output);
             }
             return new Result(naturalResults, total, modifier);         
+        }
+
+        public override string ToString()
+        {
+            return $"d{NumSides}";
         }
     }
 }

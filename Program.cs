@@ -14,7 +14,10 @@ namespace ProceduralDungeon
             var testPlayer = new Player(name: "Bill", id: 001, hp: 10, speed: 1);
             testPlayer.AddItemToInventory(ItemsRepository.CommonMisc.RandomElement());
             testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[0]);
-            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[3]);
+            testPlayer.AddItemToInventory(ItemsRepository.VeryRareWeapons[0]);
+            testPlayer.AddItemToInventory(ItemsRepository.VeryRareArmor[0]);
+            testPlayer.AddItemToInventory(ItemsRepository.CommonArmor[0]);
+            testPlayer.AddItemToInventory(ItemsRepository.CommonArmor[1]);
             testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[2]);
             var testNpcs = new Npc[]
             {

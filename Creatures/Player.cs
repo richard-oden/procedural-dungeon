@@ -127,7 +127,7 @@ namespace ProceduralDungeon
                 Console.WriteLine(i.GetDetails());
                 if (i is IEquippable && EquippedItems.Contains(i as IEquippable))
                 {
-                    Console.WriteLine($"Currently equipped:{(i as IEquippable).Slot.ToString().FromTitleOrCamelCase()} slot");
+                    Console.WriteLine("(Currently Equipped)");
                 }
                 if (Inventory.IndexOf(i) != Inventory.Count -1) Console.WriteLine("---");
             }

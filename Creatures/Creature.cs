@@ -12,12 +12,12 @@ namespace ProceduralDungeon
         // public AbilityScores AbilityScores {get; protected set;}
         protected int _maxHp {get; set;}
         protected int _currentHp {get; set;}
-        protected int _attackModifier {get; set;} = 0;
-        protected int _attackRange {get; set;} = 1;
-        public int ArmorClass {get; protected set;} = 10;
-        public int DamageResistance {get; protected set;} = 0;
+        protected virtual int _attackModifier {get; set;} = 0;
+        protected virtual int _attackRange {get; set;} = 1;
+        public int ArmorClass => 8 + EquippedArmor.Sum(eA => eA.ArmorClassBonus);
+        public virtual int DamageResistance {get; protected set;} = 0;
         protected Die[] _damageDice {get; set;} = new Die[] {Dice.D3};
-        protected int _damageModifier {get; set;} = 0;
+        protected virtual int _damageModifier {get; set;} = 1;
         protected int _speed {get; set;}
         public int SearchRange {get; set;}
         protected double _maxCarryWeight {get; set;}
@@ -25,6 +25,7 @@ namespace ProceduralDungeon
         public List<Item> Inventory {get; protected set;} = new List<Item>();
         public List<IEquippable> EquippedItems {get; protected set;} = new List<IEquippable>();
         public List<Weapon> EquippedWeapons => EquippedItems.Where(i => i is Weapon).Cast<Weapon>().ToList();
+        public List<Armor> EquippedArmor => EquippedItems.Where(i => i is Armor).Cast<Armor>().ToList();
         protected List<INameable> _memory {get; set;} = new List<INameable>();
         public Point Location {get; set;}
         public virtual char Symbol {get; protected set;} = Symbols.Player;
@@ -43,13 +44,6 @@ namespace ProceduralDungeon
             if (location != null) Location = location;
             if (inventory != null) Inventory = inventory;
             if (memory != null) _memory = memory;
-
-            // Placeholders:
-            _attackModifier = 0;
-            _attackRange = 1;
-            ArmorClass = 10;
-            DamageResistance = 0;
-            _damageModifier = 2;
         }
 
         public void AddItemToInventory(Item itemToAdd)

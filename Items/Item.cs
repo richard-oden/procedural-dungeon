@@ -33,7 +33,7 @@ namespace ProceduralDungeon
             Location = itemToClone.Location;
         }
 
-        public string GetDetails()
+        public virtual string GetDetails()
         {
             return $"{Name} - {Weight}lbs - {Value} gold\n{Description}";
         }

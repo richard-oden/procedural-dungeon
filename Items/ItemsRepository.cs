@@ -78,7 +78,7 @@ namespace ProceduralDungeon
                 "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
         };
 
-        public static readonly Item[] CommonWeapons = new Weapon[]
+        public static readonly Weapon[] CommonWeapons = new Weapon[]
         {
             new Weapon("Worn Iron Waraxe",          weight: 20, value: 25,
                 "This old iron axe has seen a lot of battle.",
@@ -95,6 +95,31 @@ namespace ProceduralDungeon
             new Weapon("Crude Shortbow",            weight: 4, value: 30,
                 "It's not the most well-made bow, but should get the job done.",
                 EquipmentSlot.TwoHanded, new Die[]{D4, D4}, range: 8),
+        };
+
+        public static readonly Weapon[] VeryRareWeapons = new Weapon[]
+        {
+            new Weapon("Staff of The Destroyer",    weight: 10, value: 12000,
+                "This fabled implement has laid waste to armies and destroyed nations. It also looks pretty.",
+                EquipmentSlot.TwoHanded, new Die[]{D12, D12, D12, D12, D8, D8, D4, D4, D4},
+                attackMod: 8, damageMod: 8, range: 100)
+        };
+
+        public static readonly Armor[] CommonArmor = new Armor[]
+        {
+            new Armor("Shabby Leather Vest",        weight: 20, value: 15,
+                "It might stop a few spitballs.",
+                EquipmentSlot.Chest, acBonus: 1),
+            new Armor("Battered Wooden Shield",     weight: 8, value: 10,
+                "This would also make a very rustic serving platter.",
+                EquipmentSlot.OneHanded, acBonus: 1),
+        };
+
+        public static readonly Armor[] VeryRareArmor = new Armor[]
+        {
+            new Armor("Mithril Chestplate",        weight: 18, value: 10000,
+                "Although lightweight, it will stop all but the mightiest of blows.",
+                EquipmentSlot.Chest, acBonus: 10, damageResistance: 10),
         };
     }
 }

@@ -86,11 +86,24 @@ namespace ProceduralDungeon
         }
 
         
-        public static string ToString(this IEnumerable<Point> source, string conjunction)
+        public static string ToString(this IEnumerable<Point> points, string conjunction)
         {
-            return source.Select(p => p.ToString()).ToString("and");
+            return points.Select(p => p.ToString()).ToString("and");
         }
 
+        public static string DiceToString(this IEnumerable<Die> dice)
+        {
+            var groupedDice = dice.GroupBy(d => d.NumSides).ToList();
+            var output = "";
+            foreach (var group in groupedDice)
+            {
+                if (group.Key > 1) output += group.Count();
+                output += group.First().ToString();
+                if (groupedDice.IndexOf(group) != groupedDice.Count - 1) output += " + ";
+            }
+            return output;
+        }
+        
         public static string FromTitleOrCamelCase(this string source)
         {
             string output = Regex.Replace(source, @"([A-Z])", " " + "$1").ToLower();
