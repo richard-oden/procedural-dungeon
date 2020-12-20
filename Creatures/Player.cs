@@ -14,6 +14,7 @@ namespace ProceduralDungeon
         {
             SearchRange = 8;
             _maxCarryWeight = 100;
+            Team = 0;
         }
 
         public bool ParseInput(Map map, ConsoleKeyInfo input)
@@ -21,19 +22,61 @@ namespace ProceduralDungeon
             if (new[]{Q, W, E, A, D, Z, X, C}.Contains(input.Key)) map.Move(this, input);
             else if (input.Key == S) Search(map);
             else if (input.Key == L) Map.ShowLegend();
-            else if (input.Key == M) {}// Open menu
+            else if (input.Key == H) ShowHotkeys();
+            else if (input.Key == Tab) {}// Switch to command input
             else if (input.Key == I) ListInventory();
             else if (input.Key == P) PickUpItem(map);
             else if (input.Key == O) DropItem(map);
             else if (input.Key == U) EquipItem();
             else if (input.Key == Y) UnequipItem();
             else if (input.Key == J) {}// Interact
-            else if (input.Key == F) Attack(map);// Attack
+            else if (input.Key == F) Attack(map);
             else if (input.Key == R) Recall();
             else if (input.Key == T) Describe();
             else if (input.Key == Escape) {}// Quit menu
-            else System.Console.WriteLine("Command not recognized. Press 'M' to open the menu for a full list of commands.");
+            else System.Console.WriteLine("Hotkey not recognized. Press 'H' for a full list of hotkeys.");
             return true;
+        }
+
+        public void ShowHotkeys()
+        {
+            Console.WriteLine("All hotkeys:");
+            Console.WriteLine("- Movement keys: Q, W, E, A, D, Z, X, C");
+            Console.WriteLine("- Map legend: L");
+            Console.WriteLine("- Search: S");
+            Console.WriteLine("- Show memory: R");
+            Console.WriteLine("- Describe: T");
+            Console.WriteLine("- Inventory: I");
+            Console.WriteLine("- Pick up item: P");
+            Console.WriteLine("- Drop item: O");
+            Console.WriteLine("- Equip item: U");
+            Console.WriteLine("- Unequip item: Y");
+            Console.WriteLine("- Interact: J");
+            Console.WriteLine("- Attack: F");
+            Console.WriteLine("- Show all hotkeys: H");
+            Console.WriteLine("- Toggle between hotkey and command input: Tab");
+            Console.WriteLine("- Quit: Escape");
+            PressAnyKeyToContinue();
+        }
+        
+        public void ShowCommands()
+        {
+            Console.WriteLine("- Movement: move [direction] (e.g., n, s, se, nw, etc");
+            Console.WriteLine("- Map legend: legend");
+            Console.WriteLine("- Search: search");
+            Console.WriteLine("- Show memory: recall");
+            Console.WriteLine("- Describe: describe [target]");
+            Console.WriteLine("- Inventory: inventory");
+            Console.WriteLine("- Pick up item: pick up [item]");
+            Console.WriteLine("- Drop item: drop [item]");
+            Console.WriteLine("- Equip item: equip [item]");
+            Console.WriteLine("- Unequip item: unequip [item]");
+            Console.WriteLine("- Interact: interact [target]");
+            Console.WriteLine("- Attack: attack [creature]");
+            Console.WriteLine("- Show all commands: help");
+            Console.WriteLine("- Toggle between hotkey and command input: switch");
+            Console.WriteLine("- Quit: quit");
+            PressAnyKeyToContinue();
         }
 
         public override void Search(Map map)

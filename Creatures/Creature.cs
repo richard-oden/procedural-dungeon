@@ -28,6 +28,7 @@ namespace ProceduralDungeon
         protected List<INameable> _memory {get; set;} = new List<INameable>();
         public Point Location {get; set;}
         public virtual char Symbol {get; protected set;} = Symbols.Player;
+        public int Team {get; protected set;}
         public bool IsDead => _currentHp <= 0;
         public virtual string Description {get; protected set;}
 
@@ -301,20 +302,37 @@ namespace ProceduralDungeon
         {
             if (validateTargetOnMap(map, targetCreature, _attackRange))
             {
-                if (EquippedWeapons.Any())
+                if (!targetCreature.IsDead)
                 {
-                    var weaponHits = new Dictionary<Weapon, bool>();
-                    foreach (var weapon in EquippedWeapons)
+                    if (EquippedWeapons.Any())
                     {
-                        targetCreature.AddToMemory(weapon);
-                        weaponHits.Add(weapon, AttackRoll(targetCreature, weapon));
-                    }
-                    foreach (var hit in weaponHits)
-                    {
-                        System.Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {hit.Key.Name}!");
-                        if (hit.Value)
+                        var weaponHits = new Dictionary<Weapon, bool>();
+                        foreach (var weapon in EquippedWeapons)
                         {
-                            int damage = DamageRoll(hit.Key);
+                            System.Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {weapon.Name}!");
+                            targetCreature.AddToMemory(weapon);
+                            weaponHits.Add(weapon, AttackRoll(targetCreature, weapon));
+                        }
+                        foreach (var hit in weaponHits)
+                        {
+                            if (hit.Value)
+                            {
+                                int damage = DamageRoll(hit.Key);
+                                System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
+                                targetCreature.ChangeHp(-damage);
+                            }
+                            else
+                            {
+                                System.Console.WriteLine($"{Name} missed the attack!");
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
+                        if (AttackRoll(targetCreature))
+                        {
+                            int damage = DamageRoll();
                             System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
                             targetCreature.ChangeHp(-damage);
                         }
@@ -323,23 +341,13 @@ namespace ProceduralDungeon
                             System.Console.WriteLine($"{Name} missed the attack!");
                         }
                     }
+                    targetCreature.AddToMemory(this);
                 }
-                else 
+                else
                 {
-                    System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
-                    if (AttackRoll(targetCreature))
-                    {
-                        int damage = DamageRoll();
-                        System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
-                        targetCreature.ChangeHp(-damage);
-                    }
-                    else
-                    {
-                        System.Console.WriteLine($"{Name} missed the attack!");
-                    }
+                    System.Console.WriteLine($"{targetCreature.Name} is already dead.");
                 }
             }
-            targetCreature.AddToMemory(this);
         }
     }
 }

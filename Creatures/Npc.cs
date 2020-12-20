@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static ProceduralDungeon.ExtensionsAndHelpers;
 
 namespace ProceduralDungeon
 {
@@ -10,7 +11,10 @@ namespace ProceduralDungeon
         public Npc(string name, int id, int hp, int speed, Point location = null,
             List<Item> inventory = null, List<INameable> memory = null) :
             base (name, id, hp, speed, location, inventory, memory)
-        {}
+        {
+            Team = 1;
+            SearchRange = 5;
+        }
 
         public void Wander(Map map)
         {
@@ -52,6 +56,42 @@ namespace ProceduralDungeon
                 // Destination must be an empty point:
                 map.EmptyPoints.Any(eP => eP.X == pD.X && eP.Y == pD.Y));
             if (chosenDestination != null) Location = chosenDestination;
+        }
+    
+        public virtual void Act(Map map)
+        {
+            if (!IsDead)
+            {
+                var visibleEnemies = GetVisibleAssets(map).Where(a => a is Creature)
+                    .Cast<Creature>().Where(c => c.Team != this.Team);
+                if (visibleEnemies.Any())
+                {
+                    var knownVisibleEnemies = visibleEnemies.Where(vE => _memory.Contains(vE));
+                    if (knownVisibleEnemies.Any())
+                    {
+                        var attackTarget = knownVisibleEnemies.RandomElement();
+                        if (Location.InRangeOf(attackTarget.Location, _attackRange))
+                        {
+                            Attack(map, attackTarget);
+                            PressAnyKeyToContinue();
+                        }
+                        else
+                        {
+                            MoveToward(map, attackTarget.Location);
+                        }
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"{Name} has spotted something. It's searching...");
+                        PressAnyKeyToContinue();
+                        Search(map);
+                    }
+                }
+                else
+                {
+                    Wander(map);
+                }
+            }
         }
     }
 

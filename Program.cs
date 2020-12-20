@@ -14,7 +14,7 @@ namespace ProceduralDungeon
             var testPlayer = new Player(name: "Bill", id: 001, hp: 10, speed: 1);
             testPlayer.AddItemToInventory(ItemsRepository.CommonMisc.RandomElement());
             testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[0]);
-            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[1]);
+            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[3]);
             testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[2]);
             var testNpcs = new Npc[]
             {
@@ -34,35 +34,9 @@ namespace ProceduralDungeon
                 var input = Console.ReadKey();
                 System.Console.WriteLine();
                 testPlayer.ParseInput(testMap, input);
-                foreach (var npc in testNpcs) 
-                {
-                    if (!npc.IsDead)
-                    {
-                        if (testMap.GetPathObstructions(npc.Location, testPlayer.Location).Any())
-                        {
-                            npc.Wander(testMap);
-                        }
-                        else
-                        {
-                            npc.MoveToward(testMap, testPlayer.Location);
-                        }
-                    }
-                }
+                foreach (var npc in testNpcs) npc.Act(testMap);
                 Console.Clear();
             }
-
-            // var m = new Map(30, 10);
-            // var r = new Rectangle(new Point(5,5), 10, 0);
-            // var p1 = new Point(10, 3);
-            // var p2 = new Point(5, 4);
-            // m.AddAssets(new List<IMappable>(){new Barrier(r), new Wall(p1), new Wall(p2)});
-            // System.Console.WriteLine($"{r.NeCorner}, {r.NwCorner}, {r.SeCorner}, {r.SwCorner}");
-            // // System.Console.WriteLine(Point.DoLinesIntersect(r.NwCorner, r.SwCorner, p1, p2));
-            // // System.Console.WriteLine(Point.DoLinesIntersect(r.NwCorner, r.NeCorner, p1, p2));
-            // // System.Console.WriteLine(Point.DoLinesIntersect(r.SeCorner, r.NeCorner, p1, p2));
-            // // System.Console.WriteLine(Point.DoLinesIntersect(r.SeCorner, r.SwCorner, p1, p2));
-            // System.Console.WriteLine(m.GetPathObstructions(p1, p2).Select(o => o.Location).ToString("and"));
-            // m.PrintMap();
         }
     }
 }
