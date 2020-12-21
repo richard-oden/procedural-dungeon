@@ -90,6 +90,11 @@ namespace ProceduralDungeon
         {
             return points.Select(p => p.ToString()).ToString("and");
         }
+   
+        public static string ListWithIndefiniteArticle(this IEnumerable<INameable> source)
+        {
+            return source.Select(s => $"{s.Name.IndefiniteArticle()} {s.Name}").ToString("and");
+        }
 
         public static string DiceToString(this IEnumerable<Die> dice)
         {
@@ -115,14 +120,20 @@ namespace ProceduralDungeon
         public static string IndefiniteArticle(this string noun)
         {
             return "AEIOUaeiou".IndexOf(noun[0])
-            >= 0 ? "An" : "A";
+            >= 0 ? "an" : "a";
         }
     
-        public static void PressAnyKeyToContinue()
+        public static void WaitForInput()
         {
             Console.Write("Press any key to continue... ");
             Console.ReadKey();
             Console.WriteLine();
+        }
+    
+        public static string Prompt(string prompt)
+        {
+            Console.WriteLine(prompt);
+            return Console.ReadLine();
         }
     }
 }

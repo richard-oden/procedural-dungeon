@@ -6,7 +6,7 @@ namespace ProceduralDungeon
         public double Weight {get; protected set;}
         public int Value {get; protected set;}
         public string Description {get; protected set;}
-        public Point Location {get; set;}
+        public virtual Point Location {get; set;}
         public virtual char Symbol {get; protected set;} = Symbols.Item;
 
         public Item(){}

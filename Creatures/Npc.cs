@@ -8,9 +8,9 @@ namespace ProceduralDungeon
     public class Npc : Creature
     {
         public override char Symbol => IsDead ? Symbols.Dead : Symbols.Npc;
-        public Npc(string name, int id, int hp, int speed, Point location = null,
+        public Npc(string name, int id, int hp, Gender gender = Gender.None, Point location = null,
             List<Item> inventory = null, List<INameable> memory = null) :
-            base (name, id, hp, speed, location, inventory, memory)
+            base (name, id, hp, gender, location, inventory, memory)
         {
             Team = 1;
             SearchRange = 5;
@@ -73,7 +73,7 @@ namespace ProceduralDungeon
                         if (Location.InRangeOf(attackTarget.Location, _attackRange))
                         {
                             Attack(map, attackTarget);
-                            PressAnyKeyToContinue();
+                            WaitForInput();
                         }
                         else
                         {
@@ -83,7 +83,7 @@ namespace ProceduralDungeon
                     else
                     {
                         System.Console.WriteLine($"{Name} has spotted something. It's searching...");
-                        PressAnyKeyToContinue();
+                        WaitForInput();
                         Search(map);
                     }
                 }

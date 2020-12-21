@@ -454,9 +454,8 @@ namespace ProceduralDungeon
 
             Console.WriteLine($"{Symbols.Door}  - door to access the next floor");
 
-            PressAnyKeyToContinue();
+            WaitForInput();
             Console.ResetColor();
         }
-        
     }
 }

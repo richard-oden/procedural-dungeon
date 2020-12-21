@@ -8,9 +8,9 @@ namespace ProceduralDungeon
 {
     public class Player : Creature
     {
-        public Player(string name, int id, int hp, int speed, Point location = null,
+        public Player(string name, int id, int hp, Gender gender = Gender.NonBinary, Point location = null,
             List<Item> inventory = null, List<INameable> memory = null) :
-            base (name, id, hp, speed, location, inventory, memory)
+            base (name, id, hp, gender, location, inventory, memory)
         {
             SearchRange = 8;
             _maxCarryWeight = 100;
@@ -29,7 +29,7 @@ namespace ProceduralDungeon
             else if (input.Key == O) DropItem(map);
             else if (input.Key == U) EquipItem();
             else if (input.Key == Y) UnequipItem();
-            else if (input.Key == J) {}// Interact
+            else if (input.Key == J) Interact();
             else if (input.Key == F) Attack(map);
             else if (input.Key == R) Recall();
             else if (input.Key == T) Describe();
@@ -56,7 +56,7 @@ namespace ProceduralDungeon
             Console.WriteLine("- Show all hotkeys: H");
             Console.WriteLine("- Toggle between hotkey and command input: Tab");
             Console.WriteLine("- Quit: Escape");
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
         
         public void ShowCommands()
@@ -76,7 +76,7 @@ namespace ProceduralDungeon
             Console.WriteLine("- Show all commands: help");
             Console.WriteLine("- Toggle between hotkey and command input: switch");
             Console.WriteLine("- Quit: quit");
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
 
         public override void Search(Map map)
@@ -92,7 +92,7 @@ namespace ProceduralDungeon
                 foundAssets.ListDistanceAndDirectionFrom(Location);
                 foreach (var fA in foundAssets.Where(fA => fA is INameable)) AddToMemory(fA as INameable);
             }
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
     
         public void Recall()
@@ -100,24 +100,41 @@ namespace ProceduralDungeon
             System.Console.WriteLine($"{Name}'s memory:");
             var convertedMemory = from a in _memory where a is IMappable select (a as IMappable);
             convertedMemory.ListDistanceAndDirectionFrom(Location);
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
     
         public void Describe()
         {
-            Console.WriteLine("Enter the name of the thing to describe:");
-            var thingToDescribe = _memory.GetByName(Console.ReadLine());
+            var input = Prompt("Enter the name of the thing to describe:");
+
+            INameable thingToDescribe = input.ToLower() == Name.ToLower() ? this : _memory.GetByName(input);
+
             if (thingToDescribe != null && thingToDescribe is IDescribable)
             {
                 System.Console.WriteLine((thingToDescribe as IDescribable).Description);
             }
             else
             {
-                System.Console.WriteLine("Hmmm. That doesn't ring any bells.");
+                System.Console.WriteLine($"Hmmm. {input} doesn't ring any bells.");
             }
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
     
+        public void Interact()
+        {
+            var input = Prompt("Enter the name of the thing to interact with:");
+            var thingToInteractWith = _memory.GetByName(input);
+            if (thingToInteractWith != null && thingToInteractWith is IInteractable)
+            {
+                base.Interact(thingToInteractWith as IInteractable);
+            }
+            else
+            {
+                System.Console.WriteLine($"Hmmm. {input} doesn't ring any bells.");
+            }
+            WaitForInput();
+        }
+        
         public void ListInventory()
         {
             System.Console.WriteLine($"{Name}'s inventory:");
@@ -132,76 +149,76 @@ namespace ProceduralDungeon
                 if (Inventory.IndexOf(i) != Inventory.Count -1) Console.WriteLine("---");
             }
             Console.WriteLine();
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
 
         public void PickUpItem(Map map)
         {
-            Console.WriteLine("Enter name of item to pick up:");
-            var itemToPickUp = map.Items.GetByName(Console.ReadLine());
+            var input = Prompt("Enter name of item to pick up:");
+            var itemToPickUp = map.Items.GetByName(input);
             if (itemToPickUp != null)
             {
                 base.PickUpItem(map, itemToPickUp as Item);
             }
             else
             {
-                System.Console.WriteLine($"{Name} could not find the item!");
+                System.Console.WriteLine($"{Name} could not find the {input}!");
             }
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
         
         public void DropItem(Map map)
         {
             if (Inventory.Any())
             {
-                System.Console.WriteLine("Enter name of item to drop:");
-                var itemToDrop = Inventory.GetByName(Console.ReadLine());
+                var input = Prompt("Enter name of item to drop:");
+                var itemToDrop = Inventory.GetByName(input);
                 if (itemToDrop != null)
                 {
                     base.DropItem(map, itemToDrop as Item);
                 }
                 else
                 {
-                    System.Console.WriteLine($"{Name} could not find the item!");
+                    System.Console.WriteLine($"{Name} could not find the {input}!");
                 }
             }
             else
             {
                 System.Console.WriteLine($"{Name} has nothing to drop!");
             }
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
     
         public void EquipItem()
         {
             if (Inventory.Any())
             {
-                System.Console.WriteLine("Enter name of item to equip:");
+                var input = Prompt("Enter name of item to equip:");
                 var itemToEquip = _memory.Where(a => 
                     a is IEquippable && !EquippedItems.Contains(a as IEquippable))
-                    .GetByName(Console.ReadLine());
+                    .GetByName(input);
                 if (itemToEquip != null)
                 {
                     base.EquipItem(itemToEquip as Item);
                 }
                 else
                 {
-                    System.Console.WriteLine($"Invalid item! It might not exist, might be unequippable, might not be in memory, or might already be equipped.");
+                    System.Console.WriteLine($"{Name} could not equip the {input}.");
                 }
             }
             else
             {
                 System.Console.WriteLine($"{Name} has nothing to equip!");
             }
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
         
         public void UnequipItem()
         {
             if (EquippedItems.Any())
             {
-                System.Console.WriteLine("Enter name of item to unequip:");
-                var itemToEquip = _memory.GetByName(Console.ReadLine());
+                var input = Prompt("Enter name of item to unequip:");
+                var itemToEquip = _memory.GetByName(input);
                 if (itemToEquip != null)
                 {
                     if (itemToEquip is Item)
@@ -215,21 +232,21 @@ namespace ProceduralDungeon
                 }
                 else
                 {
-                    System.Console.WriteLine($"{Name} could not find the item!");
+                    System.Console.WriteLine($"{Name} could not find the {input}!");
                 }
             }
             else
             {
                 System.Console.WriteLine($"{Name} has nothing equipped!");
             }
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
         
         public void Attack(Map map)
         {
-            Console.WriteLine("Enter the name of the creature to attack:");
+            var input = Prompt("Enter the name of the creature to attack:");
             var targets = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange));
-            var target = targets.GetByName(Console.ReadLine());
+            var target = targets.GetByName(input);
             if (target != null)
             {
                 base.Attack(map, target as Creature);
@@ -238,7 +255,7 @@ namespace ProceduralDungeon
             {
                 System.Console.WriteLine($"{Name} does not know of the creature or it is out of range!");
             }
-            PressAnyKeyToContinue();
+            WaitForInput();
         }
     }
 }

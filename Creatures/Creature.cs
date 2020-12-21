@@ -7,9 +7,19 @@ namespace ProceduralDungeon
     public abstract class Creature : IMappable, INameable, IDescribable
     {
         public string Name {get; protected set;}
+        public Gender Gender {get; protected set;}
+        public string[] Pronouns
+        {
+            get
+            {
+                if (Gender == Gender.Male) return new[] {"He", "Him", "His"};
+                else if (Gender == Gender.Female) return new[] {"She", "Her", "Her"};
+                else if (Gender == Gender.NonBinary) return new[] {"They", "Them", "Their"};
+                else if (Gender == Gender.None) return new[] {"It", "It", "Its"};
+                else throw new Exception("Invalid gender. Unable to determine pronouns.");
+            }
+        } 
         public int Id {get; protected set;}
-        // public Gender Gender {get; protected set;}
-        // public AbilityScores AbilityScores {get; protected set;}
         protected int _maxHp {get; set;}
         protected int _currentHp {get; set;}
         protected virtual int _attackModifier {get; set;} = 0;
@@ -18,7 +28,6 @@ namespace ProceduralDungeon
         public virtual int DamageResistance {get; protected set;} = 0;
         protected Die[] _damageDice {get; set;} = new Die[] {Dice.D3};
         protected virtual int _damageModifier {get; set;} = 1;
-        protected int _speed {get; set;}
         public int SearchRange {get; set;}
         protected double _maxCarryWeight {get; set;}
         protected double _currentCarryWeight => Inventory.Sum(i => i.Weight);
@@ -31,19 +40,52 @@ namespace ProceduralDungeon
         public virtual char Symbol {get; protected set;} = Symbols.Player;
         public int Team {get; protected set;}
         public bool IsDead => _currentHp <= 0;
-        public virtual string Description {get; protected set;}
+        protected string _baseDescription {get; set;}
+        public virtual string Description
+        {
+            get
+            {
+                var description = _baseDescription == null ? "" : _baseDescription + " ";
+                string hpString;
+                if (_currentHp == _maxHp) hpString = "uninjured";
+                else if (_currentHp > _maxHp * .75) hpString = "mildly injured";
+                else if (_currentHp > _maxHp * .5) hpString = "fairly injured";
+                else if (_currentHp > _maxHp * .25) hpString = "greatly injured";
+                else if (_currentHp > 0) hpString = "near death";
+                else hpString = "dead";
 
-        public Creature(string name, int id, int hp, int speed, Point location = null,
-            List<Item> inventory = null, List<INameable> memory = null)
+                description += $"{Pronouns[0]} appears {hpString}.";
+
+                if (EquippedWeapons.Any()) 
+                {
+                    description += $" {Pronouns[0]} is wielding {EquippedWeapons.ListWithIndefiniteArticle()}.";
+                }
+
+                if (EquippedArmor.Any())
+                {
+                    description += $" {Pronouns[0]} is wearing {EquippedArmor.ListWithIndefiniteArticle()}.";
+                }
+                return description;
+            }
+        }
+
+        public Creature(string name, int id, int hp, Gender gender = Gender.None, Point location = null,
+            List<Item> inventory = null, List<INameable> memory = null, string baseDescription = null)
         {
             Name = name;
             Id = id;
             _maxHp = hp;
             _currentHp = hp;
-            _speed = speed;
+            Gender = gender;
             if (location != null) Location = location;
             if (inventory != null) Inventory = inventory;
             if (memory != null) _memory = memory;
+            _baseDescription = baseDescription;
+        }
+
+        public string GetDetails()
+        {
+            return $"Name: {Name} HP: {_currentHp}/{_maxHp} AC: {ArmorClass} DR: {DamageResistance} Weight carried: {_currentCarryWeight}/{_maxCarryWeight}";
         }
 
         public void AddItemToInventory(Item itemToAdd)
@@ -197,6 +239,19 @@ namespace ProceduralDungeon
             }
         }
 
+        public void Interact(IInteractable interactable)
+        {
+            if ((interactable is Item && Inventory.Contains(interactable as Item)) || 
+                (interactable is IMappable && (interactable as IMappable).Location.InRangeOf(Location, 1)))
+            {
+                interactable.Activate();
+            }
+            else
+            {
+                Console.WriteLine("It's out of range.");
+            }
+        }
+        
         public bool HasLineOfSightTo(Map map, Point target)
         {
             return !map.GetPathObstructions(Location, target).Any();
@@ -343,5 +398,13 @@ namespace ProceduralDungeon
                 }
             }
         }
+    }
+
+    public enum Gender
+    {
+        None,
+        Male,
+        Female,
+        NonBinary
     }
 }

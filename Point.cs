@@ -177,7 +177,7 @@ namespace ProceduralDungeon
                     break;
                 default:
                     Console.WriteLine("Invalid key.");
-                    PressAnyKeyToContinue();
+                    WaitForInput();
                     break;
             }
         }
