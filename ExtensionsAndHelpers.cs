@@ -31,10 +31,7 @@ namespace ProceduralDungeon
                 }
                 return sample;
             }
-            else
-            {
-                return enumerable.ToList();
-            }
+            return enumerable.ToList();
         }
         
         public static void MoveElement<T>(this List<T> list, T TElement, int distance)

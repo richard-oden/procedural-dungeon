@@ -48,18 +48,19 @@ namespace ProceduralDungeon
             Width = width;
             Height = height;
         }
-        public Map(int width, int height, int numTiles, int numAttempts)
+        public Map(int width, int height, int numTiles, int numAttempts, Player player)
         {
             Width = width;
             Height = height;
             generateTiles(numTiles, numAttempts);
             fillSpaceBetweenTiles();
+            AddPlayer(player);
             generateDoor();
             generateKey();
-            generateItems(ItemsRepository.CommonMisc, numTiles/2);
-            generateItems(ItemsRepository.UncommonMisc, numTiles/4);
-            generateItems(ItemsRepository.RareMisc, 2);
-            generateItems(ItemsRepository.VeryRareMisc, 1);
+            generateItems(ItemsRepository.Commons, numTiles/2);
+            generateItems(ItemsRepository.Uncommons, numTiles/4);
+            generateItems(ItemsRepository.Rares, 2);
+            generateItems(ItemsRepository.VeryRares, 1);
             validateAssets(Assets);
         }
         private bool canAddTile(Tile tileToAdd)
@@ -131,7 +132,8 @@ namespace ProceduralDungeon
                 _tiles.Where(t => t.DoOpeningPointsMatch(_centralTile)).All(tA => 
                     !tA.OnMap(p)));
             var spawnPoint = validPoints.RandomElement();
-            AddAsset(new Door(spawnPoint));
+            var player = (Player)Creatures.Single(c => c is Player);
+            AddAsset(new Door(spawnPoint, player));
         }
 
         private void generateKey()
@@ -152,7 +154,7 @@ namespace ProceduralDungeon
             AddAsset(new Key(spawnPoint));
         }
 
-        private void generateItems(Item[] repository, int numItems)
+        private void generateItems(IEnumerable<Item> repository, int numItems)
         {
             for (int i = 0; i < numItems; i++)
             {
@@ -420,7 +422,7 @@ namespace ProceduralDungeon
                 }
                 else if (tempOriginCoord + searchDiameter > upperLimit)
                 {
-                    return upperLimit;
+                    return upperLimit - searchDiameter;
                 }
                 else
                 {

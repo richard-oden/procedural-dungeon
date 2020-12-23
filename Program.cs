@@ -10,14 +10,15 @@ namespace ProceduralDungeon
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var testMap = new Map(60, 40, 20, 80);
             var testPlayer = new Player(name: "Bill", id: 001, hp: 10, Gender.Male);
-            testPlayer.AddItemToInventory(ItemsRepository.CommonMisc.RandomElement());
-            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[0]);
-            testPlayer.AddItemToInventory(ItemsRepository.VeryRareWeapons[0]);
-            testPlayer.AddItemToInventory(ItemsRepository.VeryRareArmor[0]);
-            testPlayer.AddItemToInventory(ItemsRepository.CommonArmor[1]);
-            testPlayer.AddItemToInventory(ItemsRepository.CommonWeapons[2]);
+            var testWeapons = ItemsRepository.Weapons.RandomSample(3);
+            var testArmor = ItemsRepository.Armor.RandomSample(3);
+            var testMap = new Map(60, 40, 20, 80, testPlayer);
+            for (int i = 0; i < 3; i++)
+            {
+                testPlayer.AddItemToInventory(testWeapons[i]);
+                testPlayer.AddItemToInventory(testArmor[i]);
+            }
             testPlayer.AddItemToInventory(new Compass((Door)testMap.Assets.Single(a => a is Door), testPlayer));
             testPlayer.AddItemToInventory(new FloorMap(testMap, testPlayer));
             var testNpcs = new Npc[]
@@ -29,7 +30,6 @@ namespace ProceduralDungeon
                 new Npc(name: "Giant Rat", id: 006, hp: 10)
                 
             };
-            testMap.AddPlayer(testPlayer);
             foreach (var npc in testNpcs) testMap.AddNpc(npc);
 
 
