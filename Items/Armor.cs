@@ -5,9 +5,9 @@ namespace ProceduralDungeon
         public EquipmentSlot Slot {get; protected set;}
         public int ArmorClassBonus {get; protected set;}
         public int DamageResistance {get; protected set;}
-        public Armor(string name, double weight, int value, string description,
+        public Armor(string name, double weight, int value, ItemRarity rarity, string description,
             EquipmentSlot slot, int acBonus, int damageResistance = 0) 
-            : base(name, weight, value, description)
+            : base(name, weight, value, rarity, description)
         {
             Slot = slot;
             ArmorClassBonus = acBonus;

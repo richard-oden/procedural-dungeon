@@ -8,6 +8,7 @@ namespace ProceduralDungeon
             Name = "Floor key";
             Weight = 0.1;
             Value = 100;
+            Rarity = ItemRarity.Rare;
             Description = "This key opens the door to the next floor.";
             Location = location;
         }

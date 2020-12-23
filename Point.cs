@@ -66,30 +66,36 @@ namespace ProceduralDungeon
         // Implementation found here: https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
         public static bool DoLineSegmentsIntersect(Point A, Point B, Point C, Point D)
         {
-            Point CmP = new Point(C.X - A.X, C.Y - A.Y);
-            Point r = new Point(B.X - A.X, B.Y - A.Y);
-            Point s = new Point(D.X - C.X, D.Y - C.Y);
-    
-            float CmPxr = CmP.X * r.Y - CmP.Y * r.X;
-            float CmPxs = CmP.X * s.Y - CmP.Y * s.X;
-            float rxs = r.X * s.Y - r.Y * s.X;
-    
-            if (CmPxr == 0f)
-            {
-                // Lines are collinear, and so intersect if they have any overlap
-    
-                return ((C.X - A.X < 0f) != (C.X - B.X < 0f)) ||
-                    ((C.Y - A.Y < 0f) != (C.Y - B.Y < 0f));
+            int direction(Point a, Point b, Point c) {
+                int val = (b.Y-a.Y)*(c.X-b.X)-(b.X-a.X)*(c.Y-b.Y);
+                if (val == 0)
+                    return 0;     //colinear
+                else if(val < 0)
+                    return 2;    //anti-clockwise direction
+                    return 1;    //clockwise direction
             }
-    
-            if (rxs == 0f)
-                return false; // Lines are parallel.
-    
-            float rxsr = 1f / rxs;
-            float t = CmPxs * rxsr;
-            float u = CmPxr * rxsr;
-    
-            return (t >= 0f) && (t <= 1f) && (u >= 0f) && (u <= 1f);
+
+            int dir1 = direction(A, B, C);
+            int dir2 = direction(A, B, D);
+            int dir3 = direction(C, D, A);
+            int dir4 = direction(C, D, B);
+            
+            if(dir1 != dir2 && dir3 != dir4)
+                return true; //theY are intersecting
+
+            if(dir1==0 && IsPointOnLineSegment(A, B, C)) //when p2 of line2 are on the line1
+                return true;
+
+            if(dir2==0 && IsPointOnLineSegment(A, B, D)) //when p1 of line2 are on the line1
+                return true;
+
+            if(dir3==0 && IsPointOnLineSegment(C, D, A)) //when p2 of line1 are on the line2
+                return true;
+
+            if(dir4==0 && IsPointOnLineSegment(C, D, B)) //when p1 of line1 are on the line2
+                return true;
+                    
+            return false;
         }
 
         public List<int[]> GetAdjacentCoordinates()

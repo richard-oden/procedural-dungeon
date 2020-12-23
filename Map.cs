@@ -369,7 +369,7 @@ namespace ProceduralDungeon
         }
     
         // Prints map from perspective of a creature:
-        public void PrintMap(Creature creature)
+        public void PrintMapFromPerspective(Creature creature)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -388,8 +388,7 @@ namespace ProceduralDungeon
                         Console.BackgroundColor = DarkGray;
                     }
 
-                    if (thisAsset != null &&
-                        !(thisAsset is INameable && !inSearchRange))
+                    if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
                     {
                         if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
                         if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
@@ -405,6 +404,100 @@ namespace ProceduralDungeon
                 Console.WriteLine();
             }
         }
+
+        // Prints only section of map within viewport:
+        public void PrintMapFromViewport(Creature creature)
+        {
+            int searchRadius = creature.SearchRange + 4;
+            int searchDiameter = searchRadius*2 + 1;
+
+            int getOriginCoord(int creatureCoord, int upperLimit)
+            {
+                int tempOriginCoord = creatureCoord - searchRadius;
+                if (tempOriginCoord < 0)
+                {
+                    return 0;
+                }
+                else if (tempOriginCoord + searchDiameter > upperLimit)
+                {
+                    return upperLimit;
+                }
+                else
+                {
+                    return tempOriginCoord;
+                }
+            }
+
+            Point origin = new Point(getOriginCoord(creature.Location.X, Width), getOriginCoord(creature.Location.Y, Height));
+            int viewportHeight = origin.Y + searchDiameter;
+            int viewportWidth = origin.X + searchDiameter;
+
+            for (int y = origin.Y; y < viewportHeight; y++)
+            {
+                for (int x = origin.X; x < viewportWidth; x++)
+                {
+                    var thisPoint = new Point(x, y);
+                    var thisAsset = Assets.FirstOrDefault(a => 
+                        a.Location.X == x && a.Location.Y == y || a is IRectangular && 
+                        Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
+
+                    Console.ForegroundColor = DarkGray;
+                    bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
+                    if (inSearchRange) 
+                    {
+                        Console.ForegroundColor = Gray;
+                        Console.BackgroundColor = DarkGray;
+                    }
+
+                    if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
+                    {
+                        if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
+                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
+                        Console.Write(thisAsset.Symbol + " ");
+                    }
+                    else
+                    {
+                        Console.Write("  ");
+                    }
+                    Console.ResetColor();
+                }
+                Console.WriteLine();
+            }
+        }
+
+        // Prints map only showing highlighted assets:
+        public void PrintMapHighlightingAssets(IEnumerable<IMappable> highlightedAssets)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    Console.ForegroundColor = DarkGray;
+                    
+                    var thisAsset = Assets.FirstOrDefault(a => 
+                        a.Location.X == x && a.Location.Y == y || a is IRectangular && 
+                        Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
+                    if (thisAsset != null && !(thisAsset is Npc) && 
+                        !((thisAsset is Item || thisAsset is Door) && 
+                        !highlightedAssets.Contains(thisAsset)))
+                    {
+                        if (thisAsset is Door || thisAsset is Item) Console.BackgroundColor = Red;
+                        if (thisAsset is Door) Console.ForegroundColor = White;
+                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Player) Console.ForegroundColor = Blue;
+                        Console.Write(thisAsset.Symbol + " ");
+                    }
+                    else
+                    {
+                        Console.Write("  ");
+                    }
+                    Console.ResetColor();
+                }
+                Console.WriteLine();
+            }
+        }
+        
         public bool Move(IMappable assetToMove, ConsoleKeyInfo input)
         {
             var tempLocation = new Point(assetToMove.Location);

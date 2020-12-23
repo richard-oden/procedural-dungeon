@@ -11,9 +11,9 @@ namespace ProceduralDungeon
         public int DamageModifier {get; protected set;}
         public int Range {get; protected set;}
 
-        public Weapon(string name, double weight, int value, string description,
+        public Weapon(string name, double weight, int value, ItemRarity rarity, string description,
             EquipmentSlot slot, Die[] damageDice, int attackMod = 0, int damageMod = 0, int range = 1) 
-            : base(name, weight, value, description)
+            : base(name, weight, value, rarity, description)
         {
             Slot = slot;
             DamageDice = damageDice;

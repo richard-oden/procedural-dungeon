@@ -11,6 +11,7 @@ namespace ProceduralDungeon
             Weight = 0.1;
             Value = 100;
             Description = "It's an ornate gold compass. The outside rim is etched with a magic encantation.";
+            Rarity = ItemRarity.Rare;
             _door = door;
             _player = player;
             Location = location;

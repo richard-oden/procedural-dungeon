@@ -14,6 +14,29 @@ namespace ProceduralDungeon
             return enumerable.ElementAt(index);
         }
         
+        public static List<T> RandomSample<T>(this IEnumerable<T> enumerable, int sampleSize)
+        {
+            if (sampleSize < enumerable.Count())
+            {
+                var sample = new List<T>();
+                int i = 0;
+                while (i < enumerable.Count())
+                {
+                    var potentialRandomElement = enumerable.RandomElement();
+                    if (!sample.Contains(potentialRandomElement))
+                    {
+                        sample.Add(potentialRandomElement);
+                        i++;
+                    }
+                }
+                return sample;
+            }
+            else
+            {
+                return enumerable.ToList();
+            }
+        }
+        
         public static void MoveElement<T>(this List<T> list, T TElement, int distance)
         {
             if (list.Contains(TElement))

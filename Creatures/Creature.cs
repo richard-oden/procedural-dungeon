@@ -25,7 +25,7 @@ namespace ProceduralDungeon
         protected virtual int _attackModifier {get; set;} = 0;
         protected virtual int _attackRange {get; set;} = 1;
         public int ArmorClass => 8 + EquippedArmor.Sum(eA => eA.ArmorClassBonus);
-        public virtual int DamageResistance {get; protected set;} = 0;
+        public virtual int DamageResistance => 0 + EquippedArmor.Sum(eA => eA.DamageResistance);
         protected Die[] _damageDice {get; set;} = new Die[] {Dice.D3};
         protected virtual int _damageModifier {get; set;} = 1;
         public int SearchRange {get; set;}
@@ -88,31 +88,31 @@ namespace ProceduralDungeon
             return $"Name: {Name} HP: {_currentHp}/{_maxHp} AC: {ArmorClass} DR: {DamageResistance} Weight carried: {_currentCarryWeight}/{_maxCarryWeight}";
         }
 
-        public void AddItemToInventory(Item itemToAdd)
+        public bool AddItemToInventory(Item itemToAdd)
         {
             if (_currentCarryWeight + itemToAdd.Weight <= _maxCarryWeight)
             {
                 Inventory.Add(itemToAdd);
                 AddToMemory(itemToAdd);
                 itemToAdd.Location = null;
+                return true;
             }
             else
             {
                 System.Console.WriteLine($"{itemToAdd.Name} is too heavy for {Name} to carry.");
+                return false;
             }
         }
 
         public virtual void PickUpItem(Map map, Item itemToPickUp)
         {
             if (validateTargetOnMap(map, itemToPickUp, 1))
-            {
-                map.RemoveAsset(itemToPickUp);
-                AddItemToInventory(itemToPickUp);
-                System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
-            }
-            else
-            {
-                System.Console.WriteLine($"{itemToPickUp.Name} is too far away.");
+            {         
+                if (AddItemToInventory(itemToPickUp))
+                {
+                    map.RemoveAsset(itemToPickUp);
+                    System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
+                }
             }
         }
 
