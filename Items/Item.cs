@@ -39,7 +39,17 @@ namespace ProceduralDungeon
 
         public virtual string GetDetails()
         {
-            return $"{Name} - {Weight}lbs - {Value} gold\n{Description}";
+            return $"{GetBasicDetails()} gold\n{GetSecondaryDetails()}";
+        }
+
+        public virtual string GetBasicDetails()
+        {
+            return $"{Name} - {Weight}lbs - {Value} gold";
+        }
+
+        public virtual string GetSecondaryDetails()
+        {
+            return Description;
         }
     }
 

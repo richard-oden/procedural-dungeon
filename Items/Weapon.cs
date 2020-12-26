@@ -22,13 +22,11 @@ namespace ProceduralDungeon
             Range = range;
         }
 
-        public override string GetDetails()
+        public override string GetSecondaryDetails()
         {
             string attackModString = AttackModifier != 0 ? $"Attack Modifier: {AttackModifier} - " : "";
             string damageModString = DamageModifier != 0 ? $" + {DamageModifier}" : "";
-            return $@"{Name} - {Weight}lbs - {Value} gold
-Slot:{Slot.ToString().FromTitleOrCamelCase()} - {attackModString}Damage: {DamageDice.DiceToString()}{damageModString} - Range: {Range*5} feet
-{Description}";
+            return $"{Description}\nSlot:{Slot.ToString().FromTitleOrCamelCase()} - {attackModString}Damage: {DamageDice.DiceToString()}{damageModString} - Range: {Range*5} feet";
         }
     }
 }

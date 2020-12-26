@@ -9,8 +9,8 @@ namespace ProceduralDungeon
     public class Player : Creature
     {
         public Player(string name, int id, int hp, Gender gender = Gender.NonBinary, Point location = null,
-            List<Item> inventory = null, List<INameable> memory = null) :
-            base (name, id, hp, gender, location, inventory, memory)
+            List<Item> inventory = null, int gold = 0, List<INameable> memory = null) :
+            base (name, id, hp, gender, location, inventory, gold, memory)
         {
             SearchRange = 8;
             _maxCarryWeight = 100;

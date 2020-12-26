@@ -14,12 +14,10 @@ namespace ProceduralDungeon
             DamageResistance = damageResistance;
         }
 
-        public override string GetDetails()
+        public override string GetSecondaryDetails()
         {
             string damageResistanceString = DamageResistance != 0 ? $" - Damage Resistance: {DamageResistance}" : "";
-            return $@"{Name} - {Weight}lbs - {Value} gold
-Slot:{Slot.ToString().FromTitleOrCamelCase()} - AC Bonus: {ArmorClassBonus}{damageResistanceString}
-{Description}";
+            return $"{Description}\nSlot:{Slot.ToString().FromTitleOrCamelCase()} - AC Bonus: {ArmorClassBonus}{damageResistanceString}";
         }
     }
 }

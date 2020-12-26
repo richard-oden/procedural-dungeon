@@ -36,6 +36,7 @@ namespace ProceduralDungeon
         public List<Weapon> EquippedWeapons => EquippedItems.Where(i => i is Weapon).Cast<Weapon>().ToList();
         public List<Armor> EquippedArmor => EquippedItems.Where(i => i is Armor).Cast<Armor>().ToList();
         protected List<INameable> _memory {get; set;} = new List<INameable>();
+        public int Gold {get; protected set;}
         public Point Location {get; set;}
         public virtual char Symbol {get; protected set;} = Symbols.Player;
         public int Team {get; protected set;}
@@ -70,7 +71,7 @@ namespace ProceduralDungeon
         }
 
         public Creature(string name, int id, int hp, Gender gender = Gender.None, Point location = null,
-            List<Item> inventory = null, List<INameable> memory = null, string baseDescription = null)
+            List<Item> inventory = null, int gold = 0, List<INameable> memory = null, string baseDescription = null)
         {
             Name = name;
             Id = id;
@@ -80,6 +81,7 @@ namespace ProceduralDungeon
             if (location != null) Location = location;
             if (inventory != null) Inventory = inventory;
             if (memory != null) _memory = memory;
+            Gold = gold;
             _baseDescription = baseDescription;
         }
 

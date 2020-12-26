@@ -20,7 +20,7 @@ namespace ProceduralDungeon
             {
                 var sample = new List<T>();
                 int i = 0;
-                while (i < enumerable.Count())
+                while (i < sampleSize)
                 {
                     var potentialRandomElement = enumerable.RandomElement();
                     if (!sample.Contains(potentialRandomElement))
@@ -31,7 +31,10 @@ namespace ProceduralDungeon
                 }
                 return sample;
             }
-            return enumerable.ToList();
+            else
+            {
+                return enumerable.ToList();
+            }
         }
         
         public static void MoveElement<T>(this List<T> list, T TElement, int distance)
