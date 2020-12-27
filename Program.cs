@@ -10,14 +10,14 @@ namespace ProceduralDungeon
         static void Main(string[] args)
         {
             // Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var testPlayer = new Player(name: "Bill", id: 001, hp: 10, Gender.Male);
+            var testPlayer = new Player(name: "Bill", id: 001, hp: 10, Gender.Male, gold: 27);
             var testWeapons = ItemsRepository.Weapons.RandomSample(3);
             var testArmor = ItemsRepository.Armor.RandomSample(3);
             // var testMap = new Map(60, 40, 20, 80, testPlayer);
             for (int i = 0; i < 3; i++)
             {
-                testPlayer.AddItemToInventory(testWeapons[i]);
-                testPlayer.AddItemToInventory(testArmor[i]);
+                testPlayer.AddItemToInventory(testWeapons[i], true);
+                testPlayer.AddItemToInventory(testArmor[i], true);
             }
             // testPlayer.AddItemToInventory(new Compass((Door)testMap.Assets.Single(a => a is Door), testPlayer));
             // testPlayer.AddItemToInventory(new FloorMap(testMap, testPlayer));
@@ -56,17 +56,9 @@ namespace ProceduralDungeon
             // System.Console.WriteLine(Rectangle.DoesLineIntersectRect(p1, p2, r1));
 
 
-            var testMerchant = new Merchant(id: 0, hp: 10, testPlayer);
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-            testMerchant.AddItemToInventory(ItemsRepository.All.RandomElement());
-
-            testMerchant.Trade();
+            var testMerchant = new Merchant(id: 0, hp: 10, testPlayer, gold: 132);
+            foreach (var i in ItemsRepository.All.RandomSample(8)) testMerchant.AddItemToInventory(i, true);
+            testMerchant.OpenTrade();
         }
     }
 }

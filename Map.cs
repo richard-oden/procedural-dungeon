@@ -158,7 +158,7 @@ namespace ProceduralDungeon
         {
             for (int i = 0; i < numItems; i++)
             {
-                var itemToAdd = new Item(repository.RandomElement());
+                var itemToAdd = repository.RandomElement().GetClone();
                 var validPoints = EmptyPoints.Where(p =>
                     // Central tile does not contain items:
                     !_centralTile.OnMap(p) && 

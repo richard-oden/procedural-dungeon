@@ -22,6 +22,26 @@ namespace ProceduralDungeon
             Range = range;
         }
 
+        public Weapon(Weapon weaponToClone)
+        {
+            Name = weaponToClone.Name;
+            Weight = weaponToClone.Weight;
+            Value = weaponToClone.Value;
+            Description = weaponToClone.Description;
+            Rarity = weaponToClone.Rarity;
+            Location = weaponToClone.Location;
+            Slot = weaponToClone.Slot;
+            DamageDice = weaponToClone.DamageDice;
+            AttackModifier = weaponToClone.AttackModifier;
+            DamageModifier = weaponToClone.DamageModifier;
+            Range = weaponToClone.Range;
+        }
+
+        public override Item GetClone()
+        {
+            return new Weapon(this);
+        }
+
         public override string GetSecondaryDetails()
         {
             string attackModString = AttackModifier != 0 ? $"Attack Modifier: {AttackModifier} - " : "";

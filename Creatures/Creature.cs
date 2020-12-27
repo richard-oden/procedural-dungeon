@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ProceduralDungeon
 {
-    public abstract class Creature : IMappable, INameable, IDescribable
+    public abstract class Creature : IMappable, INameable, IDescribable, IContainer
     {
         public string Name {get; protected set;}
         public Gender Gender {get; protected set;}
@@ -29,14 +29,14 @@ namespace ProceduralDungeon
         protected Die[] _damageDice {get; set;} = new Die[] {Dice.D3};
         protected virtual int _damageModifier {get; set;} = 1;
         public int SearchRange {get; set;}
-        protected double _maxCarryWeight {get; set;}
-        protected double _currentCarryWeight => Inventory.Sum(i => i.Weight);
+        public double MaxCarryWeight {get; protected set;}
+        public double CurrentCarryWeight => Inventory.Sum(i => i.Weight);
         public List<Item> Inventory {get; protected set;} = new List<Item>();
         public List<IEquippable> EquippedItems {get; protected set;} = new List<IEquippable>();
         public List<Weapon> EquippedWeapons => EquippedItems.Where(i => i is Weapon).Cast<Weapon>().ToList();
         public List<Armor> EquippedArmor => EquippedItems.Where(i => i is Armor).Cast<Armor>().ToList();
         protected List<INameable> _memory {get; set;} = new List<INameable>();
-        public int Gold {get; protected set;}
+        public int Gold {get; set;}
         public Point Location {get; set;}
         public virtual char Symbol {get; protected set;} = Symbols.Player;
         public int Team {get; protected set;}
@@ -85,16 +85,28 @@ namespace ProceduralDungeon
             _baseDescription = baseDescription;
         }
 
-        public string GetDetails()
+        public string GetCarryWeightString()
         {
-            return $"Name: {Name} HP: {_currentHp}/{_maxHp} AC: {ArmorClass} DR: {DamageResistance} Weight carried: {_currentCarryWeight}/{_maxCarryWeight}";
+            if (MaxCarryWeight > -1)
+            {
+                return $"{CurrentCarryWeight}/{MaxCarryWeight} lbs";
+            }
+            else
+            {
+                return "";
+            }
         }
 
-        public bool AddItemToInventory(Item itemToAdd)
+        public string GetDetails()
         {
-            if (_currentCarryWeight + itemToAdd.Weight <= _maxCarryWeight)
+            return $"Name: {Name} HP: {_currentHp}/{_maxHp} AC: {ArmorClass} DR: {DamageResistance} Weight carried: {GetCarryWeightString()}";
+        }
+
+        public bool AddItemToInventory(Item itemToAdd, bool cloneItem = false)
+        {
+            if (CurrentCarryWeight + itemToAdd.Weight <= MaxCarryWeight)
             {
-                Inventory.Add(itemToAdd);
+                Inventory.Add(cloneItem ? itemToAdd.GetClone() : itemToAdd);
                 AddToMemory(itemToAdd);
                 itemToAdd.Location = null;
                 return true;

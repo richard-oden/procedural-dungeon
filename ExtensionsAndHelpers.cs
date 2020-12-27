@@ -153,10 +153,16 @@ namespace ProceduralDungeon
             Console.WriteLine();
         }
     
-        public static string Prompt(string prompt)
+        public static string PromptLine(string prompt)
         {
             Console.WriteLine(prompt);
             return Console.ReadLine();
+        }
+
+        public static ConsoleKey PromptKey(string prompt)
+        {
+            Console.WriteLine(prompt);
+            return Console.ReadKey(true).Key;
         }
     }
 }

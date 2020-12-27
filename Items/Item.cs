@@ -37,6 +37,11 @@ namespace ProceduralDungeon
             Location = itemToClone.Location;
         }
 
+        public virtual Item GetClone()
+        {
+            return new Item(this);
+        }
+
         public virtual string GetDetails()
         {
             return $"{GetBasicDetails()} gold\n{GetSecondaryDetails()}";

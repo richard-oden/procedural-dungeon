@@ -20,7 +20,7 @@ namespace ProceduralDungeon
             string merchantDescription = $"{Pronouns[0]} appear(s) to be selling an assortment of various wares.";
             _baseDescription += _baseDescription == null ? merchantDescription : " " + merchantDescription;
             _player = player;
-            _maxCarryWeight = 300;
+            MaxCarryWeight = 300;
         }
 
         public override void Act(Map map)
@@ -51,49 +51,17 @@ namespace ProceduralDungeon
                 }
             }
         }
-
-        public void ListBothInventories(int cursorX, int cursorY)
-        {
-            Item highlightedItem = cursorX == 0 ? _player.Inventory[cursorY] : Inventory[cursorY];
-            int listLength = _player.Inventory.Count() > Inventory.Count() ? _player.Inventory.Count() : Inventory.Count();
-            int padSize = _player.Inventory.Select(i => i.GetBasicDetails().Length).Max() + 5;
-            Console.WriteLine($"{_player.Name} ({_player.Gold} gold):".PadRight(padSize, ' ') + $"{Name} ({Gold} gold):\n\n");
-            for (int y = 0; y < listLength; y++)
-            {
-                for (int x = 0; x < 2; x++)
-                {
-                    if (cursorX == x && cursorY == y) Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    if (x == 0)
-                    {
-                        if (_player.Inventory.Count() > y) Console.Write(_player.Inventory[y].GetBasicDetails().PadRight(padSize, ' '));
-                        Console.ResetColor();
-                    }
-                    else if (x == 1)
-                    {
-                        if (Inventory.Count > y) Console.WriteLine(Inventory[y].GetBasicDetails());
-                        else
-                        {
-                            Console.WriteLine();
-                        }
-                    }
-                    Console.ResetColor();
-                }
-                System.Console.WriteLine("---".PadRight(padSize, ' ') + "---");
-            }
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine('\n' + highlightedItem.GetSecondaryDetails());
-            Console.ResetColor();
-        }
-        public void Trade()
+        public void OpenTrade()
         {
             int cursorX = 0;
             int cursorY = 0;
-            
-            while (true)
+            bool stillTrading = true;
+
+            while (stillTrading)
             {
-                ListBothInventories(cursorX, cursorY);
+                Item selectedItem = (this as IContainer).ListTwoInventoriesAndSelect(_player, cursorX, cursorY);
+                System.Console.WriteLine("\nUse the arrow keys to navigate, Enter to buy/sell an item, or Esc to stop trading.");
                 var input = Console.ReadKey();
-                Console.Clear();
 
                 int tempCursorX = cursorX;
                 int tempCursorY = cursorY;
@@ -111,6 +79,48 @@ namespace ProceduralDungeon
                     case ConsoleKey.RightArrow:
                         tempCursorX++;
                         break;
+                    case ConsoleKey.Enter:
+                        if (_player.Inventory.Contains(selectedItem))
+                        {
+                            var buyInput = PromptKey($"\nI'll purchase the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 0.75)} gold. Deal? (Y/N)");
+                            if (buyInput == ConsoleKey.Y)
+                            {
+                                (_player as IContainer).TradeItem(selectedItem, this, requireGold: true, discount: 0.75);
+                                Console.WriteLine("Thank you good sir/ma'am!");
+                            }
+                            else if (buyInput == ConsoleKey.N)
+                            {
+                                Console.WriteLine("All right, but you won't find a better price elsewhere!");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Sorry, I didn't catch that.");
+                            }
+                        }
+                        else if (Inventory.Contains(selectedItem))
+                        {
+                            var sellInput = PromptKey($"\nI'll sell you the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 1.25)} gold. Deal? (Y/N)");
+                            if (sellInput == ConsoleKey.Y)
+                            {
+                                (this as IContainer).TradeItem(selectedItem, _player, requireGold: true, discount: 0.75);
+                                Console.WriteLine("Thank you good sir/ma'am!");
+                            }
+                            else if (sellInput == ConsoleKey.N)
+                            {
+                                Console.WriteLine("All right, but you won't find a better price elsewhere!");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Sorry, I didn't catch that.");
+                            }
+                        }
+                        WaitForInput();
+                        break;
+                    case ConsoleKey.Escape:
+                        Console.WriteLine("Pleasure doing business with you.");
+                        WaitForInput();
+                        stillTrading = false;
+                        break;
                 }
                 int cursorYMax = tempCursorX <= 0 ? _player.Inventory.Count() : Inventory.Count();
 
@@ -121,6 +131,7 @@ namespace ProceduralDungeon
                 if (tempCursorY < 0) cursorY = 0;
                 else if (tempCursorY >= cursorYMax) cursorY = cursorYMax - 1;
                 else cursorY = tempCursorY;
+                Console.Clear();
             }
         }
         

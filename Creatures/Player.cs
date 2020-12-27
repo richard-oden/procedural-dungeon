@@ -13,7 +13,7 @@ namespace ProceduralDungeon
             base (name, id, hp, gender, location, inventory, gold, memory)
         {
             SearchRange = 8;
-            _maxCarryWeight = 100;
+            MaxCarryWeight = 100;
             Team = 0;
         }
 
@@ -105,7 +105,7 @@ namespace ProceduralDungeon
     
         public void Describe()
         {
-            var input = Prompt("Enter the name of the thing to describe:");
+            var input = PromptLine("Enter the name of the thing to describe:");
 
             INameable thingToDescribe = input.ToLower() == Name.ToLower() ? this : _memory.GetByName(input);
 
@@ -122,7 +122,7 @@ namespace ProceduralDungeon
     
         public void Interact()
         {
-            var input = Prompt("Enter the name of the thing to interact with:");
+            var input = PromptLine("Enter the name of the thing to interact with:");
             var thingToInteractWith = _memory.GetByName(input);
             if (thingToInteractWith != null && thingToInteractWith is IInteractable)
             {
@@ -154,7 +154,7 @@ namespace ProceduralDungeon
 
         public void PickUpItem(Map map)
         {
-            var input = Prompt("Enter name of item to pick up:");
+            var input = PromptLine("Enter name of item to pick up:");
             var itemToPickUp = map.Items.GetByName(input);
             if (itemToPickUp != null)
             {
@@ -171,7 +171,7 @@ namespace ProceduralDungeon
         {
             if (Inventory.Any())
             {
-                var input = Prompt("Enter name of item to drop:");
+                var input = PromptLine("Enter name of item to drop:");
                 var itemToDrop = Inventory.GetByName(input);
                 if (itemToDrop != null)
                 {
@@ -193,7 +193,7 @@ namespace ProceduralDungeon
         {
             if (Inventory.Any())
             {
-                var input = Prompt("Enter name of item to equip:");
+                var input = PromptLine("Enter name of item to equip:");
                 var itemToEquip = _memory.Where(a => 
                     a is IEquippable && !EquippedItems.Contains(a as IEquippable))
                     .GetByName(input);
@@ -217,7 +217,7 @@ namespace ProceduralDungeon
         {
             if (EquippedItems.Any())
             {
-                var input = Prompt("Enter name of item to unequip:");
+                var input = PromptLine("Enter name of item to unequip:");
                 var itemToEquip = _memory.GetByName(input);
                 if (itemToEquip != null)
                 {
@@ -244,7 +244,7 @@ namespace ProceduralDungeon
         
         public void Attack(Map map)
         {
-            var input = Prompt("Enter the name of the creature to attack:");
+            var input = PromptLine("Enter the name of the creature to attack:");
             var targets = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange));
             var target = targets.GetByName(input);
             if (target != null)

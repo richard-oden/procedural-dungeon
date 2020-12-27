@@ -14,6 +14,24 @@ namespace ProceduralDungeon
             DamageResistance = damageResistance;
         }
 
+        public Armor(Armor armorToClone)
+        {
+            Name = armorToClone.Name;
+            Weight = armorToClone.Weight;
+            Value = armorToClone.Value;
+            Description = armorToClone.Description;
+            Rarity = armorToClone.Rarity;
+            Location = armorToClone.Location;
+            Slot = armorToClone.Slot;
+            ArmorClassBonus = armorToClone.ArmorClassBonus;
+            DamageResistance = armorToClone.DamageResistance;
+        }
+
+        public override Item GetClone()
+        {
+            return new Armor(this);
+        }
+
         public override string GetSecondaryDetails()
         {
             string damageResistanceString = DamageResistance != 0 ? $" - Damage Resistance: {DamageResistance}" : "";
