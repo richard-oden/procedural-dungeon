@@ -133,13 +133,14 @@ namespace ProceduralDungeon
                 else cursorY = tempCursorY;
                 Console.Clear();
             }
-        }
-        
+        }  
         public void Activate()
         {
             if (!IsDead)
             {
+                Console.Clear();
                 System.Console.WriteLine("Hello adventurer! May I interest you in a trade?");
+                OpenTrade();
             }
             else
             {

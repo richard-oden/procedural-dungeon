@@ -256,7 +256,8 @@ namespace ProceduralDungeon
         public void Interact(IInteractable interactable)
         {
             if ((interactable is Item && Inventory.Contains(interactable as Item)) || 
-                (interactable is IMappable && (interactable as IMappable).Location.InRangeOf(Location, 1)))
+                (interactable is IMappable && (interactable as IMappable).Location != null &&
+                (interactable as IMappable).Location.InRangeOf(Location, 1)))
             {
                 interactable.Activate();
             }
