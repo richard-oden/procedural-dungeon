@@ -60,8 +60,8 @@ namespace ProceduralDungeon
             new Material("Amethyst", .13, 16, MaterialCategory.Gemstone, ItemRarity.Rare),
             new Material("Topaz", .13, 14, MaterialCategory.Gemstone, ItemRarity.Rare),
             new Material("Oricalcum", .29, 14, MaterialCategory.Gemstone, ItemRarity.Rare),
-            new Material("Pearl", .01, 18, MaterialCategory.OrganicHard, ItemRarity.Rare),
-            new Material("Amber", .04, 16, MaterialCategory.OrganicHard, ItemRarity.Rare),
+            new Material("Pearl", .01, 18, MaterialCategory.Gemstone, ItemRarity.Rare),
+            new Material("Amber", .04, 16, MaterialCategory.Gemstone, ItemRarity.Rare),
             new Material("Elven fiber", .02, 20, MaterialCategory.Fabric, ItemRarity.Rare),
 
             new Material("Dragontooth", .07, 22, MaterialCategory.OrganicHard, ItemRarity.VeryRare),
@@ -73,6 +73,14 @@ namespace ProceduralDungeon
             new Material("Dragonhide", .12, 28, MaterialCategory.Fabric, ItemRarity.VeryRare),
             new Material("Pheonix feather", .01, 30, MaterialCategory.Fabric, ItemRarity.VeryRare),
         };
+
+        public static readonly IEnumerable<Material> MeleeWeaponMaterials = All.Where(m => 
+            m.Category == MaterialCategory.Metal || m.Category == MaterialCategory.OrganicHard || m.Category == MaterialCategory.OtherMineral);
+
+        public static readonly IEnumerable<Material> ArmorMaterials = All.Where(m => 
+            m.Category == MaterialCategory.Metal || m.Category == MaterialCategory.OrganicHard || m.Category == MaterialCategory.Fabric);
+
+        public static readonly IEnumerable<Material> Fabrics = All.Where(m => m.Category == MaterialCategory.Fabric);
     }
 
     public enum MaterialCategory

@@ -13,7 +13,19 @@ namespace ProceduralDungeon
             int index = rand.Next(0, enumerable.Count());
             return enumerable.ElementAt(index);
         }
+
+        public static double RandomDouble(double min, double max)
+        {
+            var rand = new Random();
+            return rand.NextDouble() * (max - min) + min;
+        }
         
+        public static bool RandomBool()
+        {
+            var rand = new Random();
+            return rand.Next() > (Int32.MaxValue / 2);
+        }
+
         public static List<T> RandomSample<T>(this IEnumerable<T> enumerable, int sampleSize)
         {
             if (sampleSize < enumerable.Count())

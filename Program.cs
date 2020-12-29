@@ -57,7 +57,8 @@ namespace ProceduralDungeon
             // m.PrintMap();
             // // System.Console.WriteLine(m.GetPathObstructions(p1, p2).Select(a => a.Location).ToString("and"));
             // System.Console.WriteLine(Rectangle.DoesLineIntersectRect(p1, p2, r1));
-            System.Console.WriteLine(ProceduralDungeon.TextGeneration.ItemDescriptionGenerator.Generate());
+            var dagger = new Item(ItemTemplates.Dagger, ItemRarity.VeryRare, Craftsmanship.Fine);
+            System.Console.WriteLine(dagger.GetDetails());
         }
     }
 }
