@@ -6,11 +6,13 @@ namespace ProceduralDungeon
     {
         public string Name {get; private set;} = "Door";
         public Point Location {get; set;}
+        private Map _map {get; set;}
         private Player _player {get; set;}
         public char Symbol {get; protected set;} = Symbols.Door;
 
-        public Door(Point location, Player player)
+        public Door(Map map, Point location, Player player)
         {
+            _map = map;
             Location = location;
             _player = player;
         }
@@ -25,6 +27,8 @@ namespace ProceduralDungeon
             if (_player.Inventory.Any(i => i is Key))
             {
                 System.Console.WriteLine("You insert the key and the door slowly creaks open, revealing a staircase descending into darkness.");
+                ExtensionsAndHelpers.WaitForInput();
+                _map.HasPlayerExited = true;
             }
             else
             {

@@ -13,6 +13,7 @@ namespace ProceduralDungeon
         public List<IMappable> Assets {get; protected set;} = new List<IMappable>();
         public List<Item> Items => (from a in Assets where a is Item select (Item)a).ToList();
         public List<Creature> Creatures => (from a in Assets where a is Creature select (Creature)a).ToList();
+        public List<Npc> Npcs => (from a in Assets where a is Npc select (Npc)a).ToList();
         private List<Tile> _tiles {get; set;} = new List<Tile>();
         private Tile _centralTile {get; set;}
         private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();
@@ -38,6 +39,7 @@ namespace ProceduralDungeon
             }
         }
         private List<int[]> _bloodSplatterCoordinates = new List<int[]>();
+        public bool HasPlayerExited {get; set;} = false;
         
         public Map()
         {
@@ -48,19 +50,25 @@ namespace ProceduralDungeon
             Width = width;
             Height = height;
         }
-        public Map(int width, int height, int numTiles, int numAttempts, Player player)
+
+        public Map(MapSize size, Player player, Difficulty difficulty, int level)
         {
-            Width = width;
-            Height = height;
+            var _rand = new Random();
+
+            int sizeMin = (int)size - 6;
+            int sizeMax = (int)size + 6;
+            Width = _rand.Next(sizeMin, sizeMax);
+            Height = _rand.Next(sizeMin, sizeMax);
+
+            int numTiles = Width < Height ? Width/2 : Height/2;
+            int numAttempts = numTiles * 3;
             generateTiles(numTiles, numAttempts);
             fillSpaceBetweenTiles();
             AddPlayer(player);
             generateDoor();
             generateKey();
-            generateItems(ItemsRepository.Commons, numTiles/2);
-            generateItems(ItemsRepository.Uncommons, numTiles/4);
-            generateItems(ItemsRepository.Rares, 2);
-            generateItems(ItemsRepository.VeryRares, 1);
+            generateItemsUsingDifficulty(difficulty, numTiles, level);
+            generateNpcsUsingDifficulty(difficulty, numTiles, level);
             validateAssets(Assets);
         }
         private bool canAddTile(Tile tileToAdd)
@@ -72,7 +80,7 @@ namespace ProceduralDungeon
                     for (int x = 0; x < Width; x++)
                     {
                         tileToAdd.TranslateAssets(new Point(x, y));
-                        if (WithinBorder(tileToAdd, 3) &&
+                        if (WithinBorder(tileToAdd, 2) &&
                             _tiles.Any(t => t.DoOpeningPointsMatch(tileToAdd)) &&
                             _tiles.All(t => !t.DoesIntersectTile(tileToAdd)))
                         {
@@ -133,7 +141,7 @@ namespace ProceduralDungeon
                     !tA.OnMap(p)));
             var spawnPoint = validPoints.RandomElement();
             var player = (Player)Creatures.Single(c => c is Player);
-            AddAsset(new Door(spawnPoint, player));
+            AddAsset(new Door(this, spawnPoint, player));
         }
 
         private void generateKey()
@@ -154,19 +162,78 @@ namespace ProceduralDungeon
             AddAsset(new Key(spawnPoint));
         }
 
-        private void generateItems(IEnumerable<Item> repository, int numItems)
+        private void generateItem(Item item)
         {
-            for (int i = 0; i < numItems; i++)
+            var clonedItem = item.GetClone();
+            var validPoints = EmptyPoints.Where(p =>
+                // Central tile does not contain items:
+                !_centralTile.OnMap(p) && 
+                // Tiles can only have up to 3 items:
+                _tiles.Where(t => t.Items.Count > 3).All(tA => !tA.OnMap(p)));
+            // If no points meet above conditions, then set location to random empty point:
+            clonedItem.Location = validPoints.Count() > 0 ? validPoints.RandomElement() : EmptyPoints.RandomElement();
+            AddAsset(clonedItem);
+        }
+
+        private void generateNpc(Npc npc, int npcsPerTile)
+        {
+            var clonedNpc = npc.GetClone();
+            var validPoints = EmptyPoints.Where(p =>
+                // Central tile does not contain npcs:
+                !_centralTile.OnMap(p) && 
+                // Tiles have limited npcs based on difficulty:
+                _tiles.Where(t => t.Creatures.Count() > npcsPerTile).All(tA => !tA.OnMap(p)));
+            // If no points meet above conditions, then set location to random empty point:
+            clonedNpc.Location = validPoints.Count() > 0 ? validPoints.RandomElement() : EmptyPoints.RandomElement();
+            AddAsset(clonedNpc);
+        }
+
+        private void generateItemsUsingDifficulty(Difficulty difficulty, int numTiles, int level)
+        {
+            double itemToTileRatio = difficulty switch
             {
-                var itemToAdd = repository.RandomElement().GetClone();
-                var validPoints = EmptyPoints.Where(p =>
-                    // Central tile does not contain items:
-                    !_centralTile.OnMap(p) && 
-                    // Tiles can only have up to 3 items:
-                    _tiles.Where(t => t.Assets.Where(a => a is Item).Count() > 3).All(tA =>
-                        !tA.OnMap(p)));
-                itemToAdd.Location = validPoints.RandomElement();
-                AddAsset(itemToAdd);
+                Difficulty.VeryEasy => 1.5,
+                Difficulty.Easy => 1.25,
+                Difficulty.Medium => 1,
+                Difficulty.Hard => .75,
+                Difficulty.VeryHard => .5,
+                _ => throw new Exception("Invalid difficulty! Unable to generate items.")
+            };
+            double averageItemRarity = 20 * ((double)difficulty/100) + (level - 6)*2;
+            System.Console.WriteLine(averageItemRarity);
+
+            for (int i = 0; i < itemToTileRatio * numTiles; i++)
+            {
+                var sumRarity = Items.Count > 0 ? Items.Sum(i => (int)i.Rarity) : 0;
+                System.Console.WriteLine((ItemsRepository.All.Where(i => 
+                    Items.Count + 1 / sumRarity + (double)i.Rarity <= averageItemRarity).Count()));
+                generateItem(ItemsRepository.All.Where(i => 
+                    Items.Count + 1 / sumRarity + (double)i.Rarity <= averageItemRarity)
+                    .RandomElement());
+            }
+        }
+
+        private void generateNpcsUsingDifficulty(Difficulty difficulty, int numTiles, int level)
+        {
+            int maxNpcsPerTile = difficulty switch
+            {
+                Difficulty.VeryEasy => 1,
+                Difficulty.Easy => 2,
+                Difficulty.Medium => 3,
+                Difficulty.Hard => 4,
+                Difficulty.VeryHard => 5,
+                _ => throw new Exception("Invalid difficulty! Unable to generate npcs.")
+            };
+
+            int numNpcs = numTiles * ((int)difficulty/100);
+            int averageNpcDifficulty = (int)difficulty + (level - 1)*5;
+
+            for (int i = 0; i < numNpcs; i++)
+            {
+                var sumDifficulty = Npcs.Count > 0 ? Npcs.Sum(i => (int)i.Difficulty) : 50;
+                generateNpc(NpcsRepository.All.Where(n =>
+                    Npcs.Count + 1 / sumDifficulty + (double)n.Difficulty <= averageNpcDifficulty)
+                    .RandomElement(), maxNpcsPerTile);
             }
         }
         
@@ -296,13 +363,6 @@ namespace ProceduralDungeon
             AddAsset(player);
         }
         
-        public void AddNpc(Npc npc)
-        {
-            var validSpawns = EmptyPoints.Where(eP => !_centralTile.OnMap(eP));
-            npc.Location = validSpawns.RandomElement();
-            AddAsset(npc);
-        }
-        
         public void RemoveAsset(IMappable asset)
         {
             if (Assets.Contains(asset))
@@ -313,24 +373,6 @@ namespace ProceduralDungeon
             {
                 Console.WriteLine("Map does not contain asset.");
             }
-        }
-
-        public IMappable[] GetAssetsByName(string name)
-        {
-            return Assets.Where(a => a is INameable && (a as INameable).Name == name).ToArray();
-        }
-        
-        public int[][] GetCoordinatesWithin(int xStart, int xEnd, int yStart, int yEnd)
-        {
-            var coords = new List<int[]>();
-            for (int x = xStart; x <= xEnd; x++)
-            {
-                for (int y = yStart; y <= yEnd; y++)
-                {
-                    coords.Add(new[] {x, y});
-                }
-            }
-            return coords.ToArray();
         }
 
         public IMappable[] GetAssetsInRangeOf(Point origin, int range)
@@ -553,4 +595,12 @@ namespace ProceduralDungeon
             Console.ResetColor();
         }
     }
+        public enum MapSize
+        {
+            XSmall = 24,
+            Small = 36,
+            Medium = 48,
+            Large = 60,
+            XLarge = 72
+        }
 }

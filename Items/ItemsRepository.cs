@@ -91,6 +91,7 @@ namespace ProceduralDungeon
         public static readonly Item[] Uncommons = All.Where(i => i.Rarity == ItemRarity.Uncommon).ToArray();
         public static readonly Item[] Rares = All.Where(i => i.Rarity == ItemRarity.Rare).ToArray();
         public static readonly Item[] VeryRares = All.Where(i => i.Rarity == ItemRarity.VeryRare).ToArray();
+        public static readonly Item[] Junk = Commons.Where(i => !(i is Weapon) && !(i is Armor)).ToArray();
 
         // public static readonly Item[] Utilities = new Item[]
         // {

@@ -24,8 +24,10 @@ namespace ProceduralDungeon
         protected int _currentHp {get; set;}
         protected virtual int _attackModifier {get; set;} = 0;
         protected virtual int _attackRange {get; set;} = 1;
-        public int ArmorClass => 8 + EquippedArmor.Sum(eA => eA.ArmorClassBonus);
-        public virtual int DamageResistance => 0 + EquippedArmor.Sum(eA => eA.DamageResistance);
+        protected virtual int _baseArmorClass {get; set;} = 8;
+        public int ArmorClass => _baseArmorClass + EquippedArmor.Sum(eA => eA.ArmorClassBonus);
+        protected virtual int _baseDamageResistance {get; set;} = 0;
+        public virtual int DamageResistance => _baseDamageResistance + EquippedArmor.Sum(eA => eA.DamageResistance);
         protected Die[] _damageDice {get; set;} = new Die[] {Dice.D3};
         protected virtual int _damageModifier {get; set;} = 1;
         public int SearchRange {get; set;}

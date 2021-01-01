@@ -41,26 +41,28 @@ namespace ProceduralDungeon
             Location = itemToClone.Location;
         }
 
-        public Item(ItemPart[] itemTemplate, ItemRarity itemRarity, Craftsmanship craftsmanship)
-        {
-            foreach (var itemPart in itemTemplate) itemPart.Generate(materialRarity: itemRarity);
-            var primaryMaterialString = itemTemplate.Single(p => p.TotalWeight == itemTemplate.Max(p => p.TotalWeight)).Material.Name;
+        // TODO: Fine tune this:
+
+        // public Item(ItemPart[] itemTemplate, ItemRarity itemRarity, Craftsmanship craftsmanship)
+        // {
+        //     foreach (var itemPart in itemTemplate) itemPart.Generate(materialRarity: itemRarity);
+        //     var primaryMaterialString = itemTemplate.Single(p => p.TotalWeight == itemTemplate.Max(p => p.TotalWeight)).Material.Name;
             
-            Name = $"{craftsmanship.ToString()} {primaryMaterialString} Dagger";
-            Weight = itemTemplate.Sum(iP => iP.TotalWeight);
-            Value = (int)Math.Round(itemTemplate.Sum(iP => iP.TotalValue) * ((double)craftsmanship/(double)100));
+        //     Name = $"{craftsmanship.ToString()} {primaryMaterialString} Dagger";
+        //     Weight = itemTemplate.Sum(iP => iP.TotalWeight);
+        //     Value = (int)Math.Round(itemTemplate.Sum(iP => iP.TotalValue) * ((double)craftsmanship/(double)100));
             
-            var description = "";
-            foreach (var itemPart in itemTemplate)
-            {
-                description += $"The {itemPart.Name.ToLower()} is made of {itemPart.Material.Name.ToLower()}. It's worth about {Math.Round(itemPart.TotalValue)} gold and weighs {Math.Round(itemPart.TotalWeight, 1)}lbs.\n";
-            }
-            var moreOrLess = (int)craftsmanship > 100 ? "more" : "less";
-            var craftsmanshipString = (int)craftsmanship != 100 ? $" Due to its craftsmanship, it's worth {moreOrLess} than normal." : "";
-            description += $"The dagger is worth about {Value} gold and weighs {Math.Round(Weight, 1)}lbs in total.{craftsmanshipString}";
+        //     var description = "";
+        //     foreach (var itemPart in itemTemplate)
+        //     {
+        //         description += $"The {itemPart.Name.ToLower()} is made of {itemPart.Material.Name.ToLower()}. It's worth about {Math.Round(itemPart.TotalValue)} gold and weighs {Math.Round(itemPart.TotalWeight, 1)}lbs.\n";
+        //     }
+        //     var moreOrLess = (int)craftsmanship > 100 ? "more" : "less";
+        //     var craftsmanshipString = (int)craftsmanship != 100 ? $" Due to its craftsmanship, it's worth {moreOrLess} than normal." : "";
+        //     description += $"The dagger is worth about {Value} gold and weighs {Math.Round(Weight, 1)}lbs in total.{craftsmanshipString}";
             
-            Description = description;
-        }
+        //     Description = description;
+        // }
 
         public virtual Item GetClone()
         {
@@ -85,10 +87,10 @@ namespace ProceduralDungeon
 
     public enum ItemRarity
     {
-        Common,
-        Uncommon,
-        Rare,
-        VeryRare
+        Common = 0,
+        Uncommon = 10,
+        Rare = 25,
+        VeryRare = 45
     }
 
     public enum Craftsmanship

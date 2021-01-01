@@ -7,13 +7,31 @@ namespace ProceduralDungeon
 {
     public class Npc : Creature
     {
+        public Difficulty Difficulty {get; protected set;}
         public override char Symbol => IsDead ? Symbols.Dead : Symbols.Npc;
-        public Npc(string name, int id, int hp, Gender gender = Gender.None, Point location = null,
-            List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 1) :
-            base (name, id, hp, gender, location, inventory, gold, memory)
+        public Npc(string name, int id, Difficulty difficulty, int hp, int ac = 8, int dr = 0, 
+            int attackMod = 0, Die[] damageDice = null, int damageMod = 0, int attackRange = 1, int searchRange = 5,
+            Gender gender = Gender.None, Point location = null, double maxCarryWeight = 100, 
+            List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 1, string baseDescription = null) :
+            base (name, id, hp, gender, location, inventory, gold, memory, baseDescription)
         {
+            Difficulty = difficulty;
+            _baseArmorClass = ac;
+            _baseDamageResistance = dr;
+            _attackModifier = attackMod;
+            _damageDice = damageDice == null ? new Die[]{Dice.D4} : damageDice;
+            _damageModifier = damageMod;
+            _attackRange = attackRange;
+            SearchRange = searchRange;
+            MaxCarryWeight = maxCarryWeight;
             Team = team;
-            SearchRange = 5;
+        }
+
+        public Npc GetClone()
+        {
+            return new Npc(Name, Id, Difficulty, _maxHp, ArmorClass, DamageResistance, 
+                _attackModifier, _damageDice, _damageModifier, _attackRange, SearchRange, 
+                Gender, Location, MaxCarryWeight, Inventory, Gold, _memory, Team, _baseDescription);
         }
 
         public void Wander(Map map)

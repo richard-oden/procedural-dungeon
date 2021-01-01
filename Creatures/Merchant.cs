@@ -12,15 +12,15 @@ namespace ProceduralDungeon
         public Merchant(int id, int hp, Player player, string name = null, 
             Gender gender = Gender.NonBinary, Point location = null,
             List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 0) :
-            base (name, id, hp, gender, location, inventory, gold, memory)
+            base(name, id, difficulty: Difficulty.Medium, hp, ac: 12, dr: 2, attackMod: 4, damageDice: new Die[]{Dice.D4}, damageMod: 2,
+            attackRange: 1, searchRange: 10, gender, location, maxCarryWeight: 300, 
+            inventory: inventory, gold: gold, memory: memory)
         {
             Team = team;
-            SearchRange = 5;
             if (name == null) Name = NpcNameGenerator.Generate();
             string merchantDescription = $"{Pronouns[0]} appear(s) to be selling an assortment of various wares.";
             _baseDescription += _baseDescription == null ? merchantDescription : " " + merchantDescription;
             _player = player;
-            MaxCarryWeight = 300;
         }
 
         public override void Act(Map map)
