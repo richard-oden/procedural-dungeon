@@ -7,15 +7,15 @@ namespace ProceduralDungeon
 {
     public class Npc : Creature
     {
-        public Difficulty Difficulty {get; protected set;}
+        public int ChallengeLevel {get; protected set;}
         public override char Symbol => IsDead ? Symbols.Dead : Symbols.Npc;
-        public Npc(string name, int id, Difficulty difficulty, int hp, int ac = 8, int dr = 0, 
+        public Npc(string name, int id, int challengeLevel, int hp, int ac = 8, int dr = 0, 
             int attackMod = 0, Die[] damageDice = null, int damageMod = 0, int attackRange = 1, int searchRange = 5,
             Gender gender = Gender.None, Point location = null, double maxCarryWeight = 100, 
             List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 1, string baseDescription = null) :
             base (name, id, hp, gender, location, inventory, gold, memory, baseDescription)
         {
-            Difficulty = difficulty;
+            ChallengeLevel = challengeLevel;
             _baseArmorClass = ac;
             _baseDamageResistance = dr;
             _attackModifier = attackMod;
@@ -29,7 +29,7 @@ namespace ProceduralDungeon
 
         public Npc GetClone()
         {
-            return new Npc(Name, Id, Difficulty, _maxHp, ArmorClass, DamageResistance, 
+            return new Npc(Name, Id, ChallengeLevel, _maxHp, ArmorClass, DamageResistance, 
                 _attackModifier, _damageDice, _damageModifier, _attackRange, SearchRange, 
                 Gender, Location, MaxCarryWeight, Inventory, Gold, _memory, Team, _baseDescription);
         }

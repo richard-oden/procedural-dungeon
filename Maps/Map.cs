@@ -63,12 +63,13 @@ namespace ProceduralDungeon
             int numTiles = Width < Height ? Width/2 : Height/2;
             int numAttempts = numTiles * 3;
             generateTiles(numTiles, numAttempts);
+            System.Console.WriteLine("Number of tiles: " + _tiles.Count);
             fillSpaceBetweenTiles();
             AddPlayer(player);
             generateDoor();
             generateKey();
-            generateItemsUsingDifficulty(difficulty, numTiles, level);
-            generateNpcsUsingDifficulty(difficulty, numTiles, level);
+            generateItemsUsingDifficulty(difficulty, level);
+            generateNpcsUsingDifficulty(difficulty, level);
             validateAssets(Assets);
         }
         private bool canAddTile(Tile tileToAdd)
@@ -188,53 +189,52 @@ namespace ProceduralDungeon
             AddAsset(clonedNpc);
         }
 
-        private void generateItemsUsingDifficulty(Difficulty difficulty, int numTiles, int level)
+        private void generateItemsUsingDifficulty(Difficulty difficulty, int level)
         {
-            double itemToTileRatio = difficulty switch
-            {
-                Difficulty.VeryEasy => 1.5,
-                Difficulty.Easy => 1.25,
-                Difficulty.Medium => 1,
-                Difficulty.Hard => .75,
-                Difficulty.VeryHard => .5,
-                _ => throw new Exception("Invalid difficulty! Unable to generate items.")
-            };
-            double averageItemRarity = 20 * ((double)difficulty/100) + (level - 6)*2;
-            System.Console.WriteLine(averageItemRarity);
-
-            for (int i = 0; i < itemToTileRatio * numTiles; i++)
-            {
-                var sumRarity = Items.Count > 0 ? Items.Sum(i => (int)i.Rarity) : 0;
-                System.Console.WriteLine((ItemsRepository.All.Where(i => 
-                    Items.Count + 1 / sumRarity + (double)i.Rarity <= averageItemRarity).Count()));
-                generateItem(ItemsRepository.All.Where(i => 
-                    Items.Count + 1 / sumRarity + (double)i.Rarity <= averageItemRarity)
-                    .RandomElement());
-            }
+            
         }
 
-        private void generateNpcsUsingDifficulty(Difficulty difficulty, int numTiles, int level)
+        private void generateNpcsUsingDifficulty(Difficulty difficulty, int level)
         {
-            int maxNpcsPerTile = difficulty switch
+            double totalNpcMax = difficulty.NpcToTileRatio * _tiles.Count + (level * .2);
+            double npcChallengeAverage = difficulty.AverageNpcChallenge + (level * .5);
+            System.Console.WriteLine("Max npcs: " + totalNpcMax);
+            System.Console.WriteLine("Average challenge level: " + npcChallengeAverage);
+            for (int i = 0; i < totalNpcMax; i++)
             {
-                Difficulty.VeryEasy => 1,
-                Difficulty.Easy => 2,
-                Difficulty.Medium => 3,
-                Difficulty.Hard => 4,
-                Difficulty.VeryHard => 5,
-                _ => throw new Exception("Invalid difficulty! Unable to generate npcs.")
-            };
+                Npc newNpc = null;
+                // For first fifth of npcs, add npcs within a range of -4/+4 of average challenge:
+                if (i < totalNpcMax / 5)
+                {
+                    newNpc = NpcsRepository.All.Where(n => 
+                        ((double)n.ChallengeLevel).IsBetween(npcChallengeAverage-4, npcChallengeAverage+4)).RandomElement();
+                }
+                // Then add npcs where total average will be within acceptable variance:
+                else
+                {
+                    double currentNpcChallengeAverage = Npcs.Average(n => n.ChallengeLevel);
+                    double cAVariance = .5;
 
-            int numNpcs = numTiles * ((int)difficulty/100);
-            int averageNpcDifficulty = (int)difficulty + (level - 1)*5;
-
-            for (int i = 0; i < numNpcs; i++)
-            {
-                var sumDifficulty = Npcs.Count > 0 ? Npcs.Sum(i => (int)i.Difficulty) : 50;
-                generateNpc(NpcsRepository.All.Where(n =>
-                    Npcs.Count + 1 / sumDifficulty + (double)n.Difficulty <= averageNpcDifficulty)
-                    .RandomElement(), maxNpcsPerTile);
+                    // If no suitable npcs, increase variance until one matches:
+                    while (newNpc == null)
+                    {
+                        var potentialNpcs = NpcsRepository.All.Where(n =>
+                            ((currentNpcChallengeAverage + n.ChallengeLevel) / (Npcs.Count + 1))
+                            .IsBetween(npcChallengeAverage-cAVariance, npcChallengeAverage+cAVariance));
+                        if (potentialNpcs.Any())
+                        {
+                            newNpc = potentialNpcs.RandomElement();
+                        }
+                        else
+                        {
+                            cAVariance += .5;
+                        }
+                    }
+                }
+                generateNpc(newNpc, difficulty.MaxNpcsPerTile + (int)(level * .25));
             }
+            System.Console.WriteLine("Actual npcs: " + Npcs.Count);
+            System.Console.WriteLine("Actual average challenge level: " + Npcs.Average(n => n.ChallengeLevel));
         }
         
         public virtual bool OnMap(Point point)

@@ -27,7 +27,6 @@ namespace ProceduralDungeon
             if (_player.Inventory.Any(i => i is Key))
             {
                 System.Console.WriteLine("You insert the key and the door slowly creaks open, revealing a staircase descending into darkness.");
-                ExtensionsAndHelpers.WaitForInput();
                 _map.HasPlayerExited = true;
             }
             else

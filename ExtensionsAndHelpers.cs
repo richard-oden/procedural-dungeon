@@ -49,6 +49,11 @@ namespace ProceduralDungeon
             }
         }
         
+        public static bool IsBetween(this IComparable num, IComparable min, IComparable max)
+        {
+            return num.CompareTo(min) > 0 && num.CompareTo(max) < 0;
+        }
+        
         public static void MoveElement<T>(this List<T> list, T TElement, int distance)
         {
             if (list.Contains(TElement))

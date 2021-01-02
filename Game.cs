@@ -39,13 +39,4 @@ namespace ProceduralDungeon
             }
         }
     }
-
-    public enum Difficulty
-    {
-        VeryEasy = 50,
-        Easy = 75,
-        Medium = 100,
-        Hard = 125,
-        VeryHard = 150
-    }
 }

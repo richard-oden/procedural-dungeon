@@ -12,7 +12,7 @@ namespace ProceduralDungeon
         public Merchant(int id, int hp, Player player, string name = null, 
             Gender gender = Gender.NonBinary, Point location = null,
             List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 0) :
-            base(name, id, difficulty: Difficulty.Medium, hp, ac: 12, dr: 2, attackMod: 4, damageDice: new Die[]{Dice.D4}, damageMod: 2,
+            base(name, id, challengeLevel: 0, hp, ac: 12, dr: 2, attackMod: 4, damageDice: new Die[]{Dice.D4}, damageMod: 2,
             attackRange: 1, searchRange: 10, gender, location, maxCarryWeight: 300, 
             inventory: inventory, gold: gold, memory: memory)
         {
