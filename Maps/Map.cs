@@ -191,15 +191,51 @@ namespace ProceduralDungeon
 
         private void generateItemsUsingDifficulty(Difficulty difficulty, int level)
         {
-            
+            var totalItemMax = difficulty.ItemToTileRatio * _tiles.Count;
+            var itemValueAverage = difficulty.AverageItemValue + (level * 2);
+            for (int i = 0; i < totalItemMax; i++)
+            {
+                Item newItem = null;
+                if (i < totalItemMax / 6)
+                {
+                    newItem = ItemsRepository.All.Where(i => 
+                        i.Value.IsBetween(itemValueAverage-40, itemValueAverage+40)).RandomElement();
+                }
+                else
+                {
+                    double currentItemValueSum = Items.Sum(i => i.Value);
+                    double iVVariance = 15;
+
+                    while (newItem == null)
+                    {
+                        var potentialItems = ItemsRepository.All.Where(i =>
+                            ((currentItemValueSum + i.Value) / (Items.Count + 1))
+                            .IsBetween(itemValueAverage-iVVariance, itemValueAverage+iVVariance));
+                        if (potentialItems.Any())
+                        {
+                            newItem = potentialItems.RandomElement();
+                        }
+                        else
+                        {
+                            iVVariance += 2;
+                        }
+                    }
+                }
+                generateItem(newItem);
+            }
+            System.Console.WriteLine();
+            System.Console.WriteLine("Max items: " + totalItemMax);
+            System.Console.WriteLine("Average item value: " + itemValueAverage);
+            System.Console.WriteLine("Actual items: " + Items.Count);
+            System.Console.WriteLine("Actual average item value: " + Items.Average(i => i.Value));
+            System.Console.WriteLine("All items: " + Items.Select(i => i.Name + " - " + i.Value).ToString("and"));
+            System.Console.WriteLine();
         }
 
         private void generateNpcsUsingDifficulty(Difficulty difficulty, int level)
         {
             double totalNpcMax = difficulty.NpcToTileRatio * _tiles.Count + (level * .2);
             double npcChallengeAverage = difficulty.AverageNpcChallenge + (level * .5);
-            System.Console.WriteLine("Max npcs: " + totalNpcMax);
-            System.Console.WriteLine("Average challenge level: " + npcChallengeAverage);
             for (int i = 0; i < totalNpcMax; i++)
             {
                 Npc newNpc = null;
@@ -212,14 +248,14 @@ namespace ProceduralDungeon
                 // Then add npcs where total average will be within acceptable variance:
                 else
                 {
-                    double currentNpcChallengeAverage = Npcs.Average(n => n.ChallengeLevel);
+                    double currentNpcChallengeSum = Npcs.Sum(n => n.ChallengeLevel);
                     double cAVariance = .5;
 
                     // If no suitable npcs, increase variance until one matches:
                     while (newNpc == null)
                     {
                         var potentialNpcs = NpcsRepository.All.Where(n =>
-                            ((currentNpcChallengeAverage + n.ChallengeLevel) / (Npcs.Count + 1))
+                            ((currentNpcChallengeSum + n.ChallengeLevel) / (Npcs.Count + 1))
                             .IsBetween(npcChallengeAverage-cAVariance, npcChallengeAverage+cAVariance));
                         if (potentialNpcs.Any())
                         {
@@ -233,8 +269,11 @@ namespace ProceduralDungeon
                 }
                 generateNpc(newNpc, difficulty.MaxNpcsPerTile + (int)(level * .25));
             }
+            System.Console.WriteLine("Max npcs: " + totalNpcMax);
+            System.Console.WriteLine("Average challenge level: " + npcChallengeAverage);
             System.Console.WriteLine("Actual npcs: " + Npcs.Count);
             System.Console.WriteLine("Actual average challenge level: " + Npcs.Average(n => n.ChallengeLevel));
+            System.Console.WriteLine("All npcs: " + Npcs.Select(n => n.Name + " - " + n.ChallengeLevel).ToString("and"));
         }
         
         public virtual bool OnMap(Point point)
