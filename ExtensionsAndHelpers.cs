@@ -85,7 +85,7 @@ namespace ProceduralDungeon
                 if (a is INameable) 
                 {
                     Console.Write((a as INameable).Name);
-                    if (a is Creature && (a as Creature).IsDead) Console.Write(" (Dead)");
+                    if (a is Creature && (a as Creature).IsDead) Console.Write(" (dead)");
                 }
                 else
                 {

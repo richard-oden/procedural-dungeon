@@ -11,7 +11,7 @@ namespace ProceduralDungeon
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             var testPlayer = new Player(name: "Bill", id: 001, hp: 10, Gender.Male, gold: 27);
-            var testGame = new Game(Difficulties.VeryEasy, MapSize.Small, testPlayer);
+            var testGame = new Game(Difficulties.Easy, MapSize.Medium, testPlayer);
             testGame.StartAt(0);
         }
     }

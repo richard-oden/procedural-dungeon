@@ -121,14 +121,11 @@ namespace ProceduralDungeon
         }
 
         public virtual void PickUpItem(Map map, Item itemToPickUp)
-        {
-            if (validateTargetOnMap(map, itemToPickUp, 1))
-            {         
-                if (AddItemToInventory(itemToPickUp))
-                {
-                    map.RemoveAsset(itemToPickUp);
-                    System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
-                }
+        {     
+            if (AddItemToInventory(itemToPickUp))
+            {
+                map.RemoveAsset(itemToPickUp);
+                System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
             }
         }
 

@@ -31,7 +31,7 @@ namespace ProceduralDungeon
         {
             System.Console.WriteLine("You study the map for a moment. It shows the following locations:");
             _highlightedAssets.ListDistanceAndDirectionFrom(_player.Location);
-            _map.PrintMapHighlightingAssets(_highlightedAssets);
+            _map.PrintMapWithOnlyHighlightedAssets(_highlightedAssets);
         }
     }
 }

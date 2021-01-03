@@ -550,7 +550,7 @@ namespace ProceduralDungeon
         }
 
         // Prints map only showing highlighted assets:
-        public void PrintMapHighlightingAssets(IEnumerable<IMappable> highlightedAssets)
+        public void PrintMapWithOnlyHighlightedAssets(IEnumerable<IMappable> highlightedAssets)
         {
             for (int y = 0; y < Height; y++)
             {
@@ -565,7 +565,7 @@ namespace ProceduralDungeon
                         !((thisAsset is Item || thisAsset is Door) && 
                         !highlightedAssets.Contains(thisAsset)))
                     {
-                        if (thisAsset is Door || thisAsset is Item) Console.BackgroundColor = Red;
+                        if (thisAsset is Door || thisAsset is Item) Console.BackgroundColor = Yellow;
                         if (thisAsset is Door) Console.ForegroundColor = White;
                         if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
                         if (thisAsset is Player) Console.ForegroundColor = Blue;
@@ -581,6 +581,68 @@ namespace ProceduralDungeon
             }
         }
         
+        // Prints only section of map within viewport, highlighting the selected item:
+        // (For use in menu class)
+        public void PrintMapFromViewportWithHighlightedAsset(Creature creature, IMappable highlightedAsset)
+        {
+            int searchRadius = creature.SearchRange + 4;
+            int searchDiameter = searchRadius*2 + 1;
+
+            int getOriginCoord(int creatureCoord, int upperLimit)
+            {
+                int tempOriginCoord = creatureCoord - searchRadius;
+                if (tempOriginCoord < 0)
+                {
+                    return 0;
+                }
+                else if (tempOriginCoord + searchDiameter > upperLimit)
+                {
+                    return upperLimit - searchDiameter;
+                }
+                else
+                {
+                    return tempOriginCoord;
+                }
+            }
+
+            Point origin = new Point(getOriginCoord(creature.Location.X, Width), getOriginCoord(creature.Location.Y, Height));
+            int viewportHeight = origin.Y + searchDiameter;
+            int viewportWidth = origin.X + searchDiameter;
+
+            for (int y = origin.Y; y < viewportHeight; y++)
+            {
+                for (int x = origin.X; x < viewportWidth; x++)
+                {
+                    var thisPoint = new Point(x, y);
+                    var thisAsset = Assets.FirstOrDefault(a => 
+                        a.Location.X == x && a.Location.Y == y || a is IRectangular && 
+                        Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
+
+                    Console.ForegroundColor = DarkGray;
+                    bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
+                    if (inSearchRange) 
+                    {
+                        Console.ForegroundColor = Gray;
+                        Console.BackgroundColor = DarkGray;
+                    }
+
+                    if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
+                    {
+                        if (highlightedAsset != null && thisAsset == highlightedAsset) Console.BackgroundColor = Yellow;
+                        if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
+                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
+                        Console.Write(thisAsset.Symbol + " ");
+                    }
+                    else
+                    {
+                        Console.Write("  ");
+                    }
+                    Console.ResetColor();
+                }
+                Console.WriteLine();
+            }
+        }
         public bool Move(IMappable assetToMove, ConsoleKeyInfo input)
         {
             var tempLocation = new Point(assetToMove.Location);

@@ -29,9 +29,9 @@ namespace ProceduralDungeon
             else if (input.Key == O) DropItem(map);
             else if (input.Key == U) EquipItem();
             else if (input.Key == Y) UnequipItem();
-            else if (input.Key == J) Interact();
+            else if (input.Key == J) Interact(map);
             else if (input.Key == F) Attack(map);
-            else if (input.Key == R) Recall();
+            else if (input.Key == R) Recall(map);
             else if (input.Key == T) Describe();
             else if (input.Key == Escape) {}// Quit menu
             else System.Console.WriteLine("Hotkey not recognized. Press 'H' for a full list of hotkeys.");
@@ -81,25 +81,25 @@ namespace ProceduralDungeon
 
         public override void Search(Map map)
         {
-            var foundAssets = GetVisibleAssets(map).Where(a => a is INameable);
+            var foundAssets = GetVisibleAssets(map).Where(a => a is INameable).ToList();
             if (!foundAssets.Any())
             {
                 Console.WriteLine($"{Name} searched but couldn't find anything!");
             }
             else
             {
-                System.Console.WriteLine($"{Name} searched and found:");
-                foundAssets.ListDistanceAndDirectionFrom(Location);
+                var foundAssetsMenu = new Menu($"{Name} searched and found the following. Press Up/Down to highlight object and Enter/Esc to exit.", foundAssets, map, this);
+                foundAssetsMenu.Open();
                 foreach (var fA in foundAssets.Where(fA => fA is INameable)) AddToMemory(fA as INameable);
             }
             WaitForInput();
         }
     
-        public void Recall()
+        public void Recall(Map map)
         {
-            System.Console.WriteLine($"{Name}'s memory:");
-            var convertedMemory = from a in _memory where a is IMappable select (a as IMappable);
-            convertedMemory.ListDistanceAndDirectionFrom(Location);
+            System.Console.WriteLine();
+            var memoryMenu = new Menu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), map, this);
+            memoryMenu.Open();
             WaitForInput();
         }
     
@@ -120,17 +120,23 @@ namespace ProceduralDungeon
             WaitForInput();
         }
     
-        public void Interact()
+        public void Interact(Map map)
         {
-            var input = PromptLine("Enter the name of the thing to interact with:");
-            var thingToInteractWith = _memory.GetByName(input);
-            if (thingToInteractWith != null && thingToInteractWith is IInteractable)
+            // Valid objects must be in inventory,
+            var validInteractables = _memory.Where(m => (m is Item && Inventory.Contains(m as Item)) || 
+                // or located on map,
+                (m is IMappable && (m as IMappable).Location != null &&
+                // and be adjacent to player:
+                (m as IMappable).Location.InRangeOf(Location, 1))).Cast<IMappable>().ToList();
+            var interactMenu = new Menu("Select an object to interact with. Press Up/Down to change selection, Enter to interact, and Esc to exit.", validInteractables, map, this);
+            var thingToInteractWith = interactMenu.Open();
+            if (thingToInteractWith != null)
             {
-                base.Interact(thingToInteractWith as IInteractable);
+                (thingToInteractWith as IInteractable).Activate();
             }
             else
             {
-                System.Console.WriteLine($"Hmmm. {input} doesn't ring any bells.");
+                System.Console.WriteLine("Not sure what to interact with.");
             }
             WaitForInput();
         }
@@ -154,15 +160,19 @@ namespace ProceduralDungeon
 
         public void PickUpItem(Map map)
         {
-            var input = PromptLine("Enter name of item to pick up:");
-            var itemToPickUp = map.Items.GetByName(input);
+            var validItemsAsIMappable = map.Items.Where(i => 
+                i.Location != null && Location.InRangeOf(i.Location, 1) && _memory.Contains(i))
+                .Cast<IMappable>().ToList();
+
+            var pickUpItemMenu = new Menu("Select item to pick up. Press Up/Down to change selection, Enter to pick up, and Esc to exit.", validItemsAsIMappable, map, this);
+            var itemToPickUp = pickUpItemMenu.Open();
             if (itemToPickUp != null)
             {
                 base.PickUpItem(map, itemToPickUp as Item);
             }
             else
             {
-                System.Console.WriteLine($"{Name} could not find the {input}!");
+                System.Console.WriteLine("Not sure what to pick up.");
             }
             WaitForInput();
         }
@@ -171,15 +181,15 @@ namespace ProceduralDungeon
         {
             if (Inventory.Any())
             {
-                var input = PromptLine("Enter name of item to drop:");
-                var itemToDrop = Inventory.GetByName(input);
+                var dropItemMenu = new Menu("Select item to drop. Press Up/Down to change selection, Enter to drop, and Esc to exit.", Inventory.Cast<IMappable>().ToList(), map, this);
+                var itemToDrop = dropItemMenu.Open();
                 if (itemToDrop != null)
                 {
                     base.DropItem(map, itemToDrop as Item);
                 }
                 else
                 {
-                    System.Console.WriteLine($"{Name} could not find the {input}!");
+                    System.Console.WriteLine("Not sure what to drop.");
                 }
             }
             else
