@@ -88,7 +88,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                var foundAssetsMenu = new Menu($"{Name} searched and found the following. Press Up/Down to highlight object and Enter/Esc to exit.", foundAssets, map, this);
+                var foundAssetsMenu = new Menu($"{Name} searched and found the following. Press Up/Down to highlight object and Enter/Esc to exit.", foundAssets, this, map);
                 foundAssetsMenu.Open();
                 foreach (var fA in foundAssets.Where(fA => fA is INameable)) AddToMemory(fA as INameable);
             }
@@ -98,7 +98,7 @@ namespace ProceduralDungeon
         public void Recall(Map map)
         {
             System.Console.WriteLine();
-            var memoryMenu = new Menu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), map, this);
+            var memoryMenu = new Menu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), this, map);
             memoryMenu.Open();
             WaitForInput();
         }
@@ -128,7 +128,7 @@ namespace ProceduralDungeon
                 (m is IMappable && (m as IMappable).Location != null &&
                 // and be adjacent to player:
                 (m as IMappable).Location.InRangeOf(Location, 1))).Cast<IMappable>().ToList();
-            var interactMenu = new Menu("Select an object to interact with. Press Up/Down to change selection, Enter to interact, and Esc to exit.", validInteractables, map, this);
+            var interactMenu = new Menu("Select an object to interact with. Press Up/Down to change selection, Enter to interact, and Esc to exit.", validInteractables, this, map);
             var thingToInteractWith = interactMenu.Open();
             if (thingToInteractWith != null)
             {
@@ -164,7 +164,7 @@ namespace ProceduralDungeon
                 i.Location != null && Location.InRangeOf(i.Location, 1) && _memory.Contains(i))
                 .Cast<IMappable>().ToList();
 
-            var pickUpItemMenu = new Menu("Select item to pick up. Press Up/Down to change selection, Enter to pick up, and Esc to exit.", validItemsAsIMappable, map, this);
+            var pickUpItemMenu = new Menu("Select item to pick up. Press Up/Down to change selection, Enter to pick up, and Esc to exit.", validItemsAsIMappable, this, map);
             var itemToPickUp = pickUpItemMenu.Open();
             if (itemToPickUp != null)
             {
@@ -181,7 +181,7 @@ namespace ProceduralDungeon
         {
             if (Inventory.Any())
             {
-                var dropItemMenu = new Menu("Select item to drop. Press Up/Down to change selection, Enter to drop, and Esc to exit.", Inventory.Cast<IMappable>().ToList(), map, this);
+                var dropItemMenu = new Menu("Select item to drop. Press Up/Down to change selection, Enter to drop, and Esc to exit.", Inventory.Cast<IMappable>().ToList(), this);
                 var itemToDrop = dropItemMenu.Open();
                 if (itemToDrop != null)
                 {
@@ -201,62 +201,40 @@ namespace ProceduralDungeon
     
         public void EquipItem()
         {
-            if (Inventory.Any())
+             var validItemsAsIMappable = Inventory.Where(i => i is IEquippable && !EquippedItems.Contains(i as IEquippable)).Cast<IMappable>().ToList();
+            var equipMenu = new Menu("Select item to equip. Press Up/Down to change selection, Enter to equip, and Esc to exit.", validItemsAsIMappable, this);
+            var itemToEquip = equipMenu.Open();
+            if (itemToEquip != null)
             {
-                var input = PromptLine("Enter name of item to equip:");
-                var itemToEquip = _memory.Where(a => 
-                    a is IEquippable && !EquippedItems.Contains(a as IEquippable))
-                    .GetByName(input);
-                if (itemToEquip != null)
-                {
-                    base.EquipItem(itemToEquip as Item);
-                }
-                else
-                {
-                    System.Console.WriteLine($"{Name} could not equip the {input}.");
-                }
+                base.EquipItem(itemToEquip as Item);
             }
             else
             {
-                System.Console.WriteLine($"{Name} has nothing to equip!");
+                System.Console.WriteLine("Not sure what to equip.");
             }
             WaitForInput();
         }
         
         public void UnequipItem()
         {
-            if (EquippedItems.Any())
+            var unequipMenu = new Menu("Select item to unequip. Press Up/Down to change selection, Enter to unequip, and Esc to exit.", EquippedItems.Cast<IMappable>().ToList(), this);
+            var itemToUnequip = unequipMenu.Open();
+            if (itemToUnequip != null)
             {
-                var input = PromptLine("Enter name of item to unequip:");
-                var itemToEquip = _memory.GetByName(input);
-                if (itemToEquip != null)
-                {
-                    if (itemToEquip is Item)
-                    {
-                        base.UnequipItem(itemToEquip as Item);
-                    }
-                    else
-                    {
-                        System.Console.WriteLine($"{itemToEquip.Name} is not an item!");
-                    }
-                }
-                else
-                {
-                    System.Console.WriteLine($"{Name} could not find the {input}!");
-                }
+                base.UnequipItem(itemToUnequip as Item);
             }
             else
             {
-                System.Console.WriteLine($"{Name} has nothing equipped!");
+                System.Console.WriteLine("Not sure what to unequip.");
             }
             WaitForInput();
         }
         
         public void Attack(Map map)
         {
-            var input = PromptLine("Enter the name of the creature to attack:");
-            var targets = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange));
-            var target = targets.GetByName(input);
+            var targetsAsIMappable = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange) && a != this).Cast<IMappable>().ToList();
+            var attackMenu = new Menu("Select creature to attack. Press Up/Down to change selection, Enter to attack, and Esc to exit.", targetsAsIMappable, this, map);
+            var target = attackMenu.Open();
             if (target != null)
             {
                 base.Attack(map, target as Creature);

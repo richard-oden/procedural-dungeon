@@ -11,7 +11,7 @@ namespace ProceduralDungeon
         private Map _map {get; set;}
         private Player _player {get; set;}
     
-        public Menu(string prompt, List<IMappable> options, Map map, Player player)
+        public Menu(string prompt, List<IMappable> options, Player player, Map map = null)
         {
             Prompt = prompt;
             Options = options;
@@ -81,11 +81,11 @@ namespace ProceduralDungeon
                     IMappable highlightedOption = Options[cursorPosition];
                     Console.Clear();
                     Console.WriteLine(Prompt);
-                    _map.PrintMapFromViewportWithHighlightedAsset(_player, highlightedOption);
+                    if (_map != null) _map.PrintMapFromViewportWithHighlightedAsset(_player, highlightedOption);
                     Console.WriteLine();
                     listOptions(highlightedOption);
-                    
-                    var input = Console.ReadKey();
+
+                    var input = Console.ReadKey(true);
 
                     if (input.Key == ConsoleKey.Enter) return highlightedOption;
                     else if (input.Key == ConsoleKey.Escape) menuOpen = false;
