@@ -7,15 +7,13 @@ namespace ProceduralDungeon
         public string Name {get; private set;} = "Door";
         public Point Location {get; set;}
         private Map _map {get; set;}
-        private Player _player {get; set;}
         public char Symbol {get; protected set;} = Symbols.Door;
         private bool _requiresKey {get; set;}
 
-        public Door(Map map, Point location, Player player, bool requiresKey = true)
+        public Door(Map map, Point location, bool requiresKey = true)
         {
             _map = map;
             Location = location;
-            _player = player;
             _requiresKey = requiresKey;
         }
 
@@ -24,9 +22,9 @@ namespace ProceduralDungeon
             Location = location;
         }
 
-        public void Activate()
+        public void Activate(Player player)
         {
-            if (_player.Inventory.Any(i => i is Key) || _requiresKey == false)
+            if (player.Inventory.Any(i => i is Key) || _requiresKey == false)
             {
                 System.Console.WriteLine("The door slowly creaks open, revealing a staircase descending into darkness.");
                 _map.HasPlayerExited = true;

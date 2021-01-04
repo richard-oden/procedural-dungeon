@@ -89,6 +89,66 @@ namespace ProceduralDungeon
             Console.ResetColor();
             return highlightedItem;
         }
+        
+        void OpenTradeMenu(Player player)
+        {
+            int cursorX = player.Inventory.Any() ? 0 : 1;
+            int cursorY = 0;
+            bool stillTrading = true;
+
+            while (stillTrading)
+            {
+                Item selectedItem = ListTwoInventoriesAndSelect(player, cursorX, cursorY);
+                System.Console.WriteLine("\nUse the arrow keys to navigate, Enter to take/leave items, and Esc to exit.");
+                var input = Console.ReadKey();
+
+                int tempCursorX = cursorX;
+                int tempCursorY = cursorY;
+                switch (input.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        tempCursorY--;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        tempCursorY++;
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        tempCursorX--;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        tempCursorX++;
+                        break;
+                    case ConsoleKey.Enter:
+                        if (player.Inventory.Contains(selectedItem))
+                        {
+                            (player as IContainer).TradeItem(selectedItem, this);
+                        }
+                        else if (Inventory.Contains(selectedItem))
+                        {
+                            this.TradeItem(selectedItem, player);
+                        }
+                        break;
+                    case ConsoleKey.Escape:
+                        stillTrading = false;
+                        break;
+                }
+
+                // Keep cursor X coordinate within menu bounds:
+                if (tempCursorX < 0) tempCursorX = 0;
+                else if (tempCursorX > 1) tempCursorX = 1;
+                // If one inventory is empty, force cursor to other inventory:
+                if (tempCursorX == 0 && !player.Inventory.Any()) tempCursorX = 1;
+                else if (tempCursorX == 1 && !Inventory.Any()) tempCursorX = 0;
+                cursorX = tempCursorX;
+
+                // Keep cursor Y coordinate within menu bounds:
+                int cursorYMax = tempCursorX <= 0 ? player.Inventory.Count() : Inventory.Count();
+                if (tempCursorY < 0) cursorY = 0;
+                else if (tempCursorY >= cursorYMax) cursorY = cursorYMax - 1;
+                else cursorY = tempCursorY;
+                Console.Clear();
+            }
+        }
         string GetName()
         {
             return this is INameable ? (this as INameable).Name : "The" + this.GetType().Name;

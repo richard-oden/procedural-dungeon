@@ -90,7 +90,7 @@ namespace ProceduralDungeon
             var merchant = Merchant.GenerateUsingDifficulty(difficulty, level, player);
             merchant.Location = merchantMap.EmptyPoints.RandomElement();
             merchantMap.AddAsset(merchant);
-            merchantMap.AddAsset(new Door(merchantMap, merchantMap.EmptyPoints.RandomElement(), player, false));
+            merchantMap.AddAsset(new Door(merchantMap, merchantMap.EmptyPoints.RandomElement(), false));
             player.AddToMemory(merchant);
             return merchantMap;
         }
@@ -159,8 +159,7 @@ namespace ProceduralDungeon
                 _tiles.Where(t => t.DoOpeningPointsMatch(_centralTile)).All(tA => 
                     !tA.OnMap(p)));
             var spawnPoint = validPoints.RandomElement();
-            var player = (Player)Creatures.Single(c => c is Player);
-            AddAsset(new Door(this, spawnPoint, player));
+            AddAsset(new Door(this, spawnPoint));
         }
 
         private void generateKey()

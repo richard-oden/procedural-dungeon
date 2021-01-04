@@ -2,6 +2,6 @@ namespace ProceduralDungeon
 {
     public interface IInteractable
     {
-        void Activate();
+        void Activate(Player player);
     }
 }

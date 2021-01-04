@@ -6,13 +6,11 @@ using ProceduralDungeon.TextGeneration;
 
 namespace ProceduralDungeon
 {
-    public class Merchant : Npc, IInteractable
+    public class Merchant : Npc
     {
-        private Player _player {get; set;}
-        public Merchant(int id, int hp, Player player, string name = null, 
-            Gender gender = Gender.NonBinary, Point location = null,
-            List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 0) :
-            base(name, id, challengeLevel: 0, hp, ac: 12, dr: 2, attackMod: 4, damageDice: new Die[]{Dice.D4}, damageMod: 2,
+        public Merchant(int id, int hp, string name = null, Gender gender = Gender.NonBinary, Point location = null,
+            List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 0) 
+            : base(name, id, challengeLevel: 0, hp, ac: 12, dr: 2, attackMod: 4, damageDice: new Die[]{Dice.D4}, damageMod: 2,
             attackRange: 1, searchRange: 10, gender, location, maxCarryWeight: 1000, 
             inventory: inventory, gold: gold, memory: memory)
         {
@@ -20,13 +18,11 @@ namespace ProceduralDungeon
             if (name == null) Name = NpcNameGenerator.Generate();
             string merchantDescription = $"{Pronouns[0]} appear(s) to be selling an assortment of various wares.";
             _baseDescription += _baseDescription == null ? merchantDescription : " " + merchantDescription;
-            _player = player;
         }
 
         public static Merchant GenerateUsingDifficulty(Difficulty difficulty, int level, Player player)
-        {
-            
-            return new Merchant(id: 001, hp: 100, player, 
+        { 
+            return new Merchant(id: 001, hp: 100, 
             inventory: generateInventoryUsingDifficulty(difficulty, level),
             gold: generateGoldUsingDifficulty(difficulty, level));
         }
@@ -107,15 +103,15 @@ namespace ProceduralDungeon
                 }
             }
         }
-        public void OpenTrade()
+        public void OpenTrade(Player player)
         {
-            int cursorX = _player.Inventory.Any() ? 0 : 1;
+            int cursorX = player.Inventory.Any() ? 0 : 1;
             int cursorY = 0;
             bool stillTrading = true;
 
             while (stillTrading)
             {
-                Item selectedItem = (this as IContainer).ListTwoInventoriesAndSelect(_player, cursorX, cursorY);
+                Item selectedItem = (this as IContainer).ListTwoInventoriesAndSelect(player, cursorX, cursorY);
                 System.Console.WriteLine("\nUse the arrow keys to navigate, Enter to buy/sell an item, or Esc to stop trading.");
                 var input = Console.ReadKey();
 
@@ -136,12 +132,12 @@ namespace ProceduralDungeon
                         tempCursorX++;
                         break;
                     case ConsoleKey.Enter:
-                        if (_player.Inventory.Contains(selectedItem))
+                        if (player.Inventory.Contains(selectedItem))
                         {
                             var buyInput = PromptKey($"\nI'll purchase the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 0.75)} gold. Deal? (Y/N)");
                             if (buyInput == ConsoleKey.Y)
                             {
-                                (_player as IContainer).TradeItem(selectedItem, this, requireGold: true, discount: 0.75);
+                                (player as IContainer).TradeItem(selectedItem, this, requireGold: true, discount: 0.75);
                                 Console.WriteLine("Thank you good sir/ma'am!");
                             }
                             else if (buyInput == ConsoleKey.N)
@@ -158,7 +154,7 @@ namespace ProceduralDungeon
                             var sellInput = PromptKey($"\nI'll sell you the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 1.25)} gold. Deal? (Y/N)");
                             if (sellInput == ConsoleKey.Y)
                             {
-                                (this as IContainer).TradeItem(selectedItem, _player, requireGold: true, discount: 1.25);
+                                (this as IContainer).TradeItem(selectedItem, player, requireGold: true, discount: 1.25);
                                 Console.WriteLine("Thank you good sir/ma'am!");
                             }
                             else if (sellInput == ConsoleKey.N)
@@ -183,27 +179,27 @@ namespace ProceduralDungeon
                 if (tempCursorX < 0) tempCursorX = 0;
                 else if (tempCursorX > 1) tempCursorX = 1;
                 // If one inventory is empty, force cursor to other inventory:
-                if (tempCursorX == 0 && !_player.Inventory.Any()) tempCursorX = 1;
+                if (tempCursorX == 0 && !player.Inventory.Any()) tempCursorX = 1;
                 else if (tempCursorX == 1 && !Inventory.Any()) tempCursorX = 0;
                 cursorX = tempCursorX;
 
                 // Keep cursor Y coordinate within menu bounds:
-                int cursorYMax = tempCursorX <= 0 ? _player.Inventory.Count() : Inventory.Count();
+                int cursorYMax = tempCursorX <= 0 ? player.Inventory.Count() : Inventory.Count();
                 if (tempCursorY < 0) cursorY = 0;
                 else if (tempCursorY >= cursorYMax) cursorY = cursorYMax - 1;
                 else cursorY = tempCursorY;
                 Console.Clear();
             }
         }  
-        public void Activate()
+        public override void Activate(Player player)
         {
             if (!IsDead)
             {
-                if (Inventory.Any() || _player.Inventory.Any())
+                if (Inventory.Any() || player.Inventory.Any())
                 {
                     Console.Clear();
                     System.Console.WriteLine("Hello adventurer! May I interest you in a trade?");
-                    OpenTrade();
+                    OpenTrade(player);
                 }
                 else
                 {
@@ -212,7 +208,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                System.Console.WriteLine($"{Name} is dead.");
+                System.Console.WriteLine($"{Name}'s posessions have been destroyed.");
             }
         }
     }

@@ -5,7 +5,7 @@ using static ProceduralDungeon.ExtensionsAndHelpers;
 
 namespace ProceduralDungeon
 {
-    public class Npc : Creature
+    public class Npc : Creature, IInteractable
     {
         public int ChallengeLevel {get; protected set;}
         public override char Symbol => IsDead ? Symbols.Dead : Symbols.Npc;
@@ -149,6 +149,16 @@ namespace ProceduralDungeon
                 {
                     Wander(map);
                 }
+            }
+        }
+    
+        public virtual void Activate(Player player)
+        {
+            if (IsDead)
+            {
+                System.Console.WriteLine($"{player.Name} searches the {Name}.");
+                WaitForInput();
+                (this as IContainer).OpenTradeMenu(player);
             }
         }
     }

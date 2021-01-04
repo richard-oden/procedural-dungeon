@@ -121,7 +121,8 @@ namespace ProceduralDungeon
         public void Interact(Map map)
         {
             // Valid objects must be in inventory,
-            var validInteractables = _memory.Where(m => (m is Item && Inventory.Contains(m as Item)) || 
+            var validInteractables = _memory.Where(m => m is IInteractable)
+                .Where(m => (m is Item && Inventory.Contains(m as Item)) || 
                 // or located on map,
                 (m is IMappable && (m as IMappable).Location != null &&
                 // and be adjacent to player:
@@ -130,7 +131,7 @@ namespace ProceduralDungeon
             var thingToInteractWith = interactMenu.Open();
             if (thingToInteractWith != null)
             {
-                (thingToInteractWith as IInteractable).Activate();
+                (thingToInteractWith as IInteractable).Activate(this);
             }
             else
             {
