@@ -55,7 +55,8 @@ namespace ProceduralDungeon
         {
             Item highlightedItem = cursorX == 0 ? otherContainer.Inventory[cursorY] : Inventory[cursorY];
             int listLength = otherContainer.Inventory.Count() > Inventory.Count() ? otherContainer.Inventory.Count() : Inventory.Count();
-            int padSize = otherContainer.Inventory.Select(i => i.GetBasicDetails().Length).Max() + 5;
+            int padSize = otherContainer.Inventory.Any() ? otherContainer.Inventory.Select(i => i.GetBasicDetails().Length).Max() + 5 
+                : otherContainer.GetInfoString().Length + 5;
             Console.WriteLine(otherContainer.GetInfoString().PadRight(padSize, ' ') + GetInfoString() + "\n\n");
             for (int y = 0; y < listLength; y++)
             {

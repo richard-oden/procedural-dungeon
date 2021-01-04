@@ -23,7 +23,9 @@ namespace ProceduralDungeon
             _gameRunning = true;
             while (_gameRunning)
             {
-                var thisMap = new Map(Size, Player, Difficulty, level);
+                // Every 3 levels create a merchant area:
+                var thisMap = level % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, level) 
+                    : new Map(Size, Player, Difficulty, level);
                 while (!Player.IsDead && !thisMap.HasPlayerExited)
                 {
                     thisMap.PrintMapFromViewport(Player);

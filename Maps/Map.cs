@@ -72,6 +72,29 @@ namespace ProceduralDungeon
             generateNpcsUsingDifficulty(difficulty, level);
             validateAssets(Assets);
         }
+
+        public void generateCentralTile()
+        {
+            _centralTile = new Tile(TileSize.Large, TileSize.Large, 1, 1, 1, 1, new TileInterior(TileSize.Large, TileSize.Large, InteriorPreset.IndentedCorners)); 
+            var centralTileStart = new Point(Width/2 - (int)TileSize.Large/2, Height/2 - (int)TileSize.Large/2);
+            _centralTile.TranslateAssets(centralTileStart);
+            AddTile(_centralTile);
+        }
+        
+        public static Map CreateMerchantMap(Player player, Difficulty difficulty, int level)
+        {
+            var merchantMap = new Map(14, 14);
+            merchantMap.generateCentralTile();
+            merchantMap.fillSpaceBetweenTiles();
+            merchantMap.AddPlayer(player);
+            var merchant = Merchant.GenerateUsingDifficulty(difficulty, level, player);
+            merchant.Location = merchantMap.EmptyPoints.RandomElement();
+            merchantMap.AddAsset(merchant);
+            merchantMap.AddAsset(new Door(merchantMap, merchantMap.EmptyPoints.RandomElement(), player, false));
+            player.AddToMemory(merchant);
+            return merchantMap;
+        }
+
         private bool canAddTile(Tile tileToAdd)
         {
             if (tileToAdd.OpeningPoints.Any())
@@ -99,12 +122,7 @@ namespace ProceduralDungeon
         
         private void generateTiles(int numTiles, int numAttempts)
         {
-            var centralTile = new Tile(TileSize.Large, TileSize.Large, 1, 1, 1, 1, new TileInterior(TileSize.Large, TileSize.Large, InteriorPreset.IndentedCorners)); 
-            var centralTileStart = new Point(Width/2 - (int)TileSize.Large/2, Height/2 - (int)TileSize.Large/2);
-            centralTile.TranslateAssets(centralTileStart);
-            _centralTile = centralTile;
-            AddTile(centralTile);
-
+            generateCentralTile();
             int attempts = 0;
             while (attempts < numAttempts && _tiles.Count < numTiles)
             {

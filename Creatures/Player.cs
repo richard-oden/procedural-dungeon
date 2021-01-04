@@ -92,7 +92,6 @@ namespace ProceduralDungeon
                 foundAssetsMenu.Open();
                 foreach (var fA in foundAssets.Where(fA => fA is INameable)) AddToMemory(fA as INameable);
             }
-            WaitForInput();
         }
     
         public void Recall(Map map)
@@ -100,7 +99,6 @@ namespace ProceduralDungeon
             System.Console.WriteLine();
             var memoryMenu = new Menu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), this, map);
             memoryMenu.Open();
-            WaitForInput();
         }
     
         public void Describe()

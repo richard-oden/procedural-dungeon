@@ -36,7 +36,10 @@ namespace ProceduralDungeon
 
         public void Wander(Map map)
         {
-            var validDestinations = map.EmptyPoints.Where(eP => Location.InRangeOf(eP, 1));
+            // move to adjacent point
+            var validDestinations = map.EmptyPoints.Where(eP => Location.InRangeOf(eP, 1)).ToList();
+            // stay at same point:
+            validDestinations.Add(Location);
             Location = validDestinations.RandomElement();
         }
 
