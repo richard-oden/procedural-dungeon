@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static ProceduralDungeon.ExtensionsAndHelpers;
 
 namespace ProceduralDungeon
 {
@@ -15,7 +16,7 @@ namespace ProceduralDungeon
         bool RemoveItemFromInventory(Item itemToRemove);
         string GetCarryWeightString();
         
-        void TradeItem(Item itemToTrade, IContainer recipient, 
+        void TransferItem(Item itemToTrade, IContainer recipient, 
             bool requireGold = false, double discount = 1)
         {
             int price = (int)Math.Round(itemToTrade.Value * discount);
@@ -51,10 +52,40 @@ namespace ProceduralDungeon
             }
         }
 
-        Item ListTwoInventoriesAndSelect(IContainer otherContainer, int cursorX, int cursorY)
+        void TransferGold(IContainer recipient)
         {
-            Item highlightedItem = cursorX == 0 ? otherContainer.Inventory[cursorY] : Inventory[cursorY];
+            int amount;
+            if (int.TryParse(PromptLine($"\nEnter the amount of gold to transfer from {GetName()} to {recipient.GetName()}:"), out amount))
+            {
+                if (amount <= Gold)
+                {
+                    Gold -= amount;
+                    recipient.Gold += amount;
+                }
+                else
+                {
+                    Console.WriteLine($"{GetName()} does not have {amount} gold.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Try entering a number.");
+            }
+            WaitForInput();
+        }
+        Item ListTwoInventoriesAndSelect(IContainer otherContainer, int cursorX, int cursorY, bool includeGold = false)
+        {
+            Item highlightedItem = null; 
+            if (cursorX == 0 && cursorY < otherContainer.Inventory.Count) 
+            {
+                highlightedItem = otherContainer.Inventory[cursorY];
+            }
+            else if (cursorX == 1 && cursorY < Inventory.Count)
+            {
+                highlightedItem = Inventory[cursorY];
+            }
             int listLength = otherContainer.Inventory.Count() > Inventory.Count() ? otherContainer.Inventory.Count() : Inventory.Count();
+            if (includeGold) listLength++;
             int padSize = otherContainer.Inventory.Any() ? otherContainer.Inventory.Select(i => i.GetBasicDetails().Length).Max() + 5 
                 : otherContainer.GetInfoString().Length + 5;
             Console.WriteLine(otherContainer.GetInfoString().PadRight(padSize, ' ') + GetInfoString() + "\n\n");
@@ -65,7 +96,14 @@ namespace ProceduralDungeon
                     if (cursorX == x && cursorY == y) Console.ForegroundColor = ConsoleColor.DarkYellow;
                     if (x == 0)
                     {
-                        if (otherContainer.Inventory.Count > y) Console.Write(otherContainer.Inventory[y].GetBasicDetails().PadRight(padSize, ' '));
+                        if (otherContainer.Inventory.Count > y) 
+                        {
+                            Console.Write(otherContainer.Inventory[y].GetBasicDetails().PadRight(padSize, ' '));
+                        }
+                        else if (includeGold && otherContainer.Inventory.Count == y)
+                        {
+                            Console.Write($"{otherContainer.Gold} gold");
+                        }
                         else
                         {
                             Console.Write("".PadRight(padSize, ' '));
@@ -74,7 +112,14 @@ namespace ProceduralDungeon
                     }
                     else if (x == 1)
                     {
-                        if (Inventory.Count > y) Console.WriteLine(Inventory[y].GetBasicDetails());
+                        if (Inventory.Count > y) 
+                        {
+                            Console.WriteLine(Inventory[y].GetBasicDetails());
+                        }
+                        else if (includeGold && Inventory.Count == y)
+                        {
+                            Console.WriteLine($"{Gold} gold");
+                        }
                         else
                         {
                             Console.WriteLine();
@@ -85,12 +130,12 @@ namespace ProceduralDungeon
                 System.Console.WriteLine("---".PadRight(padSize, ' ') + "---");
             }
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine('\n' + highlightedItem.GetSecondaryDetails());
+            if (highlightedItem != null) Console.WriteLine('\n' + highlightedItem.GetSecondaryDetails());
             Console.ResetColor();
             return highlightedItem;
         }
         
-        void OpenTradeMenu(Player player)
+        void OpenTradeMenu(Player player, bool includeGold = true)
         {
             int cursorX = player.Inventory.Any() ? 0 : 1;
             int cursorY = 0;
@@ -98,7 +143,7 @@ namespace ProceduralDungeon
 
             while (stillTrading)
             {
-                Item selectedItem = ListTwoInventoriesAndSelect(player, cursorX, cursorY);
+                Item selectedItem = ListTwoInventoriesAndSelect(player, cursorX, cursorY, includeGold);
                 System.Console.WriteLine("\nUse the arrow keys to navigate, Enter to take/leave items, and Esc to exit.");
                 var input = Console.ReadKey();
 
@@ -119,13 +164,31 @@ namespace ProceduralDungeon
                         tempCursorX++;
                         break;
                     case ConsoleKey.Enter:
-                        if (player.Inventory.Contains(selectedItem))
+                        if (selectedItem != null)
                         {
-                            (player as IContainer).TradeItem(selectedItem, this);
+                            if (player.Inventory.Contains(selectedItem))
+                            {
+                                (player as IContainer).TransferItem(selectedItem, this);
+                            }
+                            else if (Inventory.Contains(selectedItem))
+                            {
+                                this.TransferItem(selectedItem, player);
+                            }
                         }
-                        else if (Inventory.Contains(selectedItem))
+                        else if (includeGold)
                         {
-                            this.TradeItem(selectedItem, player);
+                            if (cursorX == 0 && cursorY == player.Inventory.Count)
+                            {
+                                (player as IContainer).TransferGold(this);
+                            }
+                            else if (cursorX == 1 && cursorY == Inventory.Count)
+                            {
+                                TransferGold(player as IContainer);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Cursor is in invalid position!");
                         }
                         break;
                     case ConsoleKey.Escape:
@@ -143,6 +206,7 @@ namespace ProceduralDungeon
 
                 // Keep cursor Y coordinate within menu bounds:
                 int cursorYMax = tempCursorX <= 0 ? player.Inventory.Count() : Inventory.Count();
+                if (includeGold) cursorYMax++;
                 if (tempCursorY < 0) cursorY = 0;
                 else if (tempCursorY >= cursorYMax) cursorY = cursorYMax - 1;
                 else cursorY = tempCursorY;

@@ -158,7 +158,8 @@ namespace ProceduralDungeon
                 // Tiles connected to central tile do not contain point:
                 _tiles.Where(t => t.DoOpeningPointsMatch(_centralTile)).All(tA => 
                     !tA.OnMap(p)));
-            var spawnPoint = validPoints.RandomElement();
+            // If no points meet above conditions, then set location to random empty point:
+            var spawnPoint = validPoints.Count() > 0 ? validPoints.RandomElement() : EmptyPoints.RandomElement();
             AddAsset(new Door(this, spawnPoint));
         }
 
@@ -176,7 +177,8 @@ namespace ProceduralDungeon
                 // Tiles connected to door tile do not contain point:
                 _tiles.Where(t => t.DoOpeningPointsMatch(doorTile)).All(tA => 
                     !tA.OnMap(p)));
-            var spawnPoint = validPoints.RandomElement();
+            // If no points meet above conditions, then set location to random empty point:
+            var spawnPoint = validPoints.Count() > 0 ? validPoints.RandomElement() : EmptyPoints.RandomElement();
             AddAsset(new Key(spawnPoint));
         }
 

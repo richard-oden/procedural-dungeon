@@ -159,7 +159,12 @@ namespace ProceduralDungeon
             {
                 System.Console.WriteLine($"{player.Name} searches the {Name}.");
                 WaitForInput();
+                Console.Clear();
                 (this as IContainer).OpenTradeMenu(player);
+            }
+            else
+            {
+                System.Console.WriteLine("Probably better to attack this!");
             }
         }
     }
