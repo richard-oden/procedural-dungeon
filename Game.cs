@@ -26,6 +26,10 @@ namespace ProceduralDungeon
                 // Every 3 levels create a merchant area:
                 var thisMap = level % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, level) 
                     : new Map(Size, Player, Difficulty, level);
+
+                var potions = ItemsRepository.GetMapDependantItems(thisMap).Where(i => i is Potion);
+                foreach (var p in potions) Player.AddItemToInventory(p);
+
                 while (!Player.IsDead && !thisMap.HasPlayerExited)
                 {
                     thisMap.PrintMapFromViewport(Player);

@@ -8,11 +8,11 @@ namespace ProceduralDungeon
 {
     public class Merchant : Npc
     {
-        public Merchant(int id, int hp, string name = null, Gender gender = Gender.NonBinary, Point location = null,
+        public Merchant(int id, int hp, string name = null, Gender gender = Gender.NonBinary, Point location = null, 
             List<Item> inventory = null, int gold = 0, List<INameable> memory = null, int team = 0) 
-            : base(name, id, challengeLevel: 0, hp, ac: 12, dr: 2, attackMod: 4, damageDice: new Die[]{Dice.D4}, damageMod: 2,
-            attackRange: 1, searchRange: 10, gender, location, maxCarryWeight: 1000, 
-            inventory: inventory, gold: gold, memory: memory)
+            : base(name, id, challengeLevel: 0, hp, CreatureCategory.Humanoid, ac: 12, dr: 2, 
+            attackMod: 4, damageDice: new Die[]{Dice.D4}, damageMod: 2, attackRange: 1, searchRange: 10, 
+            gender, location, maxCarryWeight: 1000, inventory: inventory, gold: gold, memory: memory)
         {
             Team = team;
             if (name == null) Name = NpcNameGenerator.Generate();
@@ -138,7 +138,6 @@ namespace ProceduralDungeon
                             if (buyInput == ConsoleKey.Y)
                             {
                                 (player as IContainer).TradeItem(selectedItem, this, requireGold: true, discount: 0.75);
-                                Console.WriteLine("Thank you good sir/ma'am!");
                             }
                             else if (buyInput == ConsoleKey.N)
                             {
@@ -155,7 +154,6 @@ namespace ProceduralDungeon
                             if (sellInput == ConsoleKey.Y)
                             {
                                 (this as IContainer).TradeItem(selectedItem, player, requireGold: true, discount: 1.25);
-                                Console.WriteLine("Thank you good sir/ma'am!");
                             }
                             else if (sellInput == ConsoleKey.N)
                             {

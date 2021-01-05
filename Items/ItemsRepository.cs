@@ -83,7 +83,7 @@ namespace ProceduralDungeon
             new Armor("Mithril Chestplate",        weight: 18, value: 10000,    rarity: ItemRarity.VeryRare,
                 "Although lightweight, it will stop all but the mightiest of blows.",
                 EquipmentSlot.Chest, acBonus: 10, damageResistance: 10)
-        };
+       };
 
         public static readonly Weapon[] Weapons = All.Where(i => i is Weapon).Cast<Weapon>().ToArray();
         public static readonly Armor[] Armor = All.Where(i => i is Armor).Cast<Armor>().ToArray();
@@ -92,6 +92,21 @@ namespace ProceduralDungeon
         public static readonly Item[] Rares = All.Where(i => i.Rarity == ItemRarity.Rare).ToArray();
         public static readonly Item[] VeryRares = All.Where(i => i.Rarity == ItemRarity.VeryRare).ToArray();
         public static readonly Item[] Junk = Commons.Where(i => !(i is Weapon) && !(i is Armor)).ToArray();
+
+        public static Item[] GetMapDependantItems(Map map)
+        {
+            return new Item[]
+            {
+                new FloorMap(map),
+                new Compass((Door)map.Assets.Single(a => a is Door)),
+                new Potion("Minor Healing", new Die[]{D4, D4}, map),
+                new Potion("Common Healing", new Die[]{D6, D6}, map),
+                new Potion("Major Healing", new Die[]{D8, D8}, map),
+                new Potion("Greater Healing", new Die[]{D12, D12}, map),
+                new Potion("Superior Healing", new Die[]{D20, D20}, map),
+                new Potion("Wound Regeneration", new Die[]{D20, D20, D20}, map),
+            };
+        }
 
         // public static readonly Item[] Utilities = new Item[]
         // {

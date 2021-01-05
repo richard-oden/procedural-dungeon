@@ -44,6 +44,7 @@ namespace ProceduralDungeon
         public int Team {get; protected set;}
         public bool IsDead => _currentHp <= 0;
         protected string _baseDescription {get; set;}
+        public CreatureCategory Category {get; protected set;}
         public virtual string Description
         {
             get
@@ -72,8 +73,9 @@ namespace ProceduralDungeon
             }
         }
 
-        public Creature(string name, int id, int hp, Gender gender = Gender.None, Point location = null,
-            List<Item> inventory = null, int gold = 0, List<INameable> memory = null, string baseDescription = null)
+        public Creature(string name, int id, int hp, CreatureCategory category, Gender gender = Gender.None, 
+            Point location = null, List<Item> inventory = null, int gold = 0, List<INameable> memory = null, 
+            string baseDescription = null)
         {
             Name = name;
             Id = id;
@@ -85,6 +87,7 @@ namespace ProceduralDungeon
             if (memory != null) _memory = memory;
             Gold = gold;
             _baseDescription = baseDescription;
+            Category = category;
         }
 
         public string GetCarryWeightString()
@@ -267,6 +270,11 @@ namespace ProceduralDungeon
         public void AddToMemory(INameable asset)
         {
             if (!_memory.Contains(asset)) _memory.Add(asset);
+        }
+
+        public void RemoveFromMemory(INameable asset)
+        {
+            if (_memory.Contains(asset)) _memory.Remove(asset);
         }
     
         public virtual void Search(Map map)

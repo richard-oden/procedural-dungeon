@@ -42,7 +42,7 @@ namespace ProceduralDungeon
                 }
                 else
                 {
-                    Console.WriteLine($"{itemToTrade.Name} is too heavy for {recipient.GetName().ToLower()}.");
+                    Console.WriteLine($"{itemToTrade.Name} is too heavy for {recipient.GetName().ToLower()} to carry.");
                 }
             }
             else
@@ -149,6 +149,7 @@ namespace ProceduralDungeon
                 Console.Clear();
             }
         }
+        
         string GetName()
         {
             return this is INameable ? (this as INameable).Name : "The" + this.GetType().Name;

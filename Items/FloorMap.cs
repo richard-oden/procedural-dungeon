@@ -5,7 +5,6 @@ namespace ProceduralDungeon
 {
     public class FloorMap : Item, IInteractable
     {
-        private Door _door {get; set;}
         private Map _map {get; set;}
         private List<IMappable> _highlightedAssets = new List<IMappable>();
         public override Point Location {get; set;}
