@@ -11,9 +11,20 @@ namespace ProceduralDungeon
         public int Width {get; protected set;}
         public int Height {get; protected set;}
         public List<IMappable> Assets {get; protected set;} = new List<IMappable>();
-        public List<Item> Items => (from a in Assets where a is Item select (Item)a).ToList();
-        public List<Creature> Creatures => (from a in Assets where a is Creature select (Creature)a).ToList();
-        public List<Npc> Npcs => (from a in Assets where a is Npc select (Npc)a).ToList();
+        public List<Item> Items => Assets.Where(a => a is Item).Cast<Item>().ToList();
+        public List<IContainer> Containers => Assets.Where(a => a is IContainer).Cast<IContainer>().ToList();
+        public List<Item> AllItems
+        {
+            get
+            {
+                var itemsInInventories = new List<Item>();
+                foreach (var c in Containers) itemsInInventories.AddRange(c.Inventory);
+                return Items.Union(itemsInInventories).ToList();
+            }
+        }        
+        public List<Repellant> Repellants => AllItems.Where(i => i is Repellant).Cast<Repellant>().ToList();
+        public List<Creature> Creatures => Assets.Where(a => a is Creature).Cast<Creature>().ToList();
+        public List<Npc> Npcs => Assets.Where(a => a is Npc).Cast<Npc>().ToList();
         private List<Tile> _tiles {get; set;} = new List<Tile>();
         private Tile _centralTile {get; set;}
         private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();

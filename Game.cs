@@ -27,8 +27,8 @@ namespace ProceduralDungeon
                 var thisMap = level % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, level) 
                     : new Map(Size, Player, Difficulty, level);
 
-                var potions = ItemsRepository.GetMapDependantItems(thisMap).Where(i => i is Potion);
-                foreach (var p in potions) Player.AddItemToInventory(p);
+                Player.AddItemToInventory(new Repellant("Beast Bane Incense", CreatureCategory.Beast, 50, thisMap,
+                    "Its pungent scent should deter any hostile beasts for a short time."));
 
                 while (!Player.IsDead && !thisMap.HasPlayerExited)
                 {
@@ -37,6 +37,7 @@ namespace ProceduralDungeon
                     var input = Console.ReadKey();
                     System.Console.WriteLine();
                     Player.ParseInput(thisMap, input);
+                    foreach (var r in thisMap.Repellants) if (r.IsActive) r.DecrementDuration();
                     foreach (var npc in thisMap.Npcs) npc.Act(thisMap);
                     Console.Clear();
                 }

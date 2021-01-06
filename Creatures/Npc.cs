@@ -121,9 +121,34 @@ namespace ProceduralDungeon
         {
             if (!IsDead)
             {
+                var activeRepellants = map.Repellants.Where(r => 
+                    r.IsActive && r.TargetCreatureCategory == this.Category);
+                var activeRepellantLocationsInRange = new List<Point>();
                 var visibleEnemies = GetVisibleAssets(map).Where(a => a is Creature)
                     .Cast<Creature>().Where(c => c.Team != this.Team);
-                if (visibleEnemies.Any())
+                // If any active repellants on map are in range:
+                if (activeRepellants.Any())
+                {
+                    // Select assets where asset is equal to any active repellant:
+                    var activeRepellantsOnMap = map.Assets.Where(a => activeRepellants.Any(aR => a == aR));
+                    // Select containers that contain any active repellants:
+                    var containersWithActiveRepellants = activeRepellants.Select(aR => 
+                        map.Containers.SingleOrDefault(c => c.Inventory.Contains(aR)))
+                        // Remove duplicate containers and null values:
+                        .Where(c => c != null).Distinct();
+                    // Select list of locations where repellants are:
+                    activeRepellantLocationsInRange = activeRepellants.Select(aR => aR.Location)
+                        .Concat(containersWithActiveRepellants.Select(c => (c as IMappable).Location))
+                        .Where(p => p.InRangeOf(this.Location, SearchRange)).ToList();
+                    if (activeRepellantLocationsInRange.Any()) MoveAwayFrom(map, activeRepellantLocationsInRange.RandomElement());
+                }
+
+                if (activeRepellantLocationsInRange.Any()) 
+                {
+                    MoveAwayFrom(map, activeRepellantLocationsInRange.RandomElement());
+                }
+                
+                else if (visibleEnemies.Any())
                 {
                     var knownVisibleEnemies = visibleEnemies.Where(vE => _memory.Contains(vE));
                     if (knownVisibleEnemies.Any())
