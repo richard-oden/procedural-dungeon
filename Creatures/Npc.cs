@@ -137,7 +137,7 @@ namespace ProceduralDungeon
                         // Remove duplicate containers and null values:
                         .Where(c => c != null).Distinct();
                     // Select list of locations where repellants are:
-                    activeRepellantLocationsInRange = activeRepellants.Select(aR => aR.Location)
+                    activeRepellantLocationsInRange = activeRepellantsOnMap.Select(aR => aR.Location)
                         .Concat(containersWithActiveRepellants.Select(c => (c as IMappable).Location))
                         .Where(p => p.InRangeOf(this.Location, SearchRange)).ToList();
                     if (activeRepellantLocationsInRange.Any()) MoveAwayFrom(map, activeRepellantLocationsInRange.RandomElement());
@@ -147,7 +147,7 @@ namespace ProceduralDungeon
                 {
                     MoveAwayFrom(map, activeRepellantLocationsInRange.RandomElement());
                 }
-                
+
                 else if (visibleEnemies.Any())
                 {
                     var knownVisibleEnemies = visibleEnemies.Where(vE => _memory.Contains(vE));
