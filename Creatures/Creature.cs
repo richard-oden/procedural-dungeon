@@ -109,10 +109,11 @@ namespace ProceduralDungeon
 
         public bool AddItemToInventory(Item itemToAdd, bool cloneItem = false)
         {
-            if (CurrentCarryWeight + itemToAdd.Weight <= MaxCarryWeight)
+            var actualItem = cloneItem ? itemToAdd.GetClone() : itemToAdd;
+            if (CurrentCarryWeight + actualItem.Weight <= MaxCarryWeight)
             {
-                Inventory.Add(cloneItem ? itemToAdd.GetClone() : itemToAdd);
-                AddToMemory(itemToAdd);
+                Inventory.Add(actualItem);
+                AddToMemory(actualItem);
                 itemToAdd.Location = null;
                 return true;
             }
@@ -335,7 +336,7 @@ namespace ProceduralDungeon
         {
             int totalAttackMod = _attackModifier;
             if (equippedWeapon != null) totalAttackMod += _attackModifier;
-            int attackResult = Dice.D20.Roll(1, totalAttackMod, true);
+            int attackResult = Dice.D20.Roll(1, totalAttackMod);
             return attackResult >= targetCreature.ArmorClass;
         }
 
@@ -346,11 +347,11 @@ namespace ProceduralDungeon
             if (equippedWeapon != null)
             {
                 totalDamageMod += equippedWeapon.DamageModifier;
-                foreach (var die in equippedWeapon.DamageDice) damageSum += die.Roll(1, totalDamageMod, true);
+                foreach (var die in equippedWeapon.DamageDice) damageSum += die.Roll(1, totalDamageMod);
             }
             else
             {
-                foreach (var die in _damageDice) damageSum += die.Roll(1, totalDamageMod, true);
+                foreach (var die in _damageDice) damageSum += die.Roll(1, totalDamageMod);
             }
             return damageSum;
         }
@@ -414,5 +415,13 @@ namespace ProceduralDungeon
         Male,
         Female,
         NonBinary
+    }
+
+    public enum CreatureCategory
+    {
+        Humanoid,
+        Beast,
+        Undead,
+        Monstrosity
     }
 }

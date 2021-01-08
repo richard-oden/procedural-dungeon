@@ -1,3 +1,5 @@
+using System;
+
 namespace ProceduralDungeon
 {
     public interface IEquippable

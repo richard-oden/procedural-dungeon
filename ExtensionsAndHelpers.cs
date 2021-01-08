@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace ProceduralDungeon
 {
     static class ExtensionsAndHelpers
-    {
+    {   
         public static T RandomElement<T>(this IEnumerable<T> enumerable)
         {
             var rand = new Random();

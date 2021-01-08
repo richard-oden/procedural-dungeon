@@ -1,3 +1,5 @@
+using System;
+
 namespace ProceduralDungeon
 {
     public class Compass : Item, IInteractable

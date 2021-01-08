@@ -4,15 +4,17 @@ using System.Linq;
 
 namespace ProceduralDungeon
 {
+    [Serializable]
     public class Item : IMappable, INameable, IDescribable
     {
         public string Name {get; protected set;}
-        public double Weight {get; protected set;}
-        public int Value {get; protected set;}
+        public virtual double Weight {get; protected set;}
+        public virtual int Value {get; protected set;}
         public string Description {get; protected set;}
         public virtual Point Location {get; set;}
-        public ItemRarity Rarity {get; protected set;}
+        public virtual ItemRarity Rarity {get; protected set;}
         public virtual char Symbol {get; protected set;} = Symbols.Item;
+        public bool IsDestroyed = false;
 
         public Item(){}
 

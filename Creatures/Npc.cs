@@ -140,14 +140,12 @@ namespace ProceduralDungeon
                     activeRepellantLocationsInRange = activeRepellantsOnMap.Select(aR => aR.Location)
                         .Concat(containersWithActiveRepellants.Select(c => (c as IMappable).Location))
                         .Where(p => p.InRangeOf(this.Location, SearchRange)).ToList();
-                    if (activeRepellantLocationsInRange.Any()) MoveAwayFrom(map, activeRepellantLocationsInRange.RandomElement());
                 }
 
                 if (activeRepellantLocationsInRange.Any()) 
                 {
                     MoveAwayFrom(map, activeRepellantLocationsInRange.RandomElement());
                 }
-
                 else if (visibleEnemies.Any())
                 {
                     var knownVisibleEnemies = visibleEnemies.Where(vE => _memory.Contains(vE));
@@ -192,13 +190,5 @@ namespace ProceduralDungeon
                 System.Console.WriteLine("Probably better to attack this!");
             }
         }
-    }
-
-    public enum CreatureCategory
-    {
-        Humanoid,
-        Beast,
-        Undead,
-        Monstrosity
     }
 }

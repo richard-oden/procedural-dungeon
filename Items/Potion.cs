@@ -7,15 +7,28 @@ namespace ProceduralDungeon
     public class Potion : Item, IInteractable
     {
         public Die[] HealingDice {get; protected set;}
-        private Map _map {get; set;}
-        public Potion(string name, Die[] healingDice, Map map)
+        public Potion(string name, Die[] healingDice)
         {
             Name = name + " Potion";
             HealingDice = healingDice;
             Weight = HealingDice.Sum(hD => hD.NumSides) * .25;
             Value = HealingDice.Sum(hD => hD.NumSides) * 3;
             Description = $"It bubbles with an effervescent red liquid. Should heal roughly {HealingDice.DiceToString()} hp.";
-            _map = map;
+        }
+
+        public Potion(Potion potionToClone)
+        {
+            Name = potionToClone.Name;
+            HealingDice = potionToClone.HealingDice;
+            Weight = potionToClone.Weight;
+            Value = potionToClone.Value;
+            Description = potionToClone.Description;
+            Location = potionToClone.Location;
+        }
+
+        public override Item GetClone()
+        {
+            return new Potion(this);
         }
 
         public void Activate(Player player)
@@ -23,15 +36,7 @@ namespace ProceduralDungeon
             int quantity = HealingDice.Sum(hD => hD.Roll());
             player.ChangeHp(quantity);
             Console.WriteLine($"{player.Name} drank the {Name} and healed {quantity} hp!");
-            if (player.Inventory.Contains(this))
-            {
-                player.RemoveItemFromInventory(this);
-            }
-            else if (_map.Assets.Contains(this))
-            {
-                _map.RemoveAsset(this);
-            }
-            player.RemoveFromMemory(this);
+            IsDestroyed = true;
         }
     }
 }

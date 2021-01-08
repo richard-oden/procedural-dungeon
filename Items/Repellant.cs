@@ -9,34 +9,40 @@ namespace ProceduralDungeon
         public CreatureCategory TargetCreatureCategory {get; protected set;}
         public bool IsActive {get; protected set;} = false;
         public int Duration {get; protected set;}
-        private Map _map {get; set;}
-        public Repellant(string name, CreatureCategory targetCreatureCategory, int duration, Map map, string description)
+        public override int Value => Duration * 2;
+        public override double Weight => Duration *.05;
+        public override ItemRarity Rarity {get; protected set;} = ItemRarity.Uncommon;
+        public Repellant(string name, CreatureCategory targetCreatureCategory, int duration, string description)
         {
             Name = name;
             TargetCreatureCategory = targetCreatureCategory;
             Duration = duration;
-            Value = duration * 2;
-            Weight = duration * .05;
             Description = description;
-            _map = map;
+        }
+
+        public Repellant(Repellant repellantToClone)
+        {
+            Name = repellantToClone.Name;
+            TargetCreatureCategory = repellantToClone.TargetCreatureCategory;
+            Duration = repellantToClone.Duration;
+            Description = repellantToClone.Description;
+            IsActive = repellantToClone.IsActive;
+            Location = repellantToClone.Location;
+        }
+
+        public override Item GetClone()
+        {
+            return new Repellant(this);
         }
 
         public void DecrementDuration()
         {
             Duration--;
-            if (Duration == 0) 
+            if (Duration <= 0) 
             {
                 Console.WriteLine($"The {Name}'s effect has ended. {TargetCreatureCategory.ToString()}s are no longer turned.");
                 IsActive = false;
-                var containerHoldingThis = _map.Containers.SingleOrDefault(c => c.Inventory.Contains(this));
-                if (containerHoldingThis != null)
-                {
-                    containerHoldingThis.RemoveItemFromInventory(this);
-                }
-                else if (_map.Assets.Contains(this))
-                {
-                    _map.RemoveAsset(this);
-                }
+                IsDestroyed = true;
             }
         }
 
@@ -59,7 +65,7 @@ namespace ProceduralDungeon
                 {
                     Console.WriteLine("The effect is not ended.");
                 }
-            }  
+            }
         }
     }
 }

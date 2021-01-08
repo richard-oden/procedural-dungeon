@@ -244,5 +244,10 @@ namespace ProceduralDungeon
             }
             WaitForInput();
         }
+    
+        public void RemoveAllFromMemoryIfNotOnMap(Map map)
+        {
+            _memory.RemoveAll(m => !map.AllItems.Contains(m));
+        }
     }
 }

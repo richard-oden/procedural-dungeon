@@ -26,12 +26,13 @@ namespace ProceduralDungeon
                 // Every 3 levels create a merchant area:
                 var thisMap = level % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, level) 
                     : new Map(Size, Player, Difficulty, level);
-
-                Player.AddItemToInventory(new Repellant("Beast Bane Incense", CreatureCategory.Beast, 50, thisMap,
-                    "Its pungent scent should deter any hostile beasts for a short time."));
+                Player.RemoveAllFromMemoryIfNotOnMap(thisMap);
+                foreach (var i in Player.Inventory) if (i is Key) i.IsDestroyed = true;
+                foreach (var i in ItemsRepository.GetMapDependantItems(thisMap)) Player.AddItemToInventory(i);
 
                 while (!Player.IsDead && !thisMap.HasPlayerExited)
                 {
+                    thisMap.PurgeDestroyedItems();
                     thisMap.PrintMapFromViewport(Player);
                     Console.WriteLine(Player.GetDetails());
                     var input = Console.ReadKey();

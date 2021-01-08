@@ -99,25 +99,23 @@ namespace ProceduralDungeon
             {
                 new FloorMap(map),
                 new Compass((Door)map.Assets.Single(a => a is Door)),
-                new Potion("Minor Healing", new Die[]{D4, D4}, map),
-                new Potion("Common Healing", new Die[]{D6, D6}, map),
-                new Potion("Major Healing", new Die[]{D8, D8}, map),
-                new Potion("Greater Healing", new Die[]{D12, D12}, map),
-                new Potion("Superior Healing", new Die[]{D20, D20}, map),
-                new Potion("Wound Regeneration", new Die[]{D20, D20, D20}, map),
             };
         }
 
-        // public static readonly Item[] Utilities = new Item[]
-        // {
-        //     new Item("Leather Satchel",     weight: 0,      value: 250, 
-        //         "This should help you carry more things. It's also very stylish."),
-        //     new Item("Floor Map",           weight: 0.2,    value: 100, 
-        //         "It contains some notable locations on this floor."),
-        //     new Item("Beast Bane Incense",  weight: 0.4,    value: 80, 
-        //         "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
-        //     new Item("Annointing Oil",      weight: 0.4,    value: 80, 
-        //         "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
-        // };
+        public static readonly Item[] Utilities = new Item[]
+        {
+            // new Item("Leather Satchel",     weight: 0,      value: 250, 
+            //     "This should help you carry more things. It's also very stylish."),
+            new Repellant("Beast Bane Incense", CreatureCategory.Beast, 30,
+                "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
+            new Repellant("Annointing Oil", CreatureCategory.Undead, 30, 
+                "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
+            new Potion("Minor Healing", new Die[]{D4, D4}),
+            new Potion("Common Healing", new Die[]{D6, D6}),
+            new Potion("Major Healing", new Die[]{D8, D8}),
+            new Potion("Greater Healing", new Die[]{D12, D12}),
+            new Potion("Superior Healing", new Die[]{D20, D20}),
+            new Potion("Wound Regeneration", new Die[]{D20, D20, D20}),
+        };
     }
 }

@@ -101,8 +101,10 @@ namespace ProceduralDungeon
             var merchant = Merchant.GenerateUsingDifficulty(difficulty, level, player);
             merchant.Location = merchantMap.EmptyPoints.RandomElement();
             merchantMap.AddAsset(merchant);
-            merchantMap.AddAsset(new Door(merchantMap, merchantMap.EmptyPoints.RandomElement(), false));
+            var door = new Door(merchantMap, merchantMap.EmptyPoints.RandomElement(), false);
+            merchantMap.AddAsset(door);
             player.AddToMemory(merchant);
+            player.AddToMemory(door);
             return merchantMap;
         }
 
@@ -253,13 +255,13 @@ namespace ProceduralDungeon
                 }
                 generateItem(newItem);
             }
-            System.Console.WriteLine();
-            System.Console.WriteLine("Max items: " + totalItemMax);
-            System.Console.WriteLine("Average item value: " + itemValueAverage);
-            System.Console.WriteLine("Actual items: " + Items.Count);
-            System.Console.WriteLine("Actual average item value: " + Items.Average(i => i.Value));
-            System.Console.WriteLine("All items: " + Items.Select(i => i.Name + " - " + i.Value).ToString("and"));
-            System.Console.WriteLine();
+            // System.Console.WriteLine();
+            // System.Console.WriteLine("Max items: " + totalItemMax);
+            // System.Console.WriteLine("Average item value: " + itemValueAverage);
+            // System.Console.WriteLine("Actual items: " + Items.Count);
+            // System.Console.WriteLine("Actual average item value: " + Items.Average(i => i.Value));
+            // System.Console.WriteLine("All items: " + Items.Select(i => i.Name + " - " + i.Value).ToString("and"));
+            // System.Console.WriteLine();
         }
 
         private void generateNpcsUsingDifficulty(Difficulty difficulty, int level)
@@ -299,11 +301,11 @@ namespace ProceduralDungeon
                 }
                 generateNpc(newNpc, difficulty.MaxNpcsPerTile + (int)(level * .25));
             }
-            System.Console.WriteLine("Max npcs: " + totalNpcMax);
-            System.Console.WriteLine("Average challenge level: " + npcChallengeAverage);
-            System.Console.WriteLine("Actual npcs: " + Npcs.Count);
-            System.Console.WriteLine("Actual average challenge level: " + Npcs.Average(n => n.ChallengeLevel));
-            System.Console.WriteLine("All npcs: " + Npcs.Select(n => n.Name + " - " + n.ChallengeLevel).ToString("and"));
+            // System.Console.WriteLine("Max npcs: " + totalNpcMax);
+            // System.Console.WriteLine("Average challenge level: " + npcChallengeAverage);
+            // System.Console.WriteLine("Actual npcs: " + Npcs.Count);
+            // System.Console.WriteLine("Actual average challenge level: " + Npcs.Average(n => n.ChallengeLevel));
+            // System.Console.WriteLine("All npcs: " + Npcs.Select(n => n.Name + " - " + n.ChallengeLevel).ToString("and"));
         }
         
         public virtual bool OnMap(Point point)
@@ -444,6 +446,11 @@ namespace ProceduralDungeon
             }
         }
 
+        public void PurgeDestroyedItems()
+        {
+            Assets.RemoveAll(i => i is Item && (i as Item).IsDestroyed);
+            foreach (var c in Containers) c.Inventory.RemoveAll(i => i.IsDestroyed);
+        }
         public IMappable[] GetAssetsInRangeOf(Point origin, int range)
         {
             return Assets.Where(o => origin.InRangeOf(o.Location, range)).ToArray();
