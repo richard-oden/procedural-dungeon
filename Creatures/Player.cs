@@ -8,6 +8,11 @@ namespace ProceduralDungeon
 {
     public class Player : Creature
     {
+        public int Strength {get; protected set;}
+        public int Endurance {get; protected set;}
+        public int Perception {get; protected set;}
+        public int Charisma {get; protected set;}
+        public int Level {get; protected set;}
         public Player(string name, int id, int hp, Gender gender = Gender.NonBinary, Point location = null,
             List<Item> inventory = null, int gold = 0, List<INameable> memory = null) :
             base (name, id, hp, CreatureCategory.Humanoid, gender, location, inventory, gold, memory)

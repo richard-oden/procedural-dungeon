@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace ProceduralDungeon
 {
@@ -13,6 +12,7 @@ namespace ProceduralDungeon
         private static Difficulty[] _difficulties = new[] {Difficulties.VeryEasy, Difficulties.Easy, Difficulties.Medium, Difficulties.Hard, Difficulties.VeryHard};
         private static int _highlightedDifficulty = 2;
         private static string _playerName = "";
+        private static Gender[] _genders = new[] {Gender.Male, Gender.Female, Gender.NonBinary};
         
         public static void Open()
         {
