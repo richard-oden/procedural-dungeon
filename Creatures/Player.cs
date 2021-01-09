@@ -88,7 +88,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                var foundAssetsMenu = new Menu($"{Name} searched and found the following. Press Up/Down to highlight object and Enter/Esc to exit.", foundAssets, this, map);
+                var foundAssetsMenu = new IMappableMenu($"{Name} searched and found the following. Press Up/Down to highlight object and Enter/Esc to exit.", foundAssets, this, map);
                 foundAssetsMenu.Open();
                 foreach (var fA in foundAssets.Where(fA => fA is INameable)) AddToMemory(fA as INameable);
             }
@@ -97,7 +97,7 @@ namespace ProceduralDungeon
         public void Recall(Map map)
         {
             System.Console.WriteLine();
-            var memoryMenu = new Menu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), this, map);
+            var memoryMenu = new IMappableMenu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), this, map);
             memoryMenu.Open();
         }
     
@@ -127,7 +127,7 @@ namespace ProceduralDungeon
                 (m is IMappable && (m as IMappable).Location != null &&
                 // and be adjacent to player:
                 (m as IMappable).Location.InRangeOf(Location, 1))).Cast<IMappable>().ToList();
-            var interactMenu = new Menu("Select an object to interact with. Press Up/Down to change selection, Enter to interact, and Esc to exit.", validInteractables, this, map);
+            var interactMenu = new IMappableMenu("Select an object to interact with. Press Up/Down to change selection, Enter to interact, and Esc to exit.", validInteractables, this, map);
             var thingToInteractWith = interactMenu.Open();
             if (thingToInteractWith != null)
             {
@@ -163,7 +163,7 @@ namespace ProceduralDungeon
                 i.Location != null && Location.InRangeOf(i.Location, 1) && _memory.Contains(i))
                 .Cast<IMappable>().ToList();
 
-            var pickUpItemMenu = new Menu("Select item to pick up. Press Up/Down to change selection, Enter to pick up, and Esc to exit.", validItemsAsIMappable, this, map);
+            var pickUpItemMenu = new IMappableMenu("Select item to pick up. Press Up/Down to change selection, Enter to pick up, and Esc to exit.", validItemsAsIMappable, this, map);
             var itemToPickUp = pickUpItemMenu.Open();
             if (itemToPickUp != null)
             {
@@ -180,7 +180,7 @@ namespace ProceduralDungeon
         {
             if (Inventory.Any())
             {
-                var dropItemMenu = new Menu("Select item to drop. Press Up/Down to change selection, Enter to drop, and Esc to exit.", Inventory.Cast<IMappable>().ToList(), this);
+                var dropItemMenu = new IMappableMenu("Select item to drop. Press Up/Down to change selection, Enter to drop, and Esc to exit.", Inventory.Cast<IMappable>().ToList(), this);
                 var itemToDrop = dropItemMenu.Open();
                 if (itemToDrop != null)
                 {
@@ -201,7 +201,7 @@ namespace ProceduralDungeon
         public void EquipItem()
         {
              var validItemsAsIMappable = Inventory.Where(i => i is IEquippable && !EquippedItems.Contains(i as IEquippable)).Cast<IMappable>().ToList();
-            var equipMenu = new Menu("Select item to equip. Press Up/Down to change selection, Enter to equip, and Esc to exit.", validItemsAsIMappable, this);
+            var equipMenu = new IMappableMenu("Select item to equip. Press Up/Down to change selection, Enter to equip, and Esc to exit.", validItemsAsIMappable, this);
             var itemToEquip = equipMenu.Open();
             if (itemToEquip != null)
             {
@@ -216,7 +216,7 @@ namespace ProceduralDungeon
         
         public void UnequipItem()
         {
-            var unequipMenu = new Menu("Select item to unequip. Press Up/Down to change selection, Enter to unequip, and Esc to exit.", EquippedItems.Cast<IMappable>().ToList(), this);
+            var unequipMenu = new IMappableMenu("Select item to unequip. Press Up/Down to change selection, Enter to unequip, and Esc to exit.", EquippedItems.Cast<IMappable>().ToList(), this);
             var itemToUnequip = unequipMenu.Open();
             if (itemToUnequip != null)
             {
@@ -232,7 +232,7 @@ namespace ProceduralDungeon
         public void Attack(Map map)
         {
             var targetsAsIMappable = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange) && a != this).Cast<IMappable>().ToList();
-            var attackMenu = new Menu("Select creature to attack. Press Up/Down to change selection, Enter to attack, and Esc to exit.", targetsAsIMappable, this, map);
+            var attackMenu = new IMappableMenu("Select creature to attack. Press Up/Down to change selection, Enter to attack, and Esc to exit.", targetsAsIMappable, this, map);
             var target = attackMenu.Open();
             if (target != null)
             {

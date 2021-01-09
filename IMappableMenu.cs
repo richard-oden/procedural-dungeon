@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace ProceduralDungeon
 {
-    public class Menu
+    public class IMappableMenu
     {
         public string Prompt {get; private set;}
         public List<IMappable> Options {get; private set;}
         private Map _map {get; set;}
         private Player _player {get; set;}
     
-        public Menu(string prompt, List<IMappable> options, Player player, Map map = null)
+        public IMappableMenu(string prompt, List<IMappable> options, Player player, Map map = null)
         {
             Prompt = prompt;
             Options = options;
