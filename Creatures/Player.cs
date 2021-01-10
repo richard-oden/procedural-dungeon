@@ -13,13 +13,33 @@ namespace ProceduralDungeon
         public int Perception {get; protected set;}
         public int Charisma {get; protected set;}
         public int Level {get; protected set;}
-        public Player(string name, int id, int hp, Gender gender = Gender.NonBinary, Point location = null,
-            List<Item> inventory = null, int gold = 0, List<INameable> memory = null) :
-            base (name, id, hp, CreatureCategory.Humanoid, gender, location, inventory, gold, memory)
+        public override double MaxCarryWeight => Strength * 10;
+        public override int SearchRange => Perception;
+        protected override int _maxHp => Endurance * 2;
+        protected override int _damageModifier => Strength - 5;
+        protected override int _attackModifier => Perception - 5;
+        protected override int _baseDamageResistance => (Endurance - 5) / 2;
+        // Represents the markdown on sold items and markup on purchased items:
+        // e.g., with a value of .2, an item worth 10 gold is solid for 8 and purchased for 12.
+        public double TradeMarkup => .2 - (Perception - 5) * .05;
+        public PlayerBackground Background {get; protected set;}
+        public Player(string name, int id, PlayerBackground background, int level = 1, Gender gender = Gender.NonBinary, 
+            Point location = null, List<INameable> memory = null) :
+            base (name, id, 10, CreatureCategory.Humanoid, gender, location, background.Inventory, background.StartingGold, memory)
         {
-            SearchRange = 8;
-            MaxCarryWeight = 100;
             Team = 0;
+            
+            Strength = 5 + background.StrengthMod;
+            Endurance = 5 + background.EnduranceMod;
+            Perception = 5 + background.PerceptionMod;
+            Charisma = 5 + background.CharismaMod;
+            Background = background;
+            Level = level;
+        }
+
+        public string GetDetails()
+        {
+            return $"{Name}, the {Background.Name} HP: {_currentHp}/{_maxHp} AC: {ArmorClass} DR: {DamageResistance} Weight carried: {GetCarryWeightString()}";
         }
 
         public bool ParseInput(Map map, ConsoleKeyInfo input)

@@ -20,7 +20,7 @@ namespace ProceduralDungeon
             }
         } 
         public int Id {get; protected set;}
-        protected int _maxHp {get; set;}
+        protected virtual int _maxHp {get; set;}
         protected int _currentHp {get; set;}
         protected virtual int _attackModifier {get; set;} = 0;
         protected virtual int _attackRange {get; set;} = 1;
@@ -30,8 +30,8 @@ namespace ProceduralDungeon
         public virtual int DamageResistance => _baseDamageResistance + EquippedArmor.Sum(eA => eA.DamageResistance);
         protected Die[] _damageDice {get; set;} = new Die[] {Dice.D3};
         protected virtual int _damageModifier {get; set;} = 1;
-        public int SearchRange {get; set;}
-        public double MaxCarryWeight {get; protected set;}
+        public virtual int SearchRange {get; set;}
+        public virtual double MaxCarryWeight {get; protected set;}
         public double CurrentCarryWeight => Inventory.Sum(i => i.Weight);
         public List<Item> Inventory {get; protected set;} = new List<Item>();
         public List<IEquippable> EquippedItems {get; protected set;} = new List<IEquippable>();
@@ -100,11 +100,6 @@ namespace ProceduralDungeon
             {
                 return "";
             }
-        }
-
-        public string GetDetails()
-        {
-            return $"Name: {Name} HP: {_currentHp}/{_maxHp} AC: {ArmorClass} DR: {DamageResistance} Weight carried: {GetCarryWeightString()}";
         }
 
         public bool AddItemToInventory(Item itemToAdd, bool cloneItem = false)

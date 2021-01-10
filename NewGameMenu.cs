@@ -13,15 +13,21 @@ namespace ProceduralDungeon
         private static int _highlightedDifficulty = 2;
         private static string _playerName = "";
         private static Gender[] _genders = new[] {Gender.Male, Gender.Female, Gender.NonBinary};
+        private static int _highlightedGender = 2;
+        private static PlayerBackground[] _playerBackgrounds = new[] {PlayerBackgrounds.Miner, PlayerBackgrounds.Farmer, PlayerBackgrounds.Hunter, PlayerBackgrounds.Priest, PlayerBackgrounds.Noble};
+        private static int _highlightedBackground = 2;
+        private static bool _startGame = false;
         
-        public static void Open()
+        public static Game Open()
         {
-            while (true)
+            while (!_startGame)
             {
                 printRows();
                 handleInput(Console.ReadKey(true));
                 Console.Clear();
             }
+            var player = new Player(_playerName, id: 0, _playerBackgrounds[_highlightedBackground], level: 1, _genders[_highlightedGender]);
+            return new Game(_difficulties[_highlightedDifficulty], _mapSizes[_highlightedMapSize], player);
         }
 
         private static void printRows()
@@ -41,8 +47,25 @@ namespace ProceduralDungeon
             if (_highlightedRow == 2) Console.BackgroundColor = ConsoleColor.DarkGray;
             Console.Write("Enter a player name: ");
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine(_playerName);
+            Console.Write(_playerName);
             Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine('\n');
+
+            if (_highlightedRow == 3) Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.Write("Select your gender: ");
+            printMultipleChoices(_genders.Select(g => Enum.GetName(typeof(Gender), g)).ToArray(), _highlightedGender);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine('\n');
+            
+            if (_highlightedRow == 4) Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.Write("Select your background: ");
+            printMultipleChoices(_playerBackgrounds.Select(b => b.Name).ToArray(), _highlightedBackground);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine('\n');
+
+            if (_highlightedRow == 5) Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.Write("START NEW GAME! (Press Enter)");
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
@@ -94,8 +117,11 @@ namespace ProceduralDungeon
             else if (_highlightedRow == 0) _highlightedMapSize = handleMultipleChoiceInput(input, _mapSizes.Length, _highlightedMapSize);
             else if (_highlightedRow == 1) _highlightedDifficulty = handleMultipleChoiceInput(input, _difficulties.Length, _highlightedDifficulty);
             else if (_highlightedRow == 2) _playerName = handleTextInput(input, _playerName);
+            else if (_highlightedRow == 3) _highlightedGender = handleMultipleChoiceInput(input, _genders.Length, _highlightedGender);
+            else if (_highlightedRow == 4) _highlightedBackground = handleMultipleChoiceInput(input, _playerBackgrounds.Length, _highlightedBackground);
+            else if (_highlightedRow == 5 && input.Key == ConsoleKey.Enter) _startGame = true; 
 
-            if (tempRow > 2) tempRow = 2;
+            if (tempRow > 5) tempRow = 5;
             else if (tempRow < 0) tempRow = 0;
             else _highlightedRow = tempRow;
         }

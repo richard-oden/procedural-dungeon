@@ -64,6 +64,12 @@ namespace ProceduralDungeon
             new Weapon("Wooden Maul",               weight: 30, value: 20,   rarity: ItemRarity.Common,
                 "It's a big piece of wood. Simple yet effective.",
                 EquipmentSlot.TwoHanded, new Die[]{D4, D4}),
+            new Weapon("Decent Iron Pickaxe",       weight: 10, value: 15,   rarity: ItemRarity.Common,
+                "It's simple, yet reliable. Good for mining coal and bashing skulls",
+                EquipmentSlot.TwoHanded, new Die[]{D6}),
+            new Weapon("Decent Iron Hoe",           weight: 8, value: 12,   rarity: ItemRarity.Common,
+                "While it's meant for tilling soil, it's not bad as an improvised weapon",
+                EquipmentSlot.TwoHanded, new Die[]{D6}),
             new Weapon("Leather Sling",             weight: 3, value: 15,   rarity: ItemRarity.Common,
                 "A long strip of hemp cord with a leather pad in the middle. You can use it to throw stuff.",
                 EquipmentSlot.OneHanded, new Die[]{D6}, range: 6),
@@ -82,7 +88,17 @@ namespace ProceduralDungeon
                 EquipmentSlot.OneHanded, acBonus: 1),
             new Armor("Mithril Chestplate",        weight: 18, value: 10000,    rarity: ItemRarity.VeryRare,
                 "Although lightweight, it will stop all but the mightiest of blows.",
-                EquipmentSlot.Chest, acBonus: 10, damageResistance: 10)
+                EquipmentSlot.Chest, acBonus: 10, damageResistance: 10),
+            new Repellant("Beast Bane Incense", CreatureCategory.Beast, 30,
+                "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
+            new Repellant("Annointing Oil", CreatureCategory.Undead, 30, 
+                "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
+            new Potion("Minor Healing", new Die[]{D4, D4}),
+            new Potion("Common Healing", new Die[]{D6, D6}),
+            new Potion("Major Healing", new Die[]{D8, D8}),
+            new Potion("Greater Healing", new Die[]{D12, D12}),
+            new Potion("Superior Healing", new Die[]{D20, D20}),
+            new Potion("Wound Regeneration", new Die[]{D20, D20, D20})
        };
 
         public static readonly Weapon[] Weapons = All.Where(i => i is Weapon).Cast<Weapon>().ToArray();
@@ -101,21 +117,5 @@ namespace ProceduralDungeon
                 new Compass((Door)map.Assets.Single(a => a is Door)),
             };
         }
-
-        public static readonly Item[] Utilities = new Item[]
-        {
-            // new Item("Leather Satchel",     weight: 0,      value: 250, 
-            //     "This should help you carry more things. It's also very stylish."),
-            new Repellant("Beast Bane Incense", CreatureCategory.Beast, 30,
-                "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
-            new Repellant("Annointing Oil", CreatureCategory.Undead, 30, 
-                "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
-            new Potion("Minor Healing", new Die[]{D4, D4}),
-            new Potion("Common Healing", new Die[]{D6, D6}),
-            new Potion("Major Healing", new Die[]{D8, D8}),
-            new Potion("Greater Healing", new Die[]{D12, D12}),
-            new Potion("Superior Healing", new Die[]{D20, D20}),
-            new Potion("Wound Regeneration", new Die[]{D20, D20, D20}),
-        };
     }
 }

@@ -6,6 +6,7 @@ namespace ProceduralDungeon
 {
     public class PlayerBackground
     {
+        public string Name {get; protected set;}
         public int StrengthMod {get; protected set;}
         public int EnduranceMod {get; protected set;}
         public int PerceptionMod {get; protected set;}
@@ -13,9 +14,10 @@ namespace ProceduralDungeon
         public int StartingGold {get; protected set;}
         public List<Item> Inventory {get; protected set;}
 
-        public PlayerBackground(int startingGold, List<Item> inventory,
+        public PlayerBackground(string name, int startingGold, List<Item> inventory,
             int strengthMod = 0, int enduranceMod = 0, int perceptionMod = 0, int charismaMod = 0)
         {
+            Name = name;
             StrengthMod = strengthMod;
             EnduranceMod = enduranceMod;
             PerceptionMod = perceptionMod;
@@ -27,10 +29,10 @@ namespace ProceduralDungeon
 
     public static class PlayerBackgrounds
     {
-        public static PlayerBackground Noble; // Fine clothing, 200, but no mods
-        public static PlayerBackground Miner; // Tattered clothing, pickaxe, lantern, little money, increased strength
-        public static PlayerBackground Farmer; // Tattered clothing, hoe, food, little money, increased endurance
-        public static PlayerBackground Hunter; // Decent clothing, bow, beast bane, little money, increased perception
-        public static PlayerBackground Priest; // Decent clothing, morning star, annointing oil, little money, increased charisma
+        public static readonly PlayerBackground Noble = new PlayerBackground("Noble", startingGold: 200, inventory: new List<Item>()); // Fine clothing, 200, but no mods
+        public static readonly PlayerBackground Miner = new PlayerBackground("Miner", startingGold: 50, inventory: new List<Item>(), strengthMod: 2); // Tattered clothing, pickaxe, lantern, little money, increased strength
+        public static readonly PlayerBackground Farmer = new PlayerBackground("Farmer", startingGold: 50, inventory: new List<Item>(), enduranceMod: 2); // Tattered clothing, hoe, food, little money, increased endurance
+        public static readonly PlayerBackground Hunter = new PlayerBackground("Hunter", startingGold: 50, inventory: new List<Item>(), perceptionMod: 2); // Decent clothing, bow, beast bane, little money, increased perception
+        public static readonly PlayerBackground Priest = new PlayerBackground("Priest", startingGold: 50, inventory: new List<Item>(), charismaMod: 2); // Decent clothing, morning star, annointing oil, little money, increased charisma
     }
 }

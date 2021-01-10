@@ -137,7 +137,7 @@ namespace ProceduralDungeon
                             var buyInput = PromptKey($"\nI'll purchase the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 0.75)} gold. Deal? (Y/N)");
                             if (buyInput == ConsoleKey.Y)
                             {
-                                (player as IContainer).TransferItem(selectedItem, this, requireGold: true, discount: 0.75);
+                                (player as IContainer).TransferItem(selectedItem, this, requireGold: true, discount: 1 - player.TradeMarkup);
                             }
                             else if (buyInput == ConsoleKey.N)
                             {
@@ -153,7 +153,7 @@ namespace ProceduralDungeon
                             var sellInput = PromptKey($"\nI'll sell you the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 1.25)} gold. Deal? (Y/N)");
                             if (sellInput == ConsoleKey.Y)
                             {
-                                (this as IContainer).TransferItem(selectedItem, player, requireGold: true, discount: 1.25);
+                                (this as IContainer).TransferItem(selectedItem, player, requireGold: true, discount: 1 + player.TradeMarkup);
                             }
                             else if (sellInput == ConsoleKey.N)
                             {
