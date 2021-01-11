@@ -79,7 +79,7 @@ namespace ProceduralDungeon
         {
             if (!IsDead)
             {
-                var visibleEnemies = GetVisibleAssets(map).Where(a => a is Creature)
+                var visibleEnemies = getVisibleAssets(map).Where(a => a is Creature)
                     .Cast<Creature>().Where(c => c.Team != this.Team);
                 if (visibleEnemies.Any())
                 {

@@ -26,7 +26,7 @@ Your goal is to progresss as far as possible. On each floor you'll need to find 
 
 ### Mechanics:
 - **Strength, Endurance, Perception, and Charisma:** At the moment, these are the core attributes that determine how your character interacts with the game. I might expand on these later.
-- **Experience/Leveling:** Not yet implemented, but the plan is to award experience after killing creatures and for each floor reached. With each level up, a core attribute can be increased.
+- **Experience/Leveling:** Experience is awared after killing creatures and for each floor reached. With each level up, a core attribute can be increased.
 - **Player backgrounds:** These determine your starting core attributes, gold, and inventory. Think of it like your starting profession in Oregon Trail.
 - **Searching/Memory:** In order to do anything in the game, your character must first know about it. Doing this requires that you search your surroundings frequently.
 - **Combat:** Combat is very similar to D&D. Each creature involved has an armor class (AC), damage resistance (DR), attack bonus, damage dice, and damage bonus. An attacker first makes an attack roll, adding the attack bonus, against the target's armor class. If the attack roll is higher than the target's AC, the attacker then rolls their damage dice, adding their damage bonus. The target then takes the resulting damage, minus their DR.

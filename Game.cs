@@ -38,7 +38,7 @@ namespace ProceduralDungeon
                     System.Console.WriteLine();
                     Player.ParseInput(thisMap, input);
                     thisMap.ManageIDegradables();
-                    //foreach (var npc in thisMap.Npcs) npc.Act(thisMap);
+                    foreach (var npc in thisMap.Npcs) npc.Act(thisMap);
                     Console.Clear();
                 }
                 if (Player.IsDead) _gameRunning = false;

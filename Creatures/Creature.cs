@@ -85,6 +85,7 @@ namespace ProceduralDungeon
             if (location != null) Location = location;
             if (inventory != null) Inventory = inventory;
             if (memory != null) _memory = memory;
+            foreach (var i in inventory) AddToMemory(i);
             Gold = gold;
             _baseDescription = baseDescription;
             Category = category;
@@ -251,16 +252,16 @@ namespace ProceduralDungeon
             }
         }
         
-        public bool HasLineOfSightTo(Map map, Point target)
+        protected bool hasLineOfSightTo(Map map, Point target)
         {
             return !map.GetPathObstructions(Location, target).Any();
         }
         
-        public IMappable[] GetVisibleAssets(Map map)
+        protected IMappable[] getVisibleAssets(Map map)
         {
             return map.GetAssetsInRangeOf(Location, SearchRange)
                 .Where(a => a != this)
-                .Where(a => HasLineOfSightTo(map, a.Location)).ToArray();
+                .Where(a => this.hasLineOfSightTo(map, a.Location)).ToArray();
         }
 
         public void AddToMemory(INameable asset)
@@ -275,7 +276,7 @@ namespace ProceduralDungeon
     
         public virtual void Search(Map map)
         {
-            var foundAssets = GetVisibleAssets(map).Where(a => a is INameable);
+            var foundAssets = getVisibleAssets(map).Where(a => a is INameable);
             foreach (var fA in foundAssets) AddToMemory(fA as INameable);
         }
         
@@ -304,7 +305,7 @@ namespace ProceduralDungeon
             if ((target is INameable && _memory.Contains(target as INameable)) ||
                 !(target is INameable))
             {
-                if (GetVisibleAssets(map).Contains(target))
+                if (getVisibleAssets(map).Contains(target))
                 {
                     if (Location.InRangeOf(target.Location, _attackRange))
                     {
@@ -355,37 +356,20 @@ namespace ProceduralDungeon
         {
             if (validateTargetOnMap(map, targetCreature, _attackRange))
             {
-                if (!targetCreature.IsDead)
+                if (EquippedWeapons.Any())
                 {
-                    if (EquippedWeapons.Any())
+                    var weaponHits = new Dictionary<Weapon, bool>();
+                    foreach (var weapon in EquippedWeapons)
                     {
-                        var weaponHits = new Dictionary<Weapon, bool>();
-                        foreach (var weapon in EquippedWeapons)
-                        {
-                            System.Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {weapon.Name}!");
-                            targetCreature.AddToMemory(weapon);
-                            weaponHits.Add(weapon, AttackRoll(targetCreature, weapon));
-                        }
-                        foreach (var hit in weaponHits)
-                        {
-                            if (hit.Value)
-                            {
-                                int damage = DamageRoll(hit.Key);
-                                System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
-                                targetCreature.ChangeHp(-damage);
-                            }
-                            else
-                            {
-                                System.Console.WriteLine($"{Name} missed the attack!");
-                            }
-                        }
+                        System.Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {weapon.Name}!");
+                        targetCreature.AddToMemory(weapon);
+                        weaponHits.Add(weapon, AttackRoll(targetCreature, weapon));
                     }
-                    else 
+                    foreach (var hit in weaponHits)
                     {
-                        System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
-                        if (AttackRoll(targetCreature))
+                        if (hit.Value)
                         {
-                            int damage = DamageRoll();
+                            int damage = DamageRoll(hit.Key);
                             System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
                             targetCreature.ChangeHp(-damage);
                         }
@@ -394,12 +378,22 @@ namespace ProceduralDungeon
                             System.Console.WriteLine($"{Name} missed the attack!");
                         }
                     }
-                    targetCreature.AddToMemory(this);
                 }
-                else
+                else 
                 {
-                    System.Console.WriteLine($"{targetCreature.Name} is already dead.");
+                    System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
+                    if (AttackRoll(targetCreature))
+                    {
+                        int damage = DamageRoll();
+                        System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
+                        targetCreature.ChangeHp(-damage);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"{Name} missed the attack!");
+                    }
                 }
+                targetCreature.AddToMemory(this);
             }
         }
     }

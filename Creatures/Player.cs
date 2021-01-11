@@ -13,9 +13,11 @@ namespace ProceduralDungeon
         public int Perception {get; protected set;}
         public int Charisma {get; protected set;}
         public int Level {get; protected set;}
+        private int _exp;
+        private int _expCeiling => (int)Math.Round((4 * Math.Pow(Level, 3)) / 5.0); //exp curve taken from pokemon gen 1 :)
         public override double MaxCarryWeight => Strength * 10;
         public override int SearchRange => Perception;
-        protected override int _maxHp => Endurance * 2;
+        protected override int _maxHp => (int)Math.Round(Endurance * (Level * 1.1));
         protected override int _damageModifier => Strength - 5;
         protected override int _attackModifier => Perception - 5;
         protected override int _baseDamageResistance => (Endurance - 5) / 2;
@@ -25,7 +27,7 @@ namespace ProceduralDungeon
         public PlayerBackground Background {get; protected set;}
         public Player(string name, int id, PlayerBackground background, int level = 1, Gender gender = Gender.NonBinary, 
             Point location = null, List<INameable> memory = null) :
-            base (name, id, (5 + background.EnduranceMod) * 2, CreatureCategory.Humanoid, gender, location, background.Inventory, background.StartingGold, memory)
+            base(name, id, 6, CreatureCategory.Humanoid, gender, location, background.Inventory, background.StartingGold, memory)
         {
             Team = 0;
             
@@ -39,7 +41,8 @@ namespace ProceduralDungeon
 
         public string GetDetails()
         {
-            return $"{Name}, the {Background.Name} HP: {_currentHp}/{_maxHp} AC: {ArmorClass} DR: {DamageResistance} Weight carried: {GetCarryWeightString()}";
+            return $@"{Name}, the {Background.Name} - Lvl {Level} - Exp: {_exp}/{_expCeiling}
+HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight carried: {GetCarryWeightString()}";
         }
 
         public bool ParseInput(Map map, ConsoleKeyInfo input)
@@ -106,7 +109,7 @@ namespace ProceduralDungeon
 
         public override void Search(Map map)
         {
-            var foundAssets = GetVisibleAssets(map).Where(a => a is INameable).ToList();
+            var foundAssets = getVisibleAssets(map).Where(a => a is INameable).ToList();
             if (!foundAssets.Any())
             {
                 Console.WriteLine($"{Name} searched but couldn't find anything!");
@@ -258,16 +261,97 @@ namespace ProceduralDungeon
         {
             var targetsAsIMappable = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange) && a != this).Cast<IMappable>().ToList();
             var attackMenu = new IMappableMenu("Select creature to attack. Press Up/Down to change selection, Enter to attack, and Esc to exit.", targetsAsIMappable, this, map);
-            var target = attackMenu.Open();
+            var target = (Creature)attackMenu.Open();
             if (target != null)
             {
-                base.Attack(map, target as Creature);
-            }
-            else
-            {
-                System.Console.WriteLine($"{Name} does not know of the creature or it is out of range!");
+                if (!target.IsDead)
+                {
+                    base.Attack(map, target);
+                    if (target is Npc && target.IsDead) GainExp((target as Npc).ChallengeLevel);
+                }
+                else
+                {
+                    System.Console.WriteLine($"{target.Name} is already dead.");
+                }
             }
             WaitForInput();
+        }
+
+        public void GainExp(int exp)
+        {
+            _exp += exp;
+            System.Console.WriteLine($"{Name} gained {exp} exp.");
+            while (_exp >= _expCeiling)
+            {
+                Level++;
+                Console.WriteLine($"{Name} leveled up! {Pronouns[0]} is/are now level {Level}.");
+                _currentHp = _maxHp;
+                WaitForInput();
+                attributePointBuy(1);
+            }
+        }
+
+        private void attributePointBuy(int points)
+        {
+            int cursor = 0;
+            
+            // TODO: Make this dry:
+            void transferPoints(int amount)
+            {
+                if (cursor == 0)
+                {
+                    Strength += amount;
+                }
+                else if (cursor == 1)
+                {
+                    Endurance += amount;
+                }
+                else if (cursor == 2)
+                {
+                    Perception += amount;
+                }
+                else if (cursor == 3)
+                {
+                    Charisma += amount;
+                }
+                points -= amount;
+            }
+            
+            void handleInput(ConsoleKeyInfo input)
+            {
+                int tempCursor = cursor;
+
+                if (input.Key == ConsoleKey.UpArrow) tempCursor--;
+                else if (input.Key == ConsoleKey.DownArrow) tempCursor++;
+                else if (input.Key == ConsoleKey.LeftArrow) transferPoints(-1);
+                else if (input.Key == ConsoleKey.RightArrow) transferPoints(1);
+
+                int cursorMax = 3;
+                if (tempCursor > cursorMax) tempCursor = cursorMax;
+                else if (tempCursor < 0) tempCursor = 0;
+                else cursor = tempCursor;
+            }
+
+            while (points > 0)
+            {
+                string[] attributeStrings = new[]
+                {
+                    $"Strength: {Strength}",
+                    $"Endurance: {Endurance}",
+                    $"Perception: {Perception}",
+                    $"Charisma: {Charisma}"
+                };
+                Console.WriteLine($"Choose which skills to increase. You have {points} point(s) remaining.");
+                for (int i = 0; i < attributeStrings.Length; i++)
+                {
+                    if (i == cursor) Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine(attributeStrings[i]);
+                    Console.ResetColor();
+                }
+                Console.WriteLine("Use up/down arrow keys to select an attribute and left/right arrow keys to increase or decrease it.");
+                handleInput(Console.ReadKey());
+                Console.Clear();
+            }
         }
     
         public void RemoveAllFromMemoryIfNotOnMap(Map map)

@@ -128,7 +128,7 @@ namespace ProceduralDungeon
 
         public static Item GetByName(string name)
         {
-            return (Item)All.GetByName(name);
+            return ((Item)All.GetByName(name)).GetClone();
         }
     }
 }

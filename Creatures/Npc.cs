@@ -39,11 +39,31 @@ namespace ProceduralDungeon
         {
             // move to adjacent point
             var validDestinations = map.EmptyPoints.Where(eP => Location.InRangeOf(eP, 1)).ToList();
-            // stay at same point:
-            validDestinations.Add(Location);
             Location = validDestinations.RandomElement();
         }
 
+        private List<Point> getActiveRepellantLocationsInRange(Map map)
+        {
+            var activeRepellants = map.Repellants.Where(r => 
+                r.IsActive && r.TargetCreatureCategory == this.Category);
+            var activeRepellantLocationsInRange = new List<Point>();
+            // If any active repellants on map are in range:
+            if (activeRepellants.Any())
+            {
+                // Select assets where asset is equal to any active repellant:
+                var activeRepellantsOnMap = map.Assets.Where(a => activeRepellants.Any(aR => a == aR));
+                // Select containers that contain any active repellants:
+                var containersWithActiveRepellants = activeRepellants.Select(aR => 
+                    map.Containers.SingleOrDefault(c => c.Inventory.Contains(aR)))
+                    // Remove duplicate containers and null values:
+                    .Where(c => c != null).Distinct();
+                // Select list of locations where repellants are:
+                activeRepellantLocationsInRange = activeRepellantsOnMap.Select(aR => aR.Location)
+                    .Concat(containersWithActiveRepellants.Select(c => (c as IMappable).Location))
+                    .Where(p => p.InRangeOf(this.Location, SearchRange)).ToList();
+            }
+            return activeRepellantLocationsInRange;
+        }
         // TODO: Dry up MoveToward and MoveAwayFrom:
         public void MoveToward(Map map, Point target)
         {
@@ -121,27 +141,10 @@ namespace ProceduralDungeon
         {
             if (!IsDead)
             {
-                var activeRepellants = map.Repellants.Where(r => 
-                    r.IsActive && r.TargetCreatureCategory == this.Category);
-                var activeRepellantLocationsInRange = new List<Point>();
-                var visibleEnemies = GetVisibleAssets(map).Where(a => a is Creature)
+                var visibleEnemies = getVisibleAssets(map).Where(a => a is Creature)
                     .Cast<Creature>().Where(c => c.Team != this.Team);
-                // If any active repellants on map are in range:
-                if (activeRepellants.Any())
-                {
-                    // Select assets where asset is equal to any active repellant:
-                    var activeRepellantsOnMap = map.Assets.Where(a => activeRepellants.Any(aR => a == aR));
-                    // Select containers that contain any active repellants:
-                    var containersWithActiveRepellants = activeRepellants.Select(aR => 
-                        map.Containers.SingleOrDefault(c => c.Inventory.Contains(aR)))
-                        // Remove duplicate containers and null values:
-                        .Where(c => c != null).Distinct();
-                    // Select list of locations where repellants are:
-                    activeRepellantLocationsInRange = activeRepellantsOnMap.Select(aR => aR.Location)
-                        .Concat(containersWithActiveRepellants.Select(c => (c as IMappable).Location))
-                        .Where(p => p.InRangeOf(this.Location, SearchRange)).ToList();
-                }
-
+                var activeRepellantLocationsInRange = getActiveRepellantLocationsInRange(map);
+                
                 if (activeRepellantLocationsInRange.Any()) 
                 {
                     MoveAwayFrom(map, activeRepellantLocationsInRange.RandomElement());
@@ -171,7 +174,7 @@ namespace ProceduralDungeon
                 }
                 else
                 {
-                    Wander(map);
+                    if (Dice.Coin.Roll() == 1) Wander(map);
                 }
             }
         }

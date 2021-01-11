@@ -30,7 +30,7 @@ namespace ProceduralDungeon
             Rarity = foodToClone.Rarity;
             Weight = foodToClone.Weight;
             Value = foodToClone.Value;
-            _baseDescription = foodToClone.Description;
+            _baseDescription = foodToClone._baseDescription;
             Location = foodToClone.Location;
         }
 
@@ -49,7 +49,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                Console.WriteLine($"The {Name} looks off... I wouldn't eat that.");
+                Console.WriteLine($"That {Name} looks off... I wouldn't eat it.");
             }
         }
 
