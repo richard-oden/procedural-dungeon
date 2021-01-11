@@ -65,10 +65,10 @@ namespace ProceduralDungeon
                 "It's a big piece of wood. Simple yet effective.",
                 EquipmentSlot.TwoHanded, new Die[]{D4, D4}),
             new Weapon("Decent Iron Pickaxe",       weight: 10, value: 15,   rarity: ItemRarity.Common,
-                "It's simple, yet reliable. Good for mining coal and bashing skulls",
+                "It's simple, yet reliable. Good for mining coal and bashing skulls.",
                 EquipmentSlot.TwoHanded, new Die[]{D6}),
             new Weapon("Decent Iron Hoe",           weight: 8, value: 12,   rarity: ItemRarity.Common,
-                "While it's meant for tilling soil, it's not bad as an improvised weapon",
+                "While it's meant for tilling soil, it's not bad as an improvised weapon.",
                 EquipmentSlot.TwoHanded, new Die[]{D6}),
             new Weapon("Leather Sling",             weight: 3, value: 15,   rarity: ItemRarity.Common,
                 "A long strip of hemp cord with a leather pad in the middle. You can use it to throw stuff.",
@@ -93,12 +93,20 @@ namespace ProceduralDungeon
                 "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
             new Repellant("Annointing Oil", CreatureCategory.Undead, 30, 
                 "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
-            new Potion("Minor Healing", new Die[]{D4, D4}),
-            new Potion("Common Healing", new Die[]{D6, D6}),
-            new Potion("Major Healing", new Die[]{D8, D8}),
-            new Potion("Greater Healing", new Die[]{D12, D12}),
-            new Potion("Superior Healing", new Die[]{D20, D20}),
-            new Potion("Wound Regeneration", new Die[]{D20, D20, D20})
+            new Potion("Minor Healing", new Die[]{D4, D4}, ItemRarity.Common),
+            new Potion("Common Healing", new Die[]{D6, D6}, ItemRarity.Common),
+            new Potion("Major Healing", new Die[]{D8, D8}, ItemRarity.Uncommon),
+            new Potion("Greater Healing", new Die[]{D12, D12}, ItemRarity.Rare),
+            new Potion("Superior Healing", new Die[]{D20, D20}, ItemRarity.Rare),
+            new Potion("Wound Regeneration", new Die[]{D20, D20, D20}, ItemRarity.VeryRare),
+            new Food("Common Ration", 2, 200, ItemRarity.Common,
+                "A selection of smoked meats, cheeses, bread, and dried fruit wrapped in an oilskin."),
+            new Food("Hardy Ration", 2, 500, ItemRarity.Uncommon,
+                "A selection of jerky, aged cheese, hardtack, and nuts encased in tin. This has a longer shelflife than normal."),
+            new Food("Fine Ration", 3, 200, ItemRarity.Uncommon,
+                "A selection of artisanal sausages, fancy cheese, bread, and imported preserved fruit wrapped in an oilskin."),
+            new Food("Farmer's Meal", 4, 100, ItemRarity.Uncommon,
+                "A homecooked meal of fresh meats, breads, fruits, and vegetables. Very nutritous, but doesn't travel well."),
        };
 
         public static readonly Weapon[] Weapons = All.Where(i => i is Weapon).Cast<Weapon>().ToArray();
@@ -116,6 +124,11 @@ namespace ProceduralDungeon
                 new FloorMap(map),
                 new Compass((Door)map.Assets.Single(a => a is Door)),
             };
+        }
+
+        public static Item GetByName(string name)
+        {
+            return (Item)All.GetByName(name);
         }
     }
 }

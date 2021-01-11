@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ProceduralDungeon
 {
-    public class Repellant : Item, IInteractable
+    public class Repellant : Item, IInteractable, IDegradable
     {
         public CreatureCategory TargetCreatureCategory {get; protected set;}
         public bool IsActive {get; protected set;} = false;

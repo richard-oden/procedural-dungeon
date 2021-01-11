@@ -25,7 +25,7 @@ namespace ProceduralDungeon
         public PlayerBackground Background {get; protected set;}
         public Player(string name, int id, PlayerBackground background, int level = 1, Gender gender = Gender.NonBinary, 
             Point location = null, List<INameable> memory = null) :
-            base (name, id, 10, CreatureCategory.Humanoid, gender, location, background.Inventory, background.StartingGold, memory)
+            base (name, id, (5 + background.EnduranceMod) * 2, CreatureCategory.Humanoid, gender, location, background.Inventory, background.StartingGold, memory)
         {
             Team = 0;
             

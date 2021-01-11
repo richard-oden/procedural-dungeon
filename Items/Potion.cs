@@ -7,10 +7,11 @@ namespace ProceduralDungeon
     public class Potion : Item, IInteractable
     {
         public Die[] HealingDice {get; protected set;}
-        public Potion(string name, Die[] healingDice)
+        public Potion(string name, Die[] healingDice, ItemRarity rarity)
         {
             Name = name + " Potion";
             HealingDice = healingDice;
+            Rarity = rarity;
             Weight = HealingDice.Sum(hD => hD.NumSides) * .25;
             Value = HealingDice.Sum(hD => hD.NumSides) * 3;
             Description = $"It bubbles with an effervescent red liquid. Should heal roughly {HealingDice.DiceToString()} hp.";
@@ -20,6 +21,7 @@ namespace ProceduralDungeon
         {
             Name = potionToClone.Name;
             HealingDice = potionToClone.HealingDice;
+            Rarity = potionToClone.Rarity;
             Weight = potionToClone.Weight;
             Value = potionToClone.Value;
             Description = potionToClone.Description;

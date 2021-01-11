@@ -28,7 +28,6 @@ namespace ProceduralDungeon
                     : new Map(Size, Player, Difficulty, level);
                 Player.RemoveAllFromMemoryIfNotOnMap(thisMap);
                 foreach (var i in Player.Inventory) if (i is Key) i.IsDestroyed = true;
-                foreach (var i in ItemsRepository.GetMapDependantItems(thisMap)) Player.AddItemToInventory(i);
 
                 while (!Player.IsDead && !thisMap.HasPlayerExited)
                 {
@@ -38,8 +37,8 @@ namespace ProceduralDungeon
                     var input = Console.ReadKey();
                     System.Console.WriteLine();
                     Player.ParseInput(thisMap, input);
-                    foreach (var r in thisMap.Repellants) if (r.IsActive) r.DecrementDuration();
-                    foreach (var npc in thisMap.Npcs) npc.Act(thisMap);
+                    thisMap.ManageIDegradables();
+                    //foreach (var npc in thisMap.Npcs) npc.Act(thisMap);
                     Console.Clear();
                 }
                 if (Player.IsDead) _gameRunning = false;

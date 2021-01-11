@@ -446,6 +446,17 @@ namespace ProceduralDungeon
             }
         }
 
+        public void ManageIDegradables()
+        {
+            var allIDegradables = AllItems.Where(i => i is IDegradable).Cast<IDegradable>();
+            foreach (var d in allIDegradables)
+            {
+                if ((d is Repellant && (d as Repellant).IsActive) || !(d is Repellant))
+                {
+                    d.DecrementDuration();
+                }
+            }
+        }
         public void PurgeDestroyedItems()
         {
             Assets.RemoveAll(i => i is Item && (i as Item).IsDestroyed);

@@ -11,7 +11,7 @@ namespace ProceduralDungeon
         private static int _highlightedMapSize = 2;
         private static Difficulty[] _difficulties = new[] {Difficulties.VeryEasy, Difficulties.Easy, Difficulties.Medium, Difficulties.Hard, Difficulties.VeryHard};
         private static int _highlightedDifficulty = 2;
-        private static string _playerName = "";
+        private static string _playerName = "Bill";
         private static Gender[] _genders = new[] {Gender.Male, Gender.Female, Gender.NonBinary};
         private static int _highlightedGender = 2;
         private static PlayerBackground[] _playerBackgrounds = new[] {PlayerBackgrounds.Miner, PlayerBackgrounds.Farmer, PlayerBackgrounds.Hunter, PlayerBackgrounds.Priest, PlayerBackgrounds.Noble};
