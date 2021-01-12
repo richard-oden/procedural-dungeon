@@ -63,7 +63,11 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             else if (input.Key == F) Attack(map);
             else if (input.Key == R) Recall(map);
             else if (input.Key == Escape) {}// Quit menu
-            else System.Console.WriteLine("Hotkey not recognized. Press 'H' for a full list of hotkeys.");
+            else 
+            {
+                System.Console.WriteLine("Hotkey not recognized. Press 'H' for a full list of hotkeys.");
+                WaitForInput();
+            }
             return true;
         }
 
@@ -74,7 +78,6 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             Console.WriteLine("- Map legend: L");
             Console.WriteLine("- Search: S");
             Console.WriteLine("- Show memory: R");
-            Console.WriteLine("- Describe: T");
             Console.WriteLine("- Inventory: I");
             Console.WriteLine("- Pick up item: P");
             Console.WriteLine("- Drop item: O");

@@ -97,10 +97,6 @@ namespace ProceduralDungeon
                         Search(map);
                     }
                 }
-                else
-                {
-                    Wander(map);
-                }
             }
         }
         public void OpenTrade(Player player)
@@ -168,7 +164,6 @@ namespace ProceduralDungeon
                         break;
                     case ConsoleKey.Escape:
                         Console.WriteLine("Pleasure doing business with you.");
-                        WaitForInput();
                         stillTrading = false;
                         break;
                 }

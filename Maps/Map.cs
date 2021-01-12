@@ -551,7 +551,7 @@ namespace ProceduralDungeon
                 }
                 else if (tempOriginCoord + searchDiameter > upperLimit)
                 {
-                    return upperLimit - searchDiameter;
+                    return upperLimit - searchDiameter < 0 ? 0 : upperLimit - searchDiameter;
                 }
                 else
                 {
@@ -560,8 +560,8 @@ namespace ProceduralDungeon
             }
 
             Point origin = new Point(getOriginCoord(creature.Location.X, Width), getOriginCoord(creature.Location.Y, Height));
-            int viewportHeight = origin.Y + searchDiameter;
-            int viewportWidth = origin.X + searchDiameter;
+            int viewportHeight = origin.Y + searchDiameter > Height ? Height : origin.Y + searchDiameter;
+            int viewportWidth = origin.X + searchDiameter > Width ? Width : origin.X + searchDiameter;
 
             for (int y = origin.Y; y < viewportHeight; y++)
             {
