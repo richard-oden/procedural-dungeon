@@ -19,9 +19,10 @@ namespace ProceduralDungeon
             {
                 var itemsInInventories = new List<Item>();
                 foreach (var c in Containers) itemsInInventories.AddRange(c.Inventory);
-                return Items.Union(itemsInInventories).ToList();
+                return Items.Concat(itemsInInventories).ToList();
             }
         }        
+        public List<IMappable> AllAssets => Assets.Concat(AllItems.Cast<IMappable>()).Distinct().ToList();
         public List<Repellant> Repellants => AllItems.Where(i => i is Repellant).Cast<Repellant>().ToList();
         public List<Creature> Creatures => Assets.Where(a => a is Creature).Cast<Creature>().ToList();
         public List<Npc> Npcs => Assets.Where(a => a is Npc).Cast<Npc>().ToList();
@@ -62,7 +63,7 @@ namespace ProceduralDungeon
             Height = height;
         }
 
-        public Map(MapSize size, Player player, Difficulty difficulty, int level)
+        public Map(MapSize size, Player player, Difficulty difficulty, int floor)
         {
             var _rand = new Random();
 
@@ -74,13 +75,12 @@ namespace ProceduralDungeon
             int numTiles = Width < Height ? Width/2 : Height/2;
             int numAttempts = numTiles * 3;
             generateTiles(numTiles, numAttempts);
-            System.Console.WriteLine("Number of tiles: " + _tiles.Count);
             fillSpaceBetweenTiles();
             AddPlayer(player);
             generateDoor();
             generateKey();
-            generateItemsUsingDifficulty(difficulty, level);
-            generateNpcsUsingDifficulty(difficulty, level);
+            generateItemsUsingDifficulty(difficulty, floor);
+            generateNpcsUsingDifficulty(difficulty, floor);
             validateAssets(Assets);
         }
 
@@ -92,13 +92,13 @@ namespace ProceduralDungeon
             AddTile(_centralTile);
         }
         
-        public static Map CreateMerchantMap(Player player, Difficulty difficulty, int level)
+        public static Map CreateMerchantMap(Player player, Difficulty difficulty, int floor)
         {
             var merchantMap = new Map(14, 14);
             merchantMap.generateCentralTile();
             merchantMap.fillSpaceBetweenTiles();
             merchantMap.AddPlayer(player);
-            var merchant = Merchant.GenerateUsingDifficulty(difficulty, level, player);
+            var merchant = Merchant.GenerateUsingDifficulty(difficulty, floor, player);
             merchant.Location = merchantMap.EmptyPoints.RandomElement();
             merchantMap.AddAsset(merchant);
             var door = new Door(merchantMap, merchantMap.EmptyPoints.RandomElement(), false);
@@ -221,10 +221,10 @@ namespace ProceduralDungeon
             AddAsset(clonedNpc);
         }
 
-        private void generateItemsUsingDifficulty(Difficulty difficulty, int level)
+        private void generateItemsUsingDifficulty(Difficulty difficulty, int floor)
         {
             var totalItemMax = difficulty.ItemToTileRatio * _tiles.Count;
-            var itemValueAverage = difficulty.AverageItemValue + (level * 2);
+            var itemValueAverage = difficulty.AverageItemValue + (floor * 2);
             for (int i = 0; i < totalItemMax; i++)
             {
                 Item newItem = null;
@@ -264,10 +264,10 @@ namespace ProceduralDungeon
             // System.Console.WriteLine();
         }
 
-        private void generateNpcsUsingDifficulty(Difficulty difficulty, int level)
+        private void generateNpcsUsingDifficulty(Difficulty difficulty, int floor)
         {
-            double totalNpcMax = difficulty.NpcToTileRatio * _tiles.Count + (level * .2);
-            double npcChallengeAverage = difficulty.AverageNpcChallenge + (level * .5);
+            double totalNpcMax = difficulty.NpcToTileRatio * _tiles.Count + (floor * .2);
+            double npcChallengeAverage = difficulty.AverageNpcChallenge + (floor * .5);
             for (int i = 0; i < totalNpcMax; i++)
             {
                 Npc newNpc = null;
@@ -299,7 +299,7 @@ namespace ProceduralDungeon
                         }
                     }
                 }
-                generateNpc(newNpc, difficulty.MaxNpcsPerTile + (int)(level * .25));
+                generateNpc(newNpc, difficulty.MaxNpcsPerTile + (int)(floor * .25));
             }
             // System.Console.WriteLine("Max npcs: " + totalNpcMax);
             // System.Console.WriteLine("Average challenge level: " + npcChallengeAverage);

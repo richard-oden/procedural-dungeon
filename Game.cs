@@ -18,20 +18,21 @@ namespace ProceduralDungeon
             Player = player;
         }
 
-        public void StartAt(int level)
+        public void StartAt(int floor)
         {
             _gameRunning = true;
             while (_gameRunning)
             {
                 // Every 3 levels create a merchant area:
-                var thisMap = level % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, level) 
-                    : new Map(Size, Player, Difficulty, level);
+                var thisMap = floor % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, floor) 
+                    : new Map(Size, Player, Difficulty, floor);
                 Player.RemoveAllFromMemoryIfNotOnMap(thisMap);
                 foreach (var i in Player.Inventory) if (i is Key) i.IsDestroyed = true;
 
                 while (!Player.IsDead && !thisMap.HasPlayerExited)
                 {
                     thisMap.PurgeDestroyedItems();
+                    Console.WriteLine($"Floor: {floor}");
                     thisMap.PrintMapFromViewport(Player);
                     Console.WriteLine(Player.GetDetails());
                     var input = Console.ReadKey();
@@ -42,7 +43,9 @@ namespace ProceduralDungeon
                     Console.Clear();
                 }
                 if (Player.IsDead) _gameRunning = false;
-                level++;
+                // Gain exp equal to 2*floor if this floor is not a merchant map:
+                else if (floor % 3 != 0) Player.GainExp(floor * 2);
+                floor++;
             }
         }
     }

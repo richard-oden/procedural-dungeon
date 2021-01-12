@@ -20,25 +20,25 @@ namespace ProceduralDungeon
             _baseDescription += _baseDescription == null ? merchantDescription : " " + merchantDescription;
         }
 
-        public static Merchant GenerateUsingDifficulty(Difficulty difficulty, int level, Player player)
+        public static Merchant GenerateUsingDifficulty(Difficulty difficulty, int floor, Player player)
         { 
             return new Merchant(id: 001, hp: 100, 
-            inventory: generateInventoryUsingDifficulty(difficulty, level),
-            gold: generateGoldUsingDifficulty(difficulty, level));
+            inventory: generateInventoryUsingDifficulty(difficulty, floor),
+            gold: generateGoldUsingDifficulty(difficulty, floor));
         }
 
-        private static int generateGoldUsingDifficulty(Difficulty difficulty, int level)
+        private static int generateGoldUsingDifficulty(Difficulty difficulty, int floor)
         {
             var rand = new Random();
-            int averageGoldForLevel = difficulty.AverageMerchantGold + (level/3 * 25);
+            int averageGoldForLevel = difficulty.AverageMerchantGold + (floor/3 * 25);
             var goldVariance = (int)Math.Round(averageGoldForLevel * .2);
             return rand.Next(averageGoldForLevel - goldVariance, averageGoldForLevel + goldVariance);
         }
 
-        private static List<Item> generateInventoryUsingDifficulty(Difficulty difficulty, int level)
+        private static List<Item> generateInventoryUsingDifficulty(Difficulty difficulty, int floor)
         {
-            var itemValueAverage = difficulty.AverageItemValue*1.5 + (level/3 * 10);
-            var totalMerchantInventorySize = difficulty.MerchantInventorySize + (level/3);
+            var itemValueAverage = difficulty.AverageItemValue*1.5 + (floor/3 * 10);
+            var totalMerchantInventorySize = difficulty.MerchantInventorySize + (floor/3);
             var inventory = new List<Item>();
             for (int i = 0; i < totalMerchantInventorySize; i++)
             {
@@ -47,7 +47,7 @@ namespace ProceduralDungeon
                 if (i < totalMerchantInventorySize / 6)
                 {
                     valueVariance = (int)Math.Round(itemValueAverage*.5);
-                    newItem = ItemsRepository.All.Where(i => 
+                    newItem = ItemsRepository.All.Where(i => !ItemsRepository.Junk.Contains(i) && 
                         ((double)i.Value).IsBetween(itemValueAverage-valueVariance, itemValueAverage+valueVariance)).RandomElement();
                 }
                 else

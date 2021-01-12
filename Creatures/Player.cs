@@ -17,7 +17,7 @@ namespace ProceduralDungeon
         private int _expCeiling => (int)Math.Round((4 * Math.Pow(Level, 3)) / 5.0); //exp curve taken from pokemon gen 1 :)
         public override double MaxCarryWeight => Strength * 10;
         public override int SearchRange => Perception;
-        protected override int _maxHp => (int)Math.Round(Endurance * (Level * 1.1));
+        protected override int _maxHp => 2 + (int)Math.Round(Endurance * (Level * 1.05));
         protected override int _damageModifier => Strength - 5;
         protected override int _attackModifier => Perception - 5;
         protected override int _baseDamageResistance => (Endurance - 5) / 2;
@@ -37,6 +37,8 @@ namespace ProceduralDungeon
             Charisma = 5 + background.CharismaMod;
             Background = background;
             Level = level;
+
+            _currentHp = _maxHp;
         }
 
         public string GetDetails()
@@ -60,7 +62,6 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             else if (input.Key == J) Interact(map);
             else if (input.Key == F) Attack(map);
             else if (input.Key == R) Recall(map);
-            else if (input.Key == T) Describe();
             else if (input.Key == Escape) {}// Quit menu
             else System.Console.WriteLine("Hotkey not recognized. Press 'H' for a full list of hotkeys.");
             return true;
@@ -113,6 +114,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             if (!foundAssets.Any())
             {
                 Console.WriteLine($"{Name} searched but couldn't find anything!");
+                WaitForInput();
             }
             else
             {
@@ -127,23 +129,6 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             System.Console.WriteLine();
             var memoryMenu = new IMappableMenu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), this, map);
             memoryMenu.Open();
-        }
-    
-        public void Describe()
-        {
-            var input = PromptLine("Enter the name of the thing to describe:");
-
-            INameable thingToDescribe = input.ToLower() == Name.ToLower() ? this : _memory.GetByName(input);
-
-            if (thingToDescribe != null && thingToDescribe is IDescribable)
-            {
-                System.Console.WriteLine((thingToDescribe as IDescribable).Description);
-            }
-            else
-            {
-                System.Console.WriteLine($"Hmmm. {input} doesn't ring any bells.");
-            }
-            WaitForInput();
         }
     
         public void Interact(Map map)
@@ -286,8 +271,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
                 Level++;
                 Console.WriteLine($"{Name} leveled up! {Pronouns[0]} is/are now level {Level}.");
                 _currentHp = _maxHp;
-                WaitForInput();
-                attributePointBuy(1);
+                if (Level % 2 == 0) attributePointBuy(1);
             }
         }
 
@@ -323,8 +307,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
 
                 if (input.Key == ConsoleKey.UpArrow) tempCursor--;
                 else if (input.Key == ConsoleKey.DownArrow) tempCursor++;
-                else if (input.Key == ConsoleKey.LeftArrow) transferPoints(-1);
-                else if (input.Key == ConsoleKey.RightArrow) transferPoints(1);
+                else if (input.Key == ConsoleKey.Enter) transferPoints(1);
 
                 int cursorMax = 3;
                 if (tempCursor > cursorMax) tempCursor = cursorMax;
@@ -348,7 +331,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
                     Console.WriteLine(attributeStrings[i]);
                     Console.ResetColor();
                 }
-                Console.WriteLine("Use up/down arrow keys to select an attribute and left/right arrow keys to increase or decrease it.");
+                Console.WriteLine("Use Up/Down arrow keys to select an attribute and Enter to increase it.");
                 handleInput(Console.ReadKey());
                 Console.Clear();
             }
@@ -356,7 +339,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
     
         public void RemoveAllFromMemoryIfNotOnMap(Map map)
         {
-            _memory.RemoveAll(m => !map.AllItems.Contains(m));
+            _memory.RemoveAll(m => !map.AllAssets.Contains(m as IMappable));
         }
     }
 }

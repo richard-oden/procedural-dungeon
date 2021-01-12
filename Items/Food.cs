@@ -44,7 +44,7 @@ namespace ProceduralDungeon
             if (!_isSpoiled)
             {
                 player.ChangeHp(HealingAmount);
-                Console.WriteLine($"{player.Name} ate the {Name} and healed {HealingAmount} hp.");
+                Console.WriteLine($"{player.Name} consumed the {Name} and healed {HealingAmount} hp.");
                 IsDestroyed = true;
             }
             else
@@ -55,8 +55,8 @@ namespace ProceduralDungeon
 
         public void DecrementDuration()
         {
-            Duration--;
-            if (Duration <= 0)
+            if (Duration > 0) Duration--;
+            if (Duration <= 0 && !_isSpoiled)
             {
                 _isSpoiled = true;
                 Name += " (spoiled)";
