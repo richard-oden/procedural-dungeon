@@ -11,9 +11,11 @@ namespace ProceduralDungeon
         public Die[] DamageDice {get; protected set;}
         public int DamageModifier {get; protected set;}
         public int Range {get; protected set;}
+        public bool IsThrown {get; protected set;}
 
         public Weapon(string name, double weight, int value, ItemRarity rarity, string description,
-            EquipmentSlot slot, Die[] damageDice, int attackMod = 0, int damageMod = 0, int range = 1) 
+            EquipmentSlot slot, Die[] damageDice, int attackMod = 0, int damageMod = 0, int range = 1, 
+            bool isThrown = false) 
             : base(name, weight, value, rarity, description)
         {
             Slot = slot;
@@ -21,6 +23,7 @@ namespace ProceduralDungeon
             AttackModifier = attackMod;
             DamageModifier = damageMod;
             Range = range;
+            IsThrown = isThrown;
         }
 
         public Weapon(Weapon weaponToClone)
@@ -36,6 +39,7 @@ namespace ProceduralDungeon
             AttackModifier = weaponToClone.AttackModifier;
             DamageModifier = weaponToClone.DamageModifier;
             Range = weaponToClone.Range;
+            IsThrown = weaponToClone.IsThrown;
         }
 
         public override Item GetClone()
@@ -47,7 +51,8 @@ namespace ProceduralDungeon
         {
             string attackModString = AttackModifier != 0 ? $"Attack Modifier: {AttackModifier} - " : "";
             string damageModString = DamageModifier != 0 ? $" + {DamageModifier}" : "";
-            return $"{Description}\nSlot:{Slot.ToString().FromTitleOrCamelCase()} - {attackModString}Damage: {DamageDice.DiceToString()}{damageModString} - Range: {Range*5} feet";
+            string thrownString = IsThrown ? " (thrown)" : "";
+            return $"{Description}\nSlot:{Slot.ToString().FromTitleOrCamelCase()} - {attackModString}Damage: {DamageDice.DiceToString()}{damageModString} - Range: {Range*5} feet{thrownString}";
         }
     }
 }

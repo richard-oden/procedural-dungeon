@@ -461,6 +461,7 @@ namespace ProceduralDungeon
         {
             Assets.RemoveAll(i => i is Item && (i as Item).IsDestroyed);
             foreach (var c in Containers) c.Inventory.RemoveAll(i => i.IsDestroyed);
+            foreach (var c in Creatures) c.EquippedItems.RemoveAll(i => (i as Item).IsDestroyed);
         }
         public IMappable[] GetAssetsInRangeOf(Point origin, int range)
         {

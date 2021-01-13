@@ -246,8 +246,10 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
         }
         
         public void Attack(Map map)
-        {
-            var targetsAsIMappable = map.Creatures.Where(a => Location.InRangeOf(a.Location, _attackRange) && a != this).Cast<IMappable>().ToList();
+        {   
+            int weaponAttackRange = EquippedWeapons.Any() ? EquippedWeapons.Select(eW => eW.Range).Max() : 0;
+            int effectiveAttackRange = weaponAttackRange > _attackRange ? weaponAttackRange : _attackRange;
+            var targetsAsIMappable = map.Creatures.Where(c => Location.InRangeOf(c.Location, effectiveAttackRange) && c != this).Cast<IMappable>().ToList();
             var attackMenu = new IMappableMenu("Select creature to attack. Press Up/Down to change selection, Enter to attack, and Esc to exit.", targetsAsIMappable, this, map);
             var target = (Creature)attackMenu.Open();
             if (target != null)
@@ -274,6 +276,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
                 Level++;
                 Console.WriteLine($"{Name} leveled up! {Pronouns[0]} is/are now level {Level}.");
                 _currentHp = _maxHp;
+                WaitForInput();
                 if (Level % 2 == 0) attributePointBuy(1);
             }
         }

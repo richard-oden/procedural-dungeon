@@ -13,7 +13,7 @@ namespace ProceduralDungeon
                 baseDescription: "It's frothing at the mouth and is missing patches of fur here and there."),
             new Npc("Cave Centipede",   002, challengeLevel: 3,   hp: 4,  ac: 10, dr: 1,    category: CreatureCategory.Beast,
                 inventory: Junk.RandomSample(Coin.RollBaseZero()), gold: D12.RollBaseZero(),
-                baseDescription: "Its body is covered in a protective layer of chitin and has far too many legs."),
+                baseDescription: "Its body is covered in a protective layer of chitin and it has far too many legs."),
             
             
             new Npc("Giant Viper",      003, challengeLevel: 4,       hp: 6,  ac: 9, category: CreatureCategory.Beast,

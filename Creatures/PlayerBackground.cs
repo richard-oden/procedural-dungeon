@@ -43,7 +43,8 @@ namespace ProceduralDungeon
         public static readonly PlayerBackground Farmer = new PlayerBackground("Farmer", startingGold: 50, enduranceMod: 2, 
             inventory: new List<Item>()
             {
-                ItemsRepository.GetByName("Decent Iron Hoe"), 
+                ItemsRepository.GetByName("Decent Iron Hoe"),
+                ItemsRepository.GetByName("Wide Brimmed Hat"),
                 ItemsRepository.GetByName("Farmer's Meal")
             }
         ); // Tattered clothing, hoe, food, little money, increased endurance
@@ -60,6 +61,7 @@ namespace ProceduralDungeon
         public static readonly PlayerBackground Priest = new PlayerBackground("Priest", startingGold: 50, charismaMod: 2, 
             inventory: new List<Item>()
             {
+                ItemsRepository.GetByName("Alchemist's Fire"), 
                 ItemsRepository.GetByName("Annointing Oil"), 
                 ItemsRepository.GetByName("Common Ration")
             }

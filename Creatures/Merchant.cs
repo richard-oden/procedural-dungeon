@@ -48,7 +48,8 @@ namespace ProceduralDungeon
                 {
                     valueVariance = (int)Math.Round(itemValueAverage*.5);
                     newItem = ItemsRepository.All.Where(i => !ItemsRepository.Junk.Contains(i) && 
-                        ((double)i.Value).IsBetween(itemValueAverage-valueVariance, itemValueAverage+valueVariance)).RandomElement();
+                        ((double)i.Value).IsBetween(itemValueAverage-valueVariance, itemValueAverage+valueVariance))
+                        .RandomElement().GetClone();
                 }
                 else
                 {

@@ -90,7 +90,7 @@ namespace ProceduralDungeon
             new Item("Arcane Mannacles",   weight: 20,      value: 160,   rarity: ItemRarity.VeryRare, 
                 "A set of steel mannacles inscribed with various glowing runes."),
             new Item("Mithril Scale",      weight: 4,       value: 80,    rarity: ItemRarity.VeryRare, 
-                "It could have been used to weigh jewels or other small items. The craftsmanship is beautiful."),
+                "It's used to weigh jewels or other small items. The craftsmanship is beautiful."),
             new Item("Crystal Orb",        weight: 14,      value: 96,    rarity: ItemRarity.VeryRare, 
                 "The inside pulses with pale blue light. It must be an arcane implement of some type."),
             
@@ -118,11 +118,17 @@ namespace ProceduralDungeon
             new Weapon("Crude Shortbow",            weight: 4, value: 30,   rarity: ItemRarity.Common,
                 "It's not the most well-made bow, but should get the job done.",
                 EquipmentSlot.TwoHanded, new Die[]{D4, D4}, range: 8),
+            new Weapon("Alchemist's Fire",          weight: .5, value: 25,   rarity: ItemRarity.Uncommon,
+                "It's a small clay vessel filled with highly flammable liquid.",
+                EquipmentSlot.OneHanded, new Die[]{D6}, damageMod: 2, range: 4, isThrown: true),
             new Weapon("Staff of The Destroyer",    weight: 10, value: 12000,    rarity: ItemRarity.VeryRare,
                 "This fabled implement has laid waste to armies and destroyed nations. It also looks pretty.",
                 EquipmentSlot.TwoHanded, new Die[]{D12, D12, D12, D12, D8, D8, D4, D4, D4},
                 attackMod: 8, damageMod: 8, range: 100),
             
+            new Armor("Wide Brimmed Hat",           weight: .3, value: 3,    rarity: ItemRarity.Common,
+                "Although useful for keeping the sun at bay, it doesn't offer any protection against attacks.",
+                EquipmentSlot.Head, acBonus: 0),
             new Armor("Shabby Leather Vest",        weight: 20, value: 15,   rarity: ItemRarity.Common,
                 "It might stop a few spitballs.",
                 EquipmentSlot.Chest, acBonus: 2),
@@ -141,10 +147,10 @@ namespace ProceduralDungeon
             new Armor("Old Leather Greaves",     weight: 2, value: 10,   rarity: ItemRarity.Common,
                 "They cover the lower half of your legs.",
                 EquipmentSlot.Legs, acBonus: 1),
-
             new Armor("Mithril Chestplate",        weight: 18, value: 10000,    rarity: ItemRarity.VeryRare,
                 "Although lightweight, it will stop all but the mightiest of blows.",
                 EquipmentSlot.Chest, acBonus: 10, damageResistance: 10),
+
             new Repellant("Beast Bane Incense", CreatureCategory.Beast, 30,
                 "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
             new Repellant("Annointing Oil", CreatureCategory.Undead, 30, 

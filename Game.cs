@@ -23,6 +23,8 @@ namespace ProceduralDungeon
             _gameRunning = true;
             while (_gameRunning)
             {
+                Console.Clear();
+                Console.WriteLine("Loading next floor...");
                 // Every 3 levels create a merchant area:
                 var thisMap = floor % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, floor) 
                     : new Map(Size, Player, Difficulty, floor);
@@ -31,16 +33,15 @@ namespace ProceduralDungeon
 
                 while (!Player.IsDead && !thisMap.HasPlayerExited)
                 {
+                    Console.Clear();
+                    thisMap.ManageIDegradables();
                     thisMap.PurgeDestroyedItems();
                     Console.WriteLine($"Floor: {floor}");
                     thisMap.PrintMapFromViewport(Player);
                     Console.WriteLine(Player.GetDetails());
-                    var input = Console.ReadKey();
-                    System.Console.WriteLine();
-                    Player.ParseInput(thisMap, input);
-                    thisMap.ManageIDegradables();
+                    Console.WriteLine();
+                    Player.ParseInput(thisMap, Console.ReadKey(true));
                     foreach (var npc in thisMap.Npcs) npc.Act(thisMap);
-                    Console.Clear();
                 }
                 if (Player.IsDead) _gameRunning = false;
                 // Gain exp equal to 2*floor if this floor is not a merchant map:

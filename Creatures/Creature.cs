@@ -58,16 +58,16 @@ namespace ProceduralDungeon
                 else if (_currentHp > 0) hpString = "near death";
                 else hpString = "dead";
 
-                description += $"{Pronouns[0]} appears {hpString}.";
+                description += $"{Pronouns[0]} appear(s) {hpString}.";
 
                 if (EquippedWeapons.Any()) 
                 {
-                    description += $" {Pronouns[0]} is wielding {EquippedWeapons.ListWithIndefiniteArticle()}.";
+                    description += $" {Pronouns[0]} is/are wielding {EquippedWeapons.ListWithIndefiniteArticle()}.";
                 }
 
                 if (EquippedArmor.Any())
                 {
-                    description += $" {Pronouns[0]} is wearing {EquippedArmor.ListWithIndefiniteArticle()}.";
+                    description += $" {Pronouns[0]} is/are wearing {EquippedArmor.ListWithIndefiniteArticle()}.";
                 }
                 return description;
             }
@@ -298,32 +298,29 @@ namespace ProceduralDungeon
             if (_currentHp == 0) System.Console.WriteLine($"{Name} is dead!");
         }
         
-        protected bool validateTargetOnMap(Map map, IMappable target, int range)
+        protected bool validateAttackTarget(Map map, Creature targetCreature, int range)
         {
-            string targetName = target is INameable ? (target as INameable).Name : target.GetType().Name;
-            // If target is INameable, it must be within memory:
-            if ((target is INameable && _memory.Contains(target as INameable)) ||
-                !(target is INameable))
+            if (_memory.Contains(targetCreature))
             {
-                if (getVisibleAssets(map).Contains(target))
+                if (getVisibleAssets(map).Contains(targetCreature))
                 {
-                    if (Location.InRangeOf(target.Location, _attackRange))
+                    if (Location.InRangeOf(targetCreature.Location, range))
                     {
                         return true;
                     }
                     else
                     {
-                        System.Console.WriteLine($"{targetName} is out of {Name}'s reach!");
+                        System.Console.WriteLine($"{targetCreature.Name} is out of {Name}'s reach!");
                     }
                 }
                 else
                 {
-                    System.Console.WriteLine($"{Name} cannot see {targetName}!");
+                    System.Console.WriteLine($"{Name} cannot see {targetCreature.Name}!");
                 }
             }
             else
             {
-                System.Console.WriteLine($"{Name} does not know know about the {targetName}!");
+                System.Console.WriteLine($"{Name} does not know know about the {targetCreature.Name}!");
             }
             return false;
         }
@@ -343,45 +340,52 @@ namespace ProceduralDungeon
             if (equippedWeapon != null)
             {
                 totalDamageMod += equippedWeapon.DamageModifier;
-                foreach (var die in equippedWeapon.DamageDice) damageSum += die.Roll(1, totalDamageMod);
+                foreach (var die in equippedWeapon.DamageDice) damageSum += die.Roll();
             }
             else
             {
-                foreach (var die in _damageDice) damageSum += die.Roll(1, totalDamageMod);
+                foreach (var die in _damageDice) damageSum += die.Roll();
             }
-            return damageSum;
+            return damageSum + totalDamageMod;
         }
 
         public void Attack(Map map, Creature targetCreature)
         {
-            if (validateTargetOnMap(map, targetCreature, _attackRange))
+            if (EquippedWeapons.Any())
             {
-                if (EquippedWeapons.Any())
+                var weaponHits = new Dictionary<Weapon, bool>();
+                foreach (var weapon in EquippedWeapons)
                 {
-                    var weaponHits = new Dictionary<Weapon, bool>();
-                    foreach (var weapon in EquippedWeapons)
+                    System.Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {weapon.Name}!");
+                    if (validateAttackTarget(map, targetCreature, weapon.Range))
                     {
-                        System.Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {weapon.Name}!");
-                        targetCreature.AddToMemory(weapon);
+                        // Keep tally of which weapons hit:
                         weaponHits.Add(weapon, AttackRoll(targetCreature, weapon));
-                    }
-                    foreach (var hit in weaponHits)
-                    {
-                        if (hit.Value)
-                        {
-                            int damage = DamageRoll(hit.Key);
-                            System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
-                            targetCreature.ChangeHp(-damage);
-                        }
-                        else
-                        {
-                            System.Console.WriteLine($"{Name} missed the attack!");
-                        }
+                        // Thrown weapons are destroyed after use:
+                        if (weapon.IsThrown) weapon.IsDestroyed = true;
+                        // Target creature now knows of this weapon:
+                        targetCreature.AddToMemory(weapon);
                     }
                 }
-                else 
+                foreach (var hit in weaponHits)
                 {
-                    System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
+                    if (hit.Value)
+                    {
+                        int damage = DamageRoll(hit.Key);
+                        System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name} with the {hit.Key.Name}!");
+                        targetCreature.ChangeHp(-damage);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"{Name} missed the attack with the {hit.Key.Name}!");
+                    }
+                }
+            }
+            else 
+            {
+                System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
+                if (validateAttackTarget(map, targetCreature, _attackRange))
+                {
                     if (AttackRoll(targetCreature))
                     {
                         int damage = DamageRoll();
@@ -393,8 +397,9 @@ namespace ProceduralDungeon
                         System.Console.WriteLine($"{Name} missed the attack!");
                     }
                 }
-                targetCreature.AddToMemory(this);
             }
+            // Target creature now knows of attacker
+            targetCreature.AddToMemory(this);
         }
     }
 
