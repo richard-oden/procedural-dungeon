@@ -9,11 +9,19 @@ namespace ProceduralDungeon
     {
         public static readonly Item[] All = new Item[]
         {
-            new Item("Tattered Parchment",  weight: 0.5,    value: 0,   rarity: ItemRarity.Common,
+            new Item("Ruined Robe",         weight: 0.5,    value: 0,   rarity: ItemRarity.Common, 
+                "It's horribly stained, frayed, and ripped in several places."),
+            new Item("Tattered Parchment",  weight: 0.1,    value: 0,   rarity: ItemRarity.Common,
                 "Maybe it once held a powerful spell. Or maybe it's a really old piece of toilet paper."),
-            new Item("Pottery Shard",       weight: 0.5,    value: 0,   rarity: ItemRarity.Common, 
+            new Item("Pottery Shard",       weight: 0.1,    value: 0,   rarity: ItemRarity.Common, 
                 "What ancient civilization could have created this?"),
-            new Item("Rusty Pickaxe",       weight: 10,     value: 5,   rarity: ItemRarity.Common, 
+            new Item("Wooden Cup",          weight: 0.2,    value: 2,   rarity: ItemRarity.Common, 
+                "It's a wooden cup. Pretty exciting, I know."),
+            new Item("Empty Vial",          weight: 0.2,    value: 2,   rarity: ItemRarity.Common, 
+                "It's made of glass and the stopper is missing. You can see some dried remnants of whatever liquid was inside."),
+            new Item("Wooden Plate",        weight: 0.3,    value: 2,   rarity: ItemRarity.Common, 
+                "Alternatively, this could be an ancient frisbee."),
+            new Item("Rusty Pickaxe",       weight: 8,     value: 5,   rarity: ItemRarity.Common, 
                 "Doesn't seem to be usable anymore, although you could sell it as scrap metal."),
             new Item("Humanoid Skull",      weight: 3,      value: 2,   rarity: ItemRarity.Common, 
                 "Hard to tell what race it is. Might be worth a little money for the right buyer."),
@@ -71,6 +79,8 @@ namespace ProceduralDungeon
                 "Useful for prying open boxes."),
             new Item("Tinderbox",           weight: .1,      value: 10,   rarity: ItemRarity.Uncommon, 
                 "Good for starting fires in a pinch."),
+            new Item("Hourglass",           weight: 0.3,     value: 13,   rarity: ItemRarity.Uncommon, 
+                "It's probably more like a minuteglass."),
 
             new Item("Gold Necklace",      weight: 0.5,     value: 50,    rarity: ItemRarity.Rare, 
                 "A simple chain necklace. Feels pretty heavy for its size."),
@@ -82,6 +92,7 @@ namespace ProceduralDungeon
                 "They carry intricate designs made of gold and silver ink."),
             new Item("Holy Symbol",        weight: 0.3,     value: 28,    rarity: ItemRarity.Rare, 
                 "You don't recognize the deity it's devoted to, but it's very well made."),
+            
 
             new Item("Jewel-inlaid Skull", weight: 5,       value: 120,   rarity: ItemRarity.VeryRare, 
                 "Each eye socket contains a large ruby, and some of the teeth are replaced with gems. Creepy."),
@@ -93,6 +104,8 @@ namespace ProceduralDungeon
                 "It's used to weigh jewels or other small items. The craftsmanship is beautiful."),
             new Item("Crystal Orb",        weight: 14,      value: 96,    rarity: ItemRarity.VeryRare, 
                 "The inside pulses with pale blue light. It must be an arcane implement of some type."),
+            new Item("Platinum Flask",     weight: 0.3,     value: 74,    rarity: ItemRarity.VeryRare, 
+                "While its body is entirely platinum, the cap is made of rose gold. It carries an enscription in a language you don't understand."),
             
             new Weapon("Worn Iron Waraxe",          weight: 20, value: 25,   rarity: ItemRarity.Common,
                 "This old iron axe has seen a lot of battle.",
@@ -155,12 +168,16 @@ namespace ProceduralDungeon
                 "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
             new Repellant("Annointing Oil", CreatureCategory.Undead, 30, 
                 "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
+            new Repellant("Anti-Monster Aroma", CreatureCategory.Monstrosity, 30, 
+                "A small, pale-green bottle of perfume. The cap is a stylized dragon head. Should temporarily deter monsters."),
+
             new Potion("Minor Healing", new Die[]{D4, D4}, ItemRarity.Common),
             new Potion("Common Healing", new Die[]{D6, D6}, ItemRarity.Common),
             new Potion("Major Healing", new Die[]{D8, D8}, ItemRarity.Uncommon),
             new Potion("Greater Healing", new Die[]{D12, D12}, ItemRarity.Rare),
             new Potion("Superior Healing", new Die[]{D20, D20}, ItemRarity.Rare),
             new Potion("Wound Regeneration", new Die[]{D20, D20, D20}, ItemRarity.VeryRare),
+
             new Food("Common Ration", 2, 200, ItemRarity.Common,
                 "A selection of smoked meats, cheeses, bread, and dried fruit wrapped in an oilskin."),
             new Food("Hardy Ration", 2, 500, ItemRarity.Uncommon,
