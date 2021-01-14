@@ -16,7 +16,16 @@ namespace ProceduralDungeon
         private int _exp;
         private int _expCeiling => (int)Math.Round((4 * Math.Pow(Level, 3)) / 5.0); //exp curve taken from pokemon gen 1 :)
         public override double MaxCarryWeight => Strength * 10;
-        public override int SearchRange => Perception;
+        public override int SearchRange
+        {
+            get
+            {
+                int range = (int)Math.Round(Perception * .7);
+                var equippedActiveTorches = EquippedItems.Where(eI => eI is Torch && (eI as Torch).IsActive).Cast<Torch>();
+                if (equippedActiveTorches.Any()) range += equippedActiveTorches.Sum(eAT => eAT.Range);
+                return range;
+            }
+        }
         protected override int _maxHp => 2 + (int)Math.Round(Endurance * (Level * 1.05));
         protected override int _damageModifier => Strength - 5;
         protected override int _attackModifier => Perception - 5;
@@ -330,6 +339,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
                     $"Perception: {Perception}",
                     $"Charisma: {Charisma}"
                 };
+                Console.Clear();
                 Console.WriteLine($"Choose which skills to increase. You have {points} point(s) remaining.");
                 for (int i = 0; i < attributeStrings.Length; i++)
                 {
@@ -339,7 +349,6 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
                 }
                 Console.WriteLine("Use Up/Down arrow keys to select an attribute and Enter to increase it.");
                 handleInput(Console.ReadKey());
-                Console.Clear();
             }
         }
     

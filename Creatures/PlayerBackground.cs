@@ -36,18 +36,19 @@ namespace ProceduralDungeon
             inventory: new List<Item>()
             {
                 ItemsRepository.GetByName("Decent Iron Pickaxe"), 
-                ItemsRepository.GetByName("Hardy Ration")
+                ItemsRepository.GetByName("Hardy Ration"),
+                ItemsRepository.GetByName("Miner's Helmet")
             }
-        ); // Tattered clothing, pickaxe, lantern, little money, increased strength
+        );
         
         public static readonly PlayerBackground Farmer = new PlayerBackground("Farmer", startingGold: 50, enduranceMod: 2, 
             inventory: new List<Item>()
             {
                 ItemsRepository.GetByName("Decent Iron Hoe"),
-                ItemsRepository.GetByName("Wide Brimmed Hat"),
+                ItemsRepository.GetByName("Torch"),
                 ItemsRepository.GetByName("Farmer's Meal")
             }
-        ); // Tattered clothing, hoe, food, little money, increased endurance
+        );
         
         public static readonly PlayerBackground Hunter = new PlayerBackground("Hunter", startingGold: 50,  perceptionMod: 2,
             inventory: new List<Item>()
@@ -56,15 +57,16 @@ namespace ProceduralDungeon
                 ItemsRepository.GetByName("Beast Bane Incense"), 
                 ItemsRepository.GetByName("Common Ration")
             }
-        ); // Decent clothing, bow, beast bane, little money, increased perception
+        );
         
         public static readonly PlayerBackground Priest = new PlayerBackground("Priest", startingGold: 50, charismaMod: 2, 
             inventory: new List<Item>()
             {
                 ItemsRepository.GetByName("Alchemist's Fire"), 
                 ItemsRepository.GetByName("Annointing Oil"), 
-                ItemsRepository.GetByName("Common Ration")
+                ItemsRepository.GetByName("Common Ration"),
+                ItemsRepository.GetByName("Ceremonial Candle")
             }
-        ); // Decent clothing, morning star, annointing oil, little money, increased charisma
+        );
     }
 }

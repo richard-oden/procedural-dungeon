@@ -24,7 +24,7 @@ namespace ProceduralDungeon
             while (_gameRunning)
             {
                 Console.Clear();
-                Console.WriteLine("Loading next floor...");
+                Console.WriteLine("Creating next floor...");
                 // Every 3 levels create a merchant area:
                 var thisMap = floor % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, floor) 
                     : new Map(Size, Player, Difficulty, floor);

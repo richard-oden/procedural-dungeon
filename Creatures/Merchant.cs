@@ -131,7 +131,7 @@ namespace ProceduralDungeon
                     case ConsoleKey.Enter:
                         if (player.Inventory.Contains(selectedItem))
                         {
-                            var buyInput = PromptKey($"\nI'll purchase the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 0.75)} gold. Deal? (Y/N)");
+                            var buyInput = PromptKey($"\nI'll purchase the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * (1 - player.TradeMarkup))} gold. Deal? (Y/N)");
                             if (buyInput == ConsoleKey.Y)
                             {
                                 (player as IContainer).TransferItem(selectedItem, this, requireGold: true, discount: 1 - player.TradeMarkup);
@@ -147,7 +147,7 @@ namespace ProceduralDungeon
                         }
                         else if (Inventory.Contains(selectedItem))
                         {
-                            var sellInput = PromptKey($"\nI'll sell you the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * 1.25)} gold. Deal? (Y/N)");
+                            var sellInput = PromptKey($"\nI'll sell you the {selectedItem.Name} for {(int)Math.Round(selectedItem.Value * (1 + player.TradeMarkup))} gold. Deal? (Y/N)");
                             if (sellInput == ConsoleKey.Y)
                             {
                                 (this as IContainer).TransferItem(selectedItem, player, requireGold: true, discount: 1 + player.TradeMarkup);

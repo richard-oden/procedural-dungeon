@@ -132,7 +132,7 @@ namespace ProceduralDungeon
                 "It's not the most well-made bow, but should get the job done.",
                 EquipmentSlot.TwoHanded, new Die[]{D4, D4}, range: 8),
             new Weapon("Alchemist's Fire",          weight: .5, value: 25,   rarity: ItemRarity.Uncommon,
-                "It's a small clay vessel filled with highly flammable liquid.",
+                "A small clay vessel filled with highly flammable liquid.",
                 EquipmentSlot.OneHanded, new Die[]{D6}, damageMod: 2, range: 4, isThrown: true),
             new Weapon("Staff of The Destroyer",    weight: 10, value: 12000,    rarity: ItemRarity.VeryRare,
                 "This fabled implement has laid waste to armies and destroyed nations. It also looks pretty.",
@@ -169,7 +169,7 @@ namespace ProceduralDungeon
             new Repellant("Annointing Oil", CreatureCategory.Undead, 30, 
                 "A glass vial filled with an amber-colored oil. Should temporarily deter the undead."),
             new Repellant("Anti-Monster Aroma", CreatureCategory.Monstrosity, 30, 
-                "A small, pale-green bottle of perfume. The cap is a stylized dragon head. Should temporarily deter monsters."),
+                "A small, pale-green bottle of perfume. The cap depicts a stylized dragon head. Should temporarily deter monsters."),
 
             new Potion("Minor Healing", new Die[]{D4, D4}, ItemRarity.Common),
             new Potion("Common Healing", new Die[]{D6, D6}, ItemRarity.Common),
@@ -186,6 +186,21 @@ namespace ProceduralDungeon
                 "A selection of artisanal sausages, fancy cheese, bread, and imported preserved fruit wrapped in an oilskin."),
             new Food("Farmer's Meal", 4, 100, ItemRarity.Uncommon,
                 "A homecooked meal of fresh meats, breads, fruits, and vegetables. Very nutritous, but doesn't travel well."),
+            new Food("Mystery Meat Pie", 5, 150, ItemRarity.Rare,
+                "You're not sure what exactly its made of, but it smells delicious."),
+            new Food("Berry Strudel", 4, 200, ItemRarity.Rare,
+                "Strangely, it's still warm."),
+
+            new Torch("Ceremonial Candle", 1, 100, ItemRarity.Common, EquipmentSlot.OneHanded,
+                "It's likely used in some type of religous ceremony."),
+            new Torch("Torch", 2, 150, ItemRarity.Common, EquipmentSlot.OneHanded,
+                "A standard torch used for underground exploration."),
+            new Torch("Everbright Torch", 3, 200, ItemRarity.Uncommon, EquipmentSlot.OneHanded,
+                "Burns brighter and lasts longer than a typical torch."),
+            new Torch("Sunrod", 5, 600, ItemRarity.Rare, EquipmentSlot.OneHanded,
+                "One of the best illumination methods money can buy."),
+            new Torch("Miner's Helmet", 2, 500, ItemRarity.Uncommon, EquipmentSlot.Head,
+                "Good for lighting up areas while your hands are full. Unfortunately it's a single-use item."),
        };
 
         public static readonly Weapon[] Weapons = All.Where(i => i is Weapon).Cast<Weapon>().ToArray();
