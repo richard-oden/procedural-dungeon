@@ -10,9 +10,10 @@ namespace ProceduralDungeon
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Game.ShowTitleScreen();
             var newGame = NewGameMenu.Open();
             newGame.StartAt(0);
-            ExtensionsAndHelpers.WaitForInput();
+            Game.ShowDeathScreen();
         }
     }
 }
