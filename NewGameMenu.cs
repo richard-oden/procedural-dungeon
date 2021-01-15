@@ -64,6 +64,11 @@ namespace ProceduralDungeon
             Console.BackgroundColor = ConsoleColor.Black;
             Console.WriteLine('\n');
 
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            printDescription();
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.WriteLine();
             if (_highlightedRow == 5) Console.BackgroundColor = ConsoleColor.DarkGray;
             Console.Write("START NEW GAME! (Press Enter)");
             Console.BackgroundColor = ConsoleColor.Black;
@@ -78,6 +83,15 @@ namespace ProceduralDungeon
                 Console.ForegroundColor = ConsoleColor.White;
                 if (i < choices.Length - 1) Console.Write(" - ");
             }
+        }
+
+        private static void printDescription()
+        {
+            string description = "";
+            if (_highlightedRow == 0) description = $"Maps will have an average size of {(int)_mapSizes[_highlightedMapSize]}x{(int)_mapSizes[_highlightedMapSize]} squares. NOTE: At the moment, XSmall or Small are recommended for better performance.";
+            else if (_highlightedRow == 1) description = "Affects NPC challenge level, number of NPCs, item value, number of items, and merchant inventory. NOTE: At the moment VeryEasy or Easy are recommended for better performance.";
+            else if (_highlightedRow == 4) description = _playerBackgrounds[_highlightedBackground].Description;
+            Console.WriteLine(description);
         }
 
         private static int handleMultipleChoiceInput(ConsoleKeyInfo input, int numChoices, int highlightedChoice)
