@@ -93,14 +93,7 @@ namespace ProceduralDungeon
 
         public string GetCarryWeightString()
         {
-            if (MaxCarryWeight > -1)
-            {
-                return $"{CurrentCarryWeight}/{MaxCarryWeight} lbs";
-            }
-            else
-            {
-                return "";
-            }
+                return $"{Math.Round(CurrentCarryWeight, 1)}/{MaxCarryWeight} lbs";
         }
 
         public bool AddItemToInventory(Item itemToAdd, bool cloneItem = false)

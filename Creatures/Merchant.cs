@@ -47,7 +47,7 @@ namespace ProceduralDungeon
                 if (i < totalMerchantInventorySize / 6)
                 {
                     valueVariance = (int)Math.Round(itemValueAverage*.5);
-                    newItem = ItemsRepository.All.Where(i => !ItemsRepository.Junk.Contains(i) && 
+                    newItem = ItemsRepository.MerchantItems.Where(i => 
                         ((double)i.Value).IsBetween(itemValueAverage-valueVariance, itemValueAverage+valueVariance))
                         .RandomElement().GetClone();
                 }
@@ -58,7 +58,7 @@ namespace ProceduralDungeon
 
                     while (newItem == null)
                     {
-                        var potentialItems = ItemsRepository.All.Where(i =>
+                        var potentialItems = ItemsRepository.MerchantItems.Where(i =>
                             ((currentItemValueSum + i.Value) / (inventory.Count + 1))
                             .IsBetween(itemValueAverage-valueVariance, itemValueAverage+valueVariance));
                         if (potentialItems.Any())

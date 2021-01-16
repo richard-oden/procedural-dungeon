@@ -26,6 +26,7 @@ namespace ProceduralDungeon
         public List<Repellant> Repellants => AllItems.Where(i => i is Repellant).Cast<Repellant>().ToList();
         public List<Creature> Creatures => Assets.Where(a => a is Creature).Cast<Creature>().ToList();
         public List<Npc> Npcs => Assets.Where(a => a is Npc).Cast<Npc>().ToList();
+        public List<Chest> Chests => Assets.Where(a => a is Chest).Cast<Chest>().ToList();
         private List<Tile> _tiles {get; set;} = new List<Tile>();
         private Tile _centralTile {get; set;}
         private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();
@@ -80,6 +81,7 @@ namespace ProceduralDungeon
             generateDoor();
             generateKey();
             generateItemsUsingDifficulty(difficulty, floor);
+            generateChestsUsingDifficulty(difficulty, floor);
             generateNpcsUsingDifficulty(difficulty, floor);
             validateAssets(Assets);
         }
@@ -307,6 +309,25 @@ namespace ProceduralDungeon
             // System.Console.WriteLine("Actual average challenge level: " + Npcs.Average(n => n.ChallengeLevel));
             // System.Console.WriteLine("All npcs: " + Npcs.Select(n => n.Name + " - " + n.ChallengeLevel).ToString("and"));
         }
+
+        public void generateChestsUsingDifficulty(Difficulty difficulty, int floor)
+        {
+            var rand = new Random();
+            if (rand.NextDouble() < difficulty.ChestSpawnChance + floor *.05)
+            {
+                int totalChestValueMax = difficulty.ChestValuePerTile * _tiles.Count;
+                var validSpawns = EmptyPoints.Where(eP => GetAssetsInRangeOf(eP, 1).Count() < 2);
+                while (Chests.Sum(c => c.TotalValue) < totalChestValueMax)
+                {
+                    var newChest = ChestsRepository.All.RandomElement();
+                    if (newChest.TotalValue + Chests.Sum(c => c.TotalValue) <= totalChestValueMax + 15)
+                    {
+                        newChest.Location = validSpawns.RandomElement();
+                        AddAsset(newChest);
+                    }
+                }
+            }
+        }
         
         public virtual bool OnMap(Point point)
         {
@@ -523,7 +544,7 @@ namespace ProceduralDungeon
                     if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
                     {
                         if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
-                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
                         if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
                         Console.Write(thisAsset.Symbol + " ");
                     }
@@ -584,7 +605,7 @@ namespace ProceduralDungeon
                     if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
                     {
                         if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
-                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
                         if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
                         Console.Write(thisAsset.Symbol + " ");
                     }
@@ -616,7 +637,7 @@ namespace ProceduralDungeon
                     {
                         if (thisAsset is Door || thisAsset is Item) Console.BackgroundColor = Yellow;
                         if (thisAsset is Door) Console.ForegroundColor = White;
-                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
                         if (thisAsset is Player) Console.ForegroundColor = Blue;
                         Console.Write(thisAsset.Symbol + " ");
                     }
@@ -679,7 +700,7 @@ namespace ProceduralDungeon
                     {
                         if (highlightedAsset != null && thisAsset == highlightedAsset) Console.BackgroundColor = Yellow;
                         if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
-                        if (thisAsset is Item) Console.ForegroundColor = DarkYellow;
+                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
                         if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
                         Console.Write(thisAsset.Symbol + " ");
                     }

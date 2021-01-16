@@ -134,10 +134,10 @@ namespace ProceduralDungeon
             new Weapon("Alchemist's Fire",          weight: .5, value: 25,   rarity: ItemRarity.Uncommon,
                 "A small clay vessel filled with highly flammable liquid.",
                 EquipmentSlot.OneHanded, new Die[]{D6}, damageMod: 2, range: 4, isThrown: true),
-            new Weapon("Staff of The Destroyer",    weight: 10, value: 12000,    rarity: ItemRarity.VeryRare,
-                "This fabled implement has laid waste to armies and destroyed nations. It also looks pretty.",
-                EquipmentSlot.TwoHanded, new Die[]{D12, D12, D12, D12, D8, D8, D4, D4, D4},
-                attackMod: 8, damageMod: 8, range: 100),
+            // new Weapon("Staff of The Destroyer",    weight: 10, value: 12000,    rarity: ItemRarity.VeryRare,
+            //     "This fabled implement has laid waste to armies and destroyed nations. It also looks pretty.",
+            //     EquipmentSlot.TwoHanded, new Die[]{D12, D12, D12, D12, D8, D8, D4, D4, D4},
+            //     attackMod: 8, damageMod: 8, range: 100),
             
             new Armor("Wide Brimmed Hat",           weight: .3, value: 3,    rarity: ItemRarity.Common,
                 "Although useful for keeping the sun at bay, it doesn't offer any protection against attacks.",
@@ -160,9 +160,9 @@ namespace ProceduralDungeon
             new Armor("Old Leather Greaves",     weight: 2, value: 10,   rarity: ItemRarity.Common,
                 "They cover the lower half of your legs.",
                 EquipmentSlot.Legs, acBonus: 1),
-            new Armor("Mithril Chestplate",        weight: 18, value: 10000,    rarity: ItemRarity.VeryRare,
-                "Although lightweight, it will stop all but the mightiest of blows.",
-                EquipmentSlot.Chest, acBonus: 10, damageResistance: 10),
+            // new Armor("Mithril Chestplate",        weight: 18, value: 10000,    rarity: ItemRarity.VeryRare,
+            //     "Although lightweight, it will stop all but the mightiest of blows.",
+            //     EquipmentSlot.Chest, acBonus: 10, damageResistance: 10),
 
             new Repellant("Beast Bane Incense", CreatureCategory.Beast, 30,
                 "It emits a strong musky smell when ignited. Should temporarily deter hostile animals."), 
@@ -210,6 +210,8 @@ namespace ProceduralDungeon
         public static readonly Item[] Rares = All.Where(i => i.Rarity == ItemRarity.Rare).ToArray();
         public static readonly Item[] VeryRares = All.Where(i => i.Rarity == ItemRarity.VeryRare).ToArray();
         public static readonly Item[] Junk = Commons.Where(i => !(i is Weapon) && !(i is Armor)).ToArray();
+        public static readonly Item[] MerchantItems = All.Where(i => i is IEquippable || i is IInteractable).ToArray();
+        public static readonly Item[] ChestItems = All.Where(i => !(i is Food)).ToArray();
 
         public static Item[] GetMapDependantItems(Map map)
         {

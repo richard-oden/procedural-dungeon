@@ -6,7 +6,7 @@ namespace ProceduralDungeon
 {
     public static class NpcsRepository
     {
-        public static readonly Npc[] All = new Npc[]
+        public static Npc[] All => new Npc[]
         {
             new Npc("Giant Rat",        001, challengeLevel: 1,   hp: 6,    category: CreatureCategory.Beast,
                 inventory: Junk.RandomSample(D3.RollBaseZero()), gold: D10.RollBaseZero(),

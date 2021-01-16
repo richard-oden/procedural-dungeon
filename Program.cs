@@ -14,6 +14,11 @@ namespace ProceduralDungeon
             var newGame = NewGameMenu.Open();
             newGame.StartAt(0);
             Game.ShowDeathScreen();
+
+            // foreach (var chest in ChestsRepository.All)
+            // {
+            //     Console.WriteLine($"{chest.Name} ({chest.Gold + chest.Inventory.Sum(i => i.Value)} total value): {chest.Inventory.Select(i => i.Name).ToString("and")}");
+            // }
         }
     }
 }
