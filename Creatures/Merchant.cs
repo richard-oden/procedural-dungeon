@@ -49,7 +49,7 @@ namespace ProceduralDungeon
                     valueVariance = (int)Math.Round(itemValueAverage*.5);
                     newItem = ItemsRepository.MerchantItems.Where(i => 
                         ((double)i.Value).IsBetween(itemValueAverage-valueVariance, itemValueAverage+valueVariance))
-                        .RandomElement().GetClone();
+                        .RandomElement();
                 }
                 else
                 {

@@ -200,9 +200,12 @@ namespace ProceduralDungeon
                 // Keep cursor X coordinate within menu bounds:
                 if (tempCursorX < 0) tempCursorX = 0;
                 else if (tempCursorX > 1) tempCursorX = 1;
-                // If one inventory is empty, force cursor to other inventory:
-                if (tempCursorX == 0 && !player.Inventory.Any()) tempCursorX = 1;
-                else if (tempCursorX == 1 && !Inventory.Any()) tempCursorX = 0;
+                // If not trading gold and either inventory is empty, force cursor to other inventory:
+                if (!includeGold)
+                {
+                    if (tempCursorX == 0 && !player.Inventory.Any()) tempCursorX = 1;
+                    else if (tempCursorX == 1 && !Inventory.Any()) tempCursorX = 0;
+                }
                 cursorX = tempCursorX;
 
                 // Keep cursor Y coordinate within menu bounds:

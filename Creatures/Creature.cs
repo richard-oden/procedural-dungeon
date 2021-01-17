@@ -83,7 +83,7 @@ namespace ProceduralDungeon
             _currentHp = hp;
             Gender = gender;
             if (location != null) Location = location;
-            if (inventory != null) Inventory = inventory;
+            if (inventory != null) Inventory = inventory.GetClones();
             if (memory != null) _memory = memory;
             foreach (var i in inventory) AddToMemory(i);
             Gold = gold;

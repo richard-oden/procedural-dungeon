@@ -204,12 +204,12 @@ namespace ProceduralDungeon
        };
 
         public static readonly Weapon[] Weapons = All.Where(i => i is Weapon).Cast<Weapon>().ToArray();
-        public static readonly Armor[] Armor = All.Where(i => i is Armor).Cast<Armor>().ToArray();
+        public static readonly Armor[] Armors = All.Where(i => i is Armor).Cast<Armor>().ToArray();
         public static readonly Item[] Commons = All.Where(i => i.Rarity == ItemRarity.Common).ToArray();
         public static readonly Item[] Uncommons = All.Where(i => i.Rarity == ItemRarity.Uncommon).ToArray();
         public static readonly Item[] Rares = All.Where(i => i.Rarity == ItemRarity.Rare).ToArray();
         public static readonly Item[] VeryRares = All.Where(i => i.Rarity == ItemRarity.VeryRare).ToArray();
-        public static readonly Item[] Junk = Commons.Where(i => !(i is Weapon) && !(i is Armor)).ToArray();
+        public static readonly Item[] Junk = Commons.Where(i => !(i is IEquippable || i is IInteractable)).ToArray();
         public static readonly Item[] MerchantItems = All.Where(i => i is IEquippable || i is IInteractable).ToArray();
         public static readonly Item[] ChestItems = All.Where(i => !(i is Food)).ToArray();
 

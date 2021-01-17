@@ -105,9 +105,9 @@ namespace ProceduralDungeon
             return assets.FirstOrDefault(a => a.Name.ToLower() == name.ToLower());
         }
 
-        public static IList<T> Clone<T>(this IList<T> listToClone) where T: ICloneable
+        public static List<Item> GetClones(this IEnumerable<Item> itemsToClone)
         {
-            return listToClone.Select(item => (T)item.Clone()).ToList();
+            return itemsToClone.Select(i => i.GetClone()).ToList();
         }
 
         
