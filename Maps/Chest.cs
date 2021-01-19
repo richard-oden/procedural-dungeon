@@ -5,7 +5,7 @@ using static ProceduralDungeon.ExtensionsAndHelpers;
 
 namespace ProceduralDungeon
 {
-    public class Chest : IMappable, INameable, IDescribable, IContainer, IInteractable
+    public class Chest : IMappable, INameable, IDescribable, IContainer, IInteractable, IDestroyable
     {
         public string Name {get; private set;}
         public List<Item> Inventory {get; private set;} = new List<Item>();
@@ -16,6 +16,7 @@ namespace ProceduralDungeon
         public Point Location {get; set;}
         public char Symbol {get; private set;} = Symbols.Chest;
         public int TotalValue => Inventory.Sum(i => i.Value + Gold);
+        public bool IsDestroyed {get; set;} = false;
         public Chest(string name, int averageGold, string description, List<Item> validItems)
         {
             Name = name;
@@ -77,6 +78,6 @@ namespace ProceduralDungeon
             WaitForInput();
             Console.Clear();
             (this as IContainer).OpenTradeMenu(player);
-    }
+        }
     }
 }

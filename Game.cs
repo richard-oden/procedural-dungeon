@@ -35,7 +35,7 @@ namespace ProceduralDungeon
                 {
                     Console.Clear();
                     thisMap.ManageIDegradables();
-                    thisMap.PurgeDestroyedItems();
+                    thisMap.PurgeDestroyedAssets();
                     Console.WriteLine($"Floor: {floor}");
                     thisMap.PrintMapFromViewport(Player);
                     Console.WriteLine(Player.GetDetails());

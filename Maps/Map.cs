@@ -478,9 +478,9 @@ namespace ProceduralDungeon
                 }
             }
         }
-        public void PurgeDestroyedItems()
+        public void PurgeDestroyedAssets()
         {
-            Assets.RemoveAll(i => i is Item && (i as Item).IsDestroyed);
+            Assets.RemoveAll(a => a is IDestroyable && (a as IDestroyable).IsDestroyed);
             foreach (var c in Containers) c.Inventory.RemoveAll(i => i.IsDestroyed);
             foreach (var c in Creatures) c.EquippedItems.RemoveAll(i => (i as Item).IsDestroyed);
         }

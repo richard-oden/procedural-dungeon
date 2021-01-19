@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ProceduralDungeon
 {
-    public abstract class Creature : IMappable, INameable, IDescribable, IContainer
+    public abstract class Creature : IMappable, INameable, IDescribable, IContainer, IDestroyable
     {
         public string Name {get; protected set;}
         public Gender Gender {get; protected set;}
@@ -43,6 +43,7 @@ namespace ProceduralDungeon
         public virtual char Symbol {get; protected set;} = Symbols.Player;
         public int Team {get; protected set;}
         public bool IsDead => _currentHp <= 0;
+        public bool IsDestroyed {get; set;} = false;
         protected string _baseDescription {get; set;}
         public CreatureCategory Category {get; protected set;}
         public virtual string Description
@@ -85,7 +86,7 @@ namespace ProceduralDungeon
             if (location != null) Location = location;
             if (inventory != null) Inventory = inventory.GetClones();
             if (memory != null) _memory = memory;
-            foreach (var i in inventory) AddToMemory(i);
+            foreach (var i in Inventory) AddToMemory(i);
             Gold = gold;
             _baseDescription = baseDescription;
             Category = category;

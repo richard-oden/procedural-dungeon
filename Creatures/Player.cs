@@ -258,19 +258,48 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
         {   
             int weaponAttackRange = EquippedWeapons.Any() ? EquippedWeapons.Select(eW => eW.Range).Max() : 0;
             int effectiveAttackRange = weaponAttackRange > _attackRange ? weaponAttackRange : _attackRange;
-            var targetsAsIMappable = map.Creatures.Where(c => Location.InRangeOf(c.Location, effectiveAttackRange) && c != this).Cast<IMappable>().ToList();
-            var attackMenu = new IMappableMenu("Select creature to attack. Press Up/Down to change selection, Enter to attack, and Esc to exit.", targetsAsIMappable, this, map);
-            var target = (Creature)attackMenu.Open();
+            var targetsAsIMappable = map.Assets.Where(a => a is IDestroyable && 
+                Location.InRangeOf(a.Location, effectiveAttackRange) && 
+                a != this).Cast<IMappable>().ToList();
+            var attackMenu = new IMappableMenu("Select target to attack. Press Up/Down to change selection, Enter to attack, and Esc to exit.", targetsAsIMappable, this, map);
+            var target = (IDestroyable)attackMenu.Open();
             if (target != null)
             {
-                if (!target.IsDead)
+                if (target is Creature)
                 {
-                    base.Attack(map, target);
-                    if (target is Npc && target.IsDead) GainExp((target as Npc).ChallengeLevel);
+                    var targetCreature = (Creature)target;
+                    if (!targetCreature.IsDead)
+                    {
+                        base.Attack(map, targetCreature);
+                        if (targetCreature is Npc && targetCreature.IsDead) GainExp((targetCreature as Npc).ChallengeLevel);
+                    }
+                    else
+                    {
+                        var destroyBodyInput = PromptKey($"{targetCreature.Name} is already dead. Do you wish to destroy the body? (Y/N)");
+                        if (destroyBodyInput == ConsoleKey.Y)
+                        {
+                            Console.WriteLine($"{Name} destroyed {targetCreature.Name}'s body.");
+                            targetCreature.IsDestroyed = true;
+                        }
+                        else if (destroyBodyInput == ConsoleKey.N)
+                        {
+                            Console.WriteLine($"{Name} did not destroy {targetCreature.Name}'s body.");
+                        }
+                    }
                 }
                 else
                 {
-                    System.Console.WriteLine($"{target.Name} is already dead.");
+                    string targetName = target is INameable ? (target as INameable).Name : target.GetType().Name;
+                    var destroyBodyInput = PromptKey($"Attacking the {targetName} will destroy it. Continue? (Y/N)");
+                    if (destroyBodyInput == ConsoleKey.Y)
+                    {
+                        Console.WriteLine($"{Name} destroyed {targetName}.");
+                        target.IsDestroyed = true;
+                    }
+                    else if (destroyBodyInput == ConsoleKey.N)
+                    {
+                        Console.WriteLine($"{Name} did not destroy {targetName}.");
+                    }
                 }
             }
             WaitForInput();

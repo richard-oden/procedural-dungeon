@@ -5,7 +5,7 @@ using System.Linq;
 namespace ProceduralDungeon
 {
     [Serializable]
-    public class Item : IMappable, INameable, IDescribable
+    public class Item : IMappable, INameable, IDescribable, IDestroyable
     {
         public string Name {get; protected set;}
         public virtual double Weight {get; protected set;}
@@ -14,7 +14,7 @@ namespace ProceduralDungeon
         public virtual Point Location {get; set;}
         public virtual ItemRarity Rarity {get; protected set;}
         public virtual char Symbol {get; protected set;} = Symbols.Item;
-        public bool IsDestroyed = false;
+        public bool IsDestroyed {get; set;} = false;
 
         public Item(){}
 
