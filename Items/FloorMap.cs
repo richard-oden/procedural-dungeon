@@ -27,7 +27,7 @@ namespace ProceduralDungeon
 
         public void Activate(Player player)
         {
-            System.Console.WriteLine("You study the map for a moment. It shows the following locations:");
+            Console.WriteLine("You study the map for a moment. It shows the following locations:");
             _highlightedAssets.ListDistanceAndDirectionFrom(player.Location);
             _map.PrintMapWithOnlyHighlightedAssets(_highlightedAssets);
         }

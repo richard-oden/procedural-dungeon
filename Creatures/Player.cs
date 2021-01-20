@@ -74,7 +74,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             else if (input.Key == Escape) {}// Quit menu
             else 
             {
-                System.Console.WriteLine("Hotkey not recognized. Press 'H' for a full list of hotkeys.");
+                Console.WriteLine("Hotkey not recognized. Press 'H' for a full list of hotkeys.");
                 WaitForInput();
             }
             return true;
@@ -138,7 +138,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
     
         public void Recall(Map map)
         {
-            System.Console.WriteLine();
+            Console.WriteLine();
             var memoryMenu = new IMappableMenu($"{Name}'s memory. Press Up/Down to highlight object and Enter/Esc to exit.", _memory.Cast<IMappable>().ToList(), this, map);
             memoryMenu.Open();
         }
@@ -160,15 +160,15 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             }
             else
             {
-                System.Console.WriteLine("Not sure what to interact with.");
+                Console.WriteLine("Not sure what to interact with.");
             }
             WaitForInput();
         }
         
         public void ListInventory()
         {
-            System.Console.WriteLine($"{Name}'s inventory:");
-            System.Console.WriteLine();
+            Console.WriteLine($"{Name}'s inventory:");
+            Console.WriteLine();
             foreach(var i in Inventory)
             {
                 Console.WriteLine(i.GetDetails());
@@ -196,7 +196,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             }
             else
             {
-                System.Console.WriteLine("Not sure what to pick up.");
+                Console.WriteLine("Not sure what to pick up.");
             }
             WaitForInput();
         }
@@ -213,12 +213,12 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
                 }
                 else
                 {
-                    System.Console.WriteLine("Not sure what to drop.");
+                    Console.WriteLine("Not sure what to drop.");
                 }
             }
             else
             {
-                System.Console.WriteLine($"{Name} has nothing to drop!");
+                Console.WriteLine($"{Name} has nothing to drop!");
             }
             WaitForInput();
         }
@@ -234,7 +234,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             }
             else
             {
-                System.Console.WriteLine("Not sure what to equip.");
+                Console.WriteLine("Not sure what to equip.");
             }
             WaitForInput();
         }
@@ -249,7 +249,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
             }
             else
             {
-                System.Console.WriteLine("Not sure what to unequip.");
+                Console.WriteLine("Not sure what to unequip.");
             }
             WaitForInput();
         }
@@ -308,7 +308,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
         public void GainExp(int exp)
         {
             _exp += exp;
-            System.Console.WriteLine($"{Name} gained {exp} exp.");
+            Console.WriteLine($"{Name} gained {exp} exp.");
             while (_exp >= _expCeiling)
             {
                 Level++;
@@ -384,6 +384,11 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
         public void RemoveAllFromMemoryIfNotOnMap(Map map)
         {
             _memory.RemoveAll(m => !map.AllAssets.Contains(m as IMappable));
+        }
+
+        public void RemoveDestroyedAssetsFromMemory()
+        {
+            _memory.RemoveAll(m => m is IDestroyable && (m as IDestroyable).IsDestroyed);
         }
     }
 }

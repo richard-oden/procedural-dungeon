@@ -48,7 +48,7 @@ namespace ProceduralDungeon
             if (IsActive) Duration--;
             if (Duration <= 0) 
             {
-                Console.WriteLine($"The {Name}'s has burned out.");
+                Console.WriteLine($"The {Name} has burned out.");
                 IsActive = false;
                 IsDestroyed = true;
             }

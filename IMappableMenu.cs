@@ -44,7 +44,7 @@ namespace ProceduralDungeon
                 {
                     Console.Write(" (in inventory)");
                 }
-                System.Console.WriteLine('\n');
+                Console.WriteLine('\n');
                 Console.ResetColor();
             }
             if (highlightedOption is IDescribable)
@@ -81,7 +81,7 @@ namespace ProceduralDungeon
                     IMappable highlightedOption = Options[cursorPosition];
                     Console.Clear();
                     Console.WriteLine(Prompt);
-                    if (_map != null) _map.PrintMapFromViewportWithHighlightedAsset(_player, highlightedOption);
+                    if (_map != null) _map.PrintMapFromViewport(_player, highlightedOption);
                     Console.WriteLine();
                     listOptions(highlightedOption);
 

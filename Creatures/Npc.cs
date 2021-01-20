@@ -167,7 +167,7 @@ namespace ProceduralDungeon
                     }
                     else
                     {
-                        System.Console.WriteLine($"{Name} has spotted something. It's searching...");
+                        Console.WriteLine($"{Name} has spotted something. It's searching...");
                         WaitForInput();
                         Search(map);
                     }
@@ -183,14 +183,14 @@ namespace ProceduralDungeon
         {
             if (IsDead)
             {
-                System.Console.WriteLine($"{player.Name} searches the {Name}.");
+                Console.WriteLine($"{player.Name} searches the {Name}.");
                 WaitForInput();
                 Console.Clear();
                 (this as IContainer).OpenTradeMenu(player);
             }
             else
             {
-                System.Console.WriteLine("Probably better to attack this!");
+                Console.WriteLine("Probably better to attack this!");
             }
         }
     }

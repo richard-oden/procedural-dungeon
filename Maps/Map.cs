@@ -27,6 +27,7 @@ namespace ProceduralDungeon
         public List<Creature> Creatures => Assets.Where(a => a is Creature).Cast<Creature>().ToList();
         public List<Npc> Npcs => Assets.Where(a => a is Npc).Cast<Npc>().ToList();
         public List<Chest> Chests => Assets.Where(a => a is Chest).Cast<Chest>().ToList();
+        public List<Torch> Torches => Assets.Where(a => a is Torch).Cast<Torch>().ToList();
         private List<Tile> _tiles {get; set;} = new List<Tile>();
         private Tile _centralTile {get; set;}
         private Point[] _assetPointLocations => Assets.Where(a => !(a is IRectangular)).Select(a => a.Location).ToArray();
@@ -257,13 +258,13 @@ namespace ProceduralDungeon
                 }
                 generateItem(newItem);
             }
-            // System.Console.WriteLine();
-            // System.Console.WriteLine("Max items: " + totalItemMax);
-            // System.Console.WriteLine("Average item value: " + itemValueAverage);
-            // System.Console.WriteLine("Actual items: " + Items.Count);
-            // System.Console.WriteLine("Actual average item value: " + Items.Average(i => i.Value));
-            // System.Console.WriteLine("All items: " + Items.Select(i => i.Name + " - " + i.Value).ToString("and"));
-            // System.Console.WriteLine();
+            // Console.WriteLine();
+            // Console.WriteLine("Max items: " + totalItemMax);
+            // Console.WriteLine("Average item value: " + itemValueAverage);
+            // Console.WriteLine("Actual items: " + Items.Count);
+            // Console.WriteLine("Actual average item value: " + Items.Average(i => i.Value));
+            // Console.WriteLine("All items: " + Items.Select(i => i.Name + " - " + i.Value).ToString("and"));
+            // Console.WriteLine();
         }
 
         private void generateNpcsUsingDifficulty(Difficulty difficulty, int floor)
@@ -303,11 +304,11 @@ namespace ProceduralDungeon
                 }
                 generateNpc(newNpc, difficulty.MaxNpcsPerTile + (int)(floor * .25));
             }
-            // System.Console.WriteLine("Max npcs: " + totalNpcMax);
-            // System.Console.WriteLine("Average challenge level: " + npcChallengeAverage);
-            // System.Console.WriteLine("Actual npcs: " + Npcs.Count);
-            // System.Console.WriteLine("Actual average challenge level: " + Npcs.Average(n => n.ChallengeLevel));
-            // System.Console.WriteLine("All npcs: " + Npcs.Select(n => n.Name + " - " + n.ChallengeLevel).ToString("and"));
+            // Console.WriteLine("Max npcs: " + totalNpcMax);
+            // Console.WriteLine("Average challenge level: " + npcChallengeAverage);
+            // Console.WriteLine("Actual npcs: " + Npcs.Count);
+            // Console.WriteLine("Actual average challenge level: " + Npcs.Average(n => n.ChallengeLevel));
+            // Console.WriteLine("All npcs: " + Npcs.Select(n => n.Name + " - " + n.ChallengeLevel).ToString("and"));
         }
 
         public void generateChestsUsingDifficulty(Difficulty difficulty, int floor)
@@ -559,7 +560,7 @@ namespace ProceduralDungeon
         }
 
         // Prints only section of map within viewport:
-        public void PrintMapFromViewport(Creature creature)
+        public void PrintMapFromViewport(Creature creature, IMappable highlightedAsset = null)
         {
             int searchRadius = creature.SearchRange + 4;
             int searchDiameter = searchRadius*2 + 1;
@@ -596,17 +597,19 @@ namespace ProceduralDungeon
 
                     Console.ForegroundColor = DarkGray;
                     bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
-                    if (inSearchRange) 
+                    bool inRangeOfActiveTorch = Torches.Where(t => t.IsActive).Any(t => t.Location.InRangeOf(thisPoint, t.Range));
+                    if (inSearchRange || inRangeOfActiveTorch) 
                     {
                         Console.ForegroundColor = Gray;
                         Console.BackgroundColor = DarkGray;
                     }
 
-                    if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
+                    if (thisAsset != null && (inSearchRange || inRangeOfActiveTorch))
                     {
                         if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
                         if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
                         if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
+                        if (highlightedAsset != null && thisAsset == highlightedAsset) Console.BackgroundColor = Yellow;
                         Console.Write(thisAsset.Symbol + " ");
                     }
                     else
@@ -651,68 +654,6 @@ namespace ProceduralDungeon
             }
         }
         
-        // Prints only section of map within viewport, highlighting the selected item:
-        // (For use in menu class)
-        public void PrintMapFromViewportWithHighlightedAsset(Creature creature, IMappable highlightedAsset)
-        {
-            int searchRadius = creature.SearchRange + 4;
-            int searchDiameter = searchRadius*2 + 1;
-
-            int getOriginCoord(int creatureCoord, int upperLimit)
-            {
-                int tempOriginCoord = creatureCoord - searchRadius;
-                if (tempOriginCoord < 0)
-                {
-                    return 0;
-                }
-                else if (tempOriginCoord + searchDiameter > upperLimit)
-                {
-                    return upperLimit - searchDiameter;
-                }
-                else
-                {
-                    return tempOriginCoord;
-                }
-            }
-
-            Point origin = new Point(getOriginCoord(creature.Location.X, Width), getOriginCoord(creature.Location.Y, Height));
-            int viewportHeight = origin.Y + searchDiameter;
-            int viewportWidth = origin.X + searchDiameter;
-
-            for (int y = origin.Y; y < viewportHeight; y++)
-            {
-                for (int x = origin.X; x < viewportWidth; x++)
-                {
-                    var thisPoint = new Point(x, y);
-                    var thisAsset = Assets.FirstOrDefault(a => 
-                        a.Location.X == x && a.Location.Y == y || a is IRectangular && 
-                        Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
-
-                    Console.ForegroundColor = DarkGray;
-                    bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
-                    if (inSearchRange) 
-                    {
-                        Console.ForegroundColor = Gray;
-                        Console.BackgroundColor = DarkGray;
-                    }
-
-                    if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
-                    {
-                        if (highlightedAsset != null && thisAsset == highlightedAsset) Console.BackgroundColor = Yellow;
-                        if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
-                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
-                        if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
-                        Console.Write(thisAsset.Symbol + " ");
-                    }
-                    else
-                    {
-                        Console.Write("  ");
-                    }
-                    Console.ResetColor();
-                }
-                Console.WriteLine();
-            }
-        }
         public bool Move(IMappable assetToMove, ConsoleKeyInfo input)
         {
             var tempLocation = new Point(assetToMove.Location);

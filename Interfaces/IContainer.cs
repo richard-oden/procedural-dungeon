@@ -128,7 +128,7 @@ namespace ProceduralDungeon
                     }
                     Console.ResetColor();
                 }
-                System.Console.WriteLine("---".PadRight(padSize, ' ') + "---");
+                Console.WriteLine("---".PadRight(padSize, ' ') + "---");
             }
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             if (highlightedItem != null) Console.WriteLine('\n' + highlightedItem.GetSecondaryDetails());
@@ -145,7 +145,7 @@ namespace ProceduralDungeon
             while (stillTrading)
             {
                 Item selectedItem = ListTwoInventoriesAndSelect(player, cursorX, cursorY, includeGold);
-                System.Console.WriteLine("\nUse the arrow keys to navigate, Enter to take/leave items, and Esc to exit.");
+                Console.WriteLine("\nUse the arrow keys to navigate, Enter to take/leave items, and Esc to exit.");
                 var input = Console.ReadKey();
 
                 int tempCursorX = cursorX;

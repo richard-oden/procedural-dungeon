@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace ProceduralDungeon
@@ -26,12 +27,12 @@ namespace ProceduralDungeon
         {
             if (player.Inventory.Any(i => i is Key) || _requiresKey == false)
             {
-                System.Console.WriteLine("The door slowly creaks open, revealing a staircase descending into darkness.");
+                Console.WriteLine("The door slowly creaks open, revealing a staircase descending into darkness.");
                 _map.HasPlayerExited = true;
             }
             else
             {
-                System.Console.WriteLine("It's locked. The key should be around here somewhere...");
+                Console.WriteLine("It's locked. The key should be around here somewhere...");
             }
         }
     }

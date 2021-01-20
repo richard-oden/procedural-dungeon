@@ -19,7 +19,7 @@ namespace ProceduralDungeon
 
         public void Activate(Player player)
         {
-            System.Console.WriteLine($"You hold the compass level and repeat its encantation. The needle spins for a bit before settling {player.Location.DirectionTo(_door.Location)}.");
+            Console.WriteLine($"You hold the compass level and repeat its encantation. The needle spins for a bit before settling {player.Location.DirectionTo(_door.Location)}.");
         }
     }
 }

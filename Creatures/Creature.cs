@@ -109,7 +109,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                System.Console.WriteLine($"{itemToAdd.Name} is too heavy for {Name} to carry.");
+                Console.WriteLine($"{itemToAdd.Name} is too heavy for {Name} to carry.");
                 return false;
             }
         }
@@ -119,7 +119,7 @@ namespace ProceduralDungeon
             if (AddItemToInventory(itemToPickUp))
             {
                 map.RemoveAsset(itemToPickUp);
-                System.Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
+                Console.WriteLine($"{Name} picked up the {itemToPickUp.Name}.");
             }
         }
 
@@ -136,7 +136,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                System.Console.WriteLine($"{itemToRemove.Name} could not be found in {Name}'s inventory.");
+                Console.WriteLine($"{itemToRemove.Name} could not be found in {Name}'s inventory.");
                 return false;
             }
         }
@@ -149,11 +149,11 @@ namespace ProceduralDungeon
                 if (RemoveItemFromInventory(itemToDrop))
                 {
                     map.AddItem(itemToDrop, validLocations.RandomElement());
-                    System.Console.WriteLine($"{Name} dropped the {itemToDrop.Name}.");
+                    Console.WriteLine($"{Name} dropped the {itemToDrop.Name}.");
                 }
                 else
                 {
-                    System.Console.WriteLine($"There's nowhere to drop the {itemToDrop.Name}");
+                    Console.WriteLine($"There's nowhere to drop the {itemToDrop.Name}");
                 }
             }
         }
@@ -186,17 +186,17 @@ namespace ProceduralDungeon
                     }
                     else
                     {
-                        System.Console.WriteLine($"{Name} already has the {itemToEquip.Name} equipped.");
+                        Console.WriteLine($"{Name} already has the {itemToEquip.Name} equipped.");
                     }
                 }
                 else
                 {
-                    System.Console.WriteLine($"{itemToEquip.Name} cannot be equipped.");
+                    Console.WriteLine($"{itemToEquip.Name} cannot be equipped.");
                 }
             }
             else
             {
-                System.Console.WriteLine($"{Name} is not holding a {itemToEquip.Name}.");
+                Console.WriteLine($"{Name} is not holding a {itemToEquip.Name}.");
             }
             return canEquip;
         }
@@ -206,7 +206,7 @@ namespace ProceduralDungeon
             if (canEquipItem(itemToEquip)) 
             {
                 EquippedItems.Add(itemToEquip as IEquippable);
-                System.Console.WriteLine($"{Name} equipped the {itemToEquip.Name}.");
+                Console.WriteLine($"{Name} equipped the {itemToEquip.Name}.");
             }
         }
         
@@ -222,17 +222,17 @@ namespace ProceduralDungeon
                     }
                     else
                     {
-                        System.Console.WriteLine($"{itemToUnequip.Name} is not currently equipped");
+                        Console.WriteLine($"{itemToUnequip.Name} is not currently equipped");
                     }
                 }
                 else
                 {
-                    System.Console.WriteLine($"{itemToUnequip.Name} is not an equippable item.");
+                    Console.WriteLine($"{itemToUnequip.Name} is not an equippable item.");
                 }
             }
             else
             {
-                System.Console.WriteLine($"{Name} is not holding a {itemToUnequip.Name}");
+                Console.WriteLine($"{Name} is not holding a {itemToUnequip.Name}");
             }
             return false;
         }
@@ -242,7 +242,7 @@ namespace ProceduralDungeon
             if (canUnequipItem(itemToUnequip)) 
             {
                 EquippedItems.Remove(itemToUnequip as IEquippable);
-                System.Console.WriteLine($"{Name} unequipped the {itemToUnequip.Name}.");
+                Console.WriteLine($"{Name} unequipped the {itemToUnequip.Name}.");
             }
         }
         
@@ -289,7 +289,7 @@ namespace ProceduralDungeon
             {
                 _currentHp += amount;
             }
-            if (_currentHp == 0) System.Console.WriteLine($"{Name} is dead!");
+            if (_currentHp == 0) Console.WriteLine($"{Name} is dead!");
         }
         
         protected bool validateAttackTarget(Map map, Creature targetCreature, int range)
@@ -304,17 +304,17 @@ namespace ProceduralDungeon
                     }
                     else
                     {
-                        System.Console.WriteLine($"{targetCreature.Name} is out of {Name}'s reach!");
+                        Console.WriteLine($"{targetCreature.Name} is out of {Name}'s reach!");
                     }
                 }
                 else
                 {
-                    System.Console.WriteLine($"{Name} cannot see {targetCreature.Name}!");
+                    Console.WriteLine($"{Name} cannot see {targetCreature.Name}!");
                 }
             }
             else
             {
-                System.Console.WriteLine($"{Name} does not know know about the {targetCreature.Name}!");
+                Console.WriteLine($"{Name} does not know know about the {targetCreature.Name}!");
             }
             return false;
         }
@@ -350,7 +350,7 @@ namespace ProceduralDungeon
                 var weaponHits = new Dictionary<Weapon, bool>();
                 foreach (var weapon in EquippedWeapons)
                 {
-                    System.Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {weapon.Name}!");
+                    Console.WriteLine($"{Name} is attacking {targetCreature.Name} with the {weapon.Name}!");
                     if (validateAttackTarget(map, targetCreature, weapon.Range))
                     {
                         // Keep tally of which weapons hit:
@@ -366,29 +366,29 @@ namespace ProceduralDungeon
                     if (hit.Value)
                     {
                         int damage = DamageRoll(hit.Key);
-                        System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name} with the {hit.Key.Name}!");
+                        Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name} with the {hit.Key.Name}!");
                         targetCreature.ChangeHp(-damage);
                     }
                     else
                     {
-                        System.Console.WriteLine($"{Name} missed the attack with the {hit.Key.Name}!");
+                        Console.WriteLine($"{Name} missed the attack with the {hit.Key.Name}!");
                     }
                 }
             }
             else 
             {
-                System.Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
+                Console.WriteLine($"{Name} is attacking {targetCreature.Name}!");
                 if (validateAttackTarget(map, targetCreature, _attackRange))
                 {
                     if (AttackRoll(targetCreature))
                     {
                         int damage = DamageRoll();
-                        System.Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
+                        Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
                         targetCreature.ChangeHp(-damage);
                     }
                     else
                     {
-                        System.Console.WriteLine($"{Name} missed the attack!");
+                        Console.WriteLine($"{Name} missed the attack!");
                     }
                 }
             }

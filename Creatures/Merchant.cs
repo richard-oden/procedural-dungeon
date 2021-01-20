@@ -88,12 +88,12 @@ namespace ProceduralDungeon
                     if (knownVisibleEnemies.Any())
                     {
                         var fleeTarget = knownVisibleEnemies.RandomElement();
-                        System.Console.WriteLine($"{Name} is fleeing from the {fleeTarget.Name}!");
+                        Console.WriteLine($"{Name} is fleeing from the {fleeTarget.Name}!");
                         MoveAwayFrom(map, fleeTarget.Location);
                     }
                     else
                     {
-                        System.Console.WriteLine($"{Name} has spotted something. It's searching...");
+                        Console.WriteLine($"{Name} has spotted something. It's searching...");
                         WaitForInput();
                         Search(map);
                     }
@@ -109,7 +109,7 @@ namespace ProceduralDungeon
             while (stillTrading)
             {
                 Item selectedItem = (this as IContainer).ListTwoInventoriesAndSelect(player, cursorX, cursorY);
-                System.Console.WriteLine("\nUse the arrow keys to navigate, Enter to buy/sell an item, or Esc to stop trading.");
+                Console.WriteLine("\nUse the arrow keys to navigate, Enter to buy/sell an item, or Esc to stop trading.");
                 var input = Console.ReadKey();
 
                 int tempCursorX = cursorX;
@@ -192,17 +192,17 @@ namespace ProceduralDungeon
                 if (Inventory.Any() || player.Inventory.Any())
                 {
                     Console.Clear();
-                    System.Console.WriteLine("Hello adventurer! May I interest you in a trade?");
+                    Console.WriteLine("Hello adventurer! May I interest you in a trade?");
                     OpenTrade(player);
                 }
                 else
                 {
-                    System.Console.WriteLine("Neither of you have anything left to trade.");
+                    Console.WriteLine("Neither of you have anything left to trade.");
                 }
             }
             else
             {
-                System.Console.WriteLine($"{Name}'s posessions have been destroyed.");
+                Console.WriteLine($"{Name}'s posessions have been destroyed.");
             }
         }
     }

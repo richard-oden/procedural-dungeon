@@ -48,7 +48,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                System.Console.WriteLine($"The {itemToAdd.Name} cannot fit inside the {Name}.");
+                Console.WriteLine($"The {itemToAdd.Name} cannot fit inside the {Name}.");
                 return false;
             }
         }
@@ -62,7 +62,7 @@ namespace ProceduralDungeon
             }
             else
             {
-                System.Console.WriteLine($"{itemToRemove.Name} could not be found in the {Name}'s inventory.");
+                Console.WriteLine($"{itemToRemove.Name} could not be found in the {Name}'s inventory.");
                 return false;
             }
         }
@@ -74,7 +74,7 @@ namespace ProceduralDungeon
 
         public void Activate(Player player)
         {
-            System.Console.WriteLine($"{player.Name} searches the {Name}.");
+            Console.WriteLine($"{player.Name} searches the {Name}.");
             WaitForInput();
             Console.Clear();
             (this as IContainer).OpenTradeMenu(player);
