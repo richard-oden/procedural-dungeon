@@ -29,6 +29,7 @@ namespace ProceduralDungeon
                 var thisMap = floor % 3 == 0 ? Map.CreateMerchantMap(Player, Difficulty, floor) 
                     : new Map(Size, Player, Difficulty, floor);
                 Player.RemoveAllFromMemoryIfNotOnMap(thisMap);
+                // Destroy key from previous floor
                 foreach (var i in Player.Inventory) if (i is Key) i.IsDestroyed = true;
 
                 while (!Player.IsDead && !thisMap.HasPlayerExited)

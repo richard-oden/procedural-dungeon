@@ -343,6 +343,7 @@ namespace ProceduralDungeon
             return damageSum + totalDamageMod;
         }
 
+        //TODO: Dry this code up:
         public void Attack(Map map, Creature targetCreature)
         {
             if (EquippedWeapons.Any())
@@ -368,6 +369,7 @@ namespace ProceduralDungeon
                         int damage = DamageRoll(hit.Key);
                         Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name} with the {hit.Key.Name}!");
                         targetCreature.ChangeHp(-damage);
+                        map.AddBloodSplatter(targetCreature.Location);
                     }
                     else
                     {
@@ -385,6 +387,7 @@ namespace ProceduralDungeon
                         int damage = DamageRoll();
                         Console.WriteLine($"{Name} dealt {damage} damage to {targetCreature.Name}!");
                         targetCreature.ChangeHp(-damage);
+                        map.AddBloodSplatter(targetCreature.Location);
                     }
                     else
                     {

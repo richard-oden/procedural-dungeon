@@ -7,7 +7,7 @@ namespace ProceduralDungeon
     [Serializable]
     public class Item : IMappable, INameable, IDescribable, IDestroyable
     {
-        public string Name {get; protected set;}
+        public virtual string Name {get; protected set;}
         public virtual double Weight {get; protected set;}
         public virtual int Value {get; protected set;}
         public virtual string Description {get; protected set;}

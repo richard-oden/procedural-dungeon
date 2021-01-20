@@ -52,7 +52,7 @@ namespace ProceduralDungeon
                 return emptyPoints;
             }
         }
-        private List<int[]> _bloodSplatterCoordinates = new List<int[]>();
+        private List<Point> _bloodSplatters = new List<Point>();
         public bool HasPlayerExited {get; set;} = false;
         
         public Map()
@@ -82,6 +82,10 @@ namespace ProceduralDungeon
             generateDoor();
             generateKey();
             generateItemsUsingDifficulty(difficulty, floor);
+            // 25% Chance of spawning floor map and compass:
+            if (_rand.NextDouble() < .25) generateItem(new FloorMap(this));
+            if (_rand.NextDouble() < .25) generateItem(new Compass((Door)Assets.Single(a => a is Door)));
+
             generateChestsUsingDifficulty(difficulty, floor);
             generateNpcsUsingDifficulty(difficulty, floor);
             validateAssets(Assets);
@@ -113,19 +117,25 @@ namespace ProceduralDungeon
 
         private bool canAddTile(Tile tileToAdd)
         {
+            // If tile does not have any opening points (doorways), it cannot be added
             if (tileToAdd.OpeningPoints.Any())
             {
                 for (int y = 0; y < Height; y++)
                 {
                     for (int x = 0; x < Width; x++)
                     {
+                        // Translate tile to each point until following conditions are met:
                         tileToAdd.TranslateAssets(new Point(x, y));
+                        // Tile is within 2 squares from map border:
                         if (WithinBorder(tileToAdd, 2) &&
+                            // Any opening points from other tiles connect to this tile:
                             _tiles.Any(t => t.DoOpeningPointsMatch(tileToAdd)) &&
+                            // This tile does not overlap any other tile:
                             _tiles.All(t => !t.DoesIntersectTile(tileToAdd)))
                         {
                             return true;
                         }
+                        // After each translation where conditions are not met, revert to original position:
                         else
                         {
                             tileToAdd.TranslateAssets(new Point(-x, -y));
@@ -158,6 +168,7 @@ namespace ProceduralDungeon
                 for (int x = 0; x < Width; x++)
                 {
                     var tempPoint = new Point(x, y);
+                    // If no tile contains point, create new wall to fill space:
                     if (_tiles.All(t => !t.OnMap(tempPoint)))
                     {
                         AddAsset(new Wall(tempPoint));
@@ -231,16 +242,20 @@ namespace ProceduralDungeon
             for (int i = 0; i < totalItemMax; i++)
             {
                 Item newItem = null;
+                // For first 1/6th of items, add items with value within range of -40/+40 of itemValueAverage.
+                // This adds more variety and provides potential for a few rarer items:
                 if (i < totalItemMax / 6)
                 {
                     newItem = ItemsRepository.All.Where(i => 
                         i.Value.IsBetween(itemValueAverage-40, itemValueAverage+40)).RandomElement();
                 }
+                // Then add npcs where value is within acceptable variance:
                 else
                 {
                     double currentItemValueSum = Items.Sum(i => i.Value);
                     double iVVariance = 15;
 
+                    // If no suitable items, increase variance until one matches:
                     while (newItem == null)
                     {
                         var potentialItems = ItemsRepository.All.Where(i =>
@@ -317,6 +332,7 @@ namespace ProceduralDungeon
             if (rand.NextDouble() < difficulty.ChestSpawnChance + floor *.05)
             {
                 int totalChestValueMax = difficulty.ChestValuePerTile * _tiles.Count;
+                // Valid spawns should be adjacent to max of 1 asset to prevent blocking movement
                 var validSpawns = EmptyPoints.Where(eP => GetAssetsInRangeOf(eP, 1).Count() < 2);
                 while (Chests.Sum(c => c.TotalValue) < totalChestValueMax)
                 {
@@ -328,6 +344,13 @@ namespace ProceduralDungeon
                     }
                 }
             }
+        }
+        
+        public void AddBloodSplatter(Point location)
+        {
+            int numSquaresAffected = Dice.D3.Roll();
+            _bloodSplatters.AddRange(location.GetAdjacentPoints(true)
+                .RandomSample(numSquaresAffected));
         }
         
         public virtual bool OnMap(Point point)
@@ -402,20 +425,6 @@ namespace ProceduralDungeon
             Assets.Add(asset);
         }
 
-        public void AddAsset(IMappable asset, Point start)
-        {
-            if (!(asset is Barrier))
-            {
-                asset.Location.X = start.X;
-                asset.Location.Y = start.Y;
-                Assets.Add(asset);
-            }
-            else
-            {
-                throw new Exception("ProceduralDungeon.Map.AddAsset(IMappable asset, Point start) cannot be used with barriers.");
-            }
-        }
-
         public void AddAssets(List<IMappable> assets)
         {
             Assets.AddRange(assets);
@@ -440,12 +449,6 @@ namespace ProceduralDungeon
         public void AddTile(Tile tileToAdd)
         {
             AddAssets(tileToAdd.Assets);
-            _tiles.Add(tileToAdd);
-        }
-        
-        public void AddTile(Tile tileToAdd, Point start)
-        {
-            AddAssets(tileToAdd.Assets, start);
             _tiles.Add(tileToAdd);
         }
 
@@ -521,43 +524,6 @@ namespace ProceduralDungeon
                 Console.WriteLine();
             }
         }
-    
-        // Prints map from perspective of a creature:
-        public void PrintMapFromPerspective(Creature creature)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    var thisPoint = new Point(x, y);
-                    var thisAsset = Assets.FirstOrDefault(a => 
-                        a.Location.X == x && a.Location.Y == y || a is IRectangular && 
-                        Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
-
-                    Console.ForegroundColor = DarkGray;
-                    bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
-                    if (inSearchRange) 
-                    {
-                        Console.ForegroundColor = Gray;
-                        Console.BackgroundColor = DarkGray;
-                    }
-
-                    if (thisAsset != null && !((thisAsset is INameable || thisAsset is Door) && !inSearchRange))
-                    {
-                        if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
-                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
-                        if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
-                        Console.Write(thisAsset.Symbol + " ");
-                    }
-                    else
-                    {
-                        Console.Write("  ");
-                    }
-                    Console.ResetColor();
-                }
-                Console.WriteLine();
-            }
-        }
 
         // Prints only section of map within viewport:
         public void PrintMapFromViewport(Creature creature, IMappable highlightedAsset = null)
@@ -597,7 +563,7 @@ namespace ProceduralDungeon
 
                     Console.ForegroundColor = DarkGray;
                     bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
-                    bool inRangeOfActiveTorch = Torches.Where(t => t.IsActive).Any(t => t.Location.InRangeOf(thisPoint, t.Range));
+                    bool inRangeOfActiveTorch = Torches.Where(t => t.IsActive).Any(t => t.Location.InRangeOf(thisPoint, t.Range + 2));
                     if (inSearchRange || inRangeOfActiveTorch) 
                     {
                         Console.ForegroundColor = Gray;
@@ -696,12 +662,22 @@ namespace ProceduralDungeon
             Console.ForegroundColor = White;
             Console.WriteLine("  - key used to open doors");
 
+            Console.ForegroundColor = DarkYellow;
+            Console.Write(Symbols.Chest);
+            Console.ForegroundColor = White;
+            Console.WriteLine("  - chest or other container");
+
             Console.ForegroundColor = DarkGray;
             Console.Write(Symbols.Barrier);
             Console.ForegroundColor = White;
             Console.WriteLine("  - wall or other barrier");
 
             Console.WriteLine($"{Symbols.Door}  - door to access the next floor");
+
+            Console.BackgroundColor = DarkRed;
+            Console.Write("  ");
+            Console.BackgroundColor = Black;
+            Console.WriteLine("  - blood splatter");
 
             WaitForInput();
             Console.ResetColor();

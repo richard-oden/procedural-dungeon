@@ -50,12 +50,12 @@ namespace ProceduralDungeon
             return DistanceTo(point.X, point.Y);
         }
 
-        public bool InRangeOf(Point point, int range)
+        public bool InRangeOf(Point originPoint, int range)
         {
             // Allows points that are diagonally adjacent to be considered within range of 1:
-            if (range == 1 && GetAdjacentCoordinates().Any(c =>
-                c[0] == point.X && c[1] == point.Y)) return true;
-            return DistanceTo(point) <= range;
+            if (range == 1 && GetAdjacentPoints().Any(p =>
+                p.X == originPoint.X && p.Y == originPoint.Y)) return true;
+            return DistanceTo(originPoint) <= range;
         }
 
         public static bool IsPointOnLineSegment(Point start, Point end, Point middle)
@@ -98,14 +98,17 @@ namespace ProceduralDungeon
             return false;
         }
 
-        public List<int[]> GetAdjacentCoordinates()
+        public List<Point> GetAdjacentPoints(bool includeOrigin = false)
         {
-            var output = new List<int[]>();
+            var output = new List<Point>();
             for (int y = -1; y <= 1; y++)
             {
                 for (int x = -1; x <= 1; x++)
                 {
-                    if (x != 0 || y != 0) output.Add(new int[]{X+x, Y+y});
+                    if ((x == 0 && y == 0 && includeOrigin) || (x != 0 || y != 0)) 
+                    {
+                        output.Add(new Point(X+x, Y+y));
+                    }
                 }
             }
             return output;
