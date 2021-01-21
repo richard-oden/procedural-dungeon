@@ -500,11 +500,6 @@ namespace ProceduralDungeon
                 for (int x = 0; x < Width; x++)
                 {
                     Console.ForegroundColor = DarkGray;
-                    
-                    // if (_bloodSplatterCoordinates.Any(c => c[0] == x && c[1] == y))
-                    // {
-                    //     Console.BackgroundColor = DarkRed;
-                    // }
                     var thisAsset = Assets.FirstOrDefault(a => 
                         a.Location.X == x && a.Location.Y == y || a is IRectangular && 
                         Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
@@ -525,6 +520,62 @@ namespace ProceduralDungeon
             }
         }
 
+        private void setLighting(bool inCloseRange, bool inMidRange, bool inFarRange)
+        {
+            if (inCloseRange) 
+            {
+                Console.BackgroundColor = White;
+            }
+            else if (inMidRange)
+            {
+                Console.BackgroundColor = Gray;
+            }
+            else if (inFarRange)
+            {
+                Console.BackgroundColor = DarkGray;
+            }
+        }
+        
+        private void printBloodSplatter(Point thisPoint, bool inCloseRange, bool inMidRange)
+        {
+            if (_bloodSplatters.Any(bS => bS.X == thisPoint.X && bS.Y == thisPoint.Y)) 
+            {
+                if (inCloseRange)
+                {
+                    Console.BackgroundColor = Red;
+                }
+                else if (inMidRange)
+                {
+                    Console.BackgroundColor = DarkRed;
+                }
+            }
+        }
+        
+        private void printAsset(IMappable thisAsset, bool inCloseRange, bool inMidRange, bool inFarRange)
+        {
+            if (thisAsset != null)
+            {
+                Console.ForegroundColor = thisAsset.Color;
+                if (inCloseRange)
+                {
+                    Console.Write(thisAsset.Symbol + " ");
+                }
+                else if ((inMidRange || inFarRange) &&
+                    (thisAsset is Door || thisAsset is Barrier || thisAsset is Wall))
+                {
+                    Console.Write(thisAsset.Symbol + " ");
+                }
+                else
+                {
+                    Console.Write("  ");
+                }
+            }
+            else
+            {
+                Console.Write("  ");
+            }
+        }
+        
         // Prints only section of map within viewport:
         public void PrintMapFromViewport(Creature creature, IMappable highlightedAsset = null)
         {
@@ -561,27 +612,18 @@ namespace ProceduralDungeon
                         a.Location.X == x && a.Location.Y == y || a is IRectangular && 
                         Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
 
-                    Console.ForegroundColor = DarkGray;
-                    bool inSearchRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange);
-                    bool inRangeOfActiveTorch = Torches.Where(t => t.IsActive).Any(t => t.Location.InRangeOf(thisPoint, t.Range + 2));
-                    if (inSearchRange || inRangeOfActiveTorch) 
-                    {
-                        Console.ForegroundColor = Gray;
-                        Console.BackgroundColor = DarkGray;
-                    }
+                    bool inCloseRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange) || 
+                        Torches.Where(t => t.IsActive).Any(t => t.Location.InRangeOf(thisPoint, t.Range + 2));
+                    bool inMidRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange+1) ||
+                        Torches.Where(t => t.IsActive).Any(t => t.Location.InRangeOf(thisPoint, t.Range + 3));
+                    bool inFarRange = creature.Location.InRangeOf(thisPoint, creature.SearchRange+2) ||
+                        Torches.Where(t => t.IsActive).Any(t => t.Location.InRangeOf(thisPoint, t.Range + 4));
+                    
 
-                    if (thisAsset != null && (inSearchRange || inRangeOfActiveTorch))
-                    {
-                        if (thisAsset is Door || thisAsset is Npc) Console.ForegroundColor = White;
-                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
-                        if (thisAsset is Player) Console.ForegroundColor = DarkBlue;
-                        if (highlightedAsset != null && thisAsset == highlightedAsset) Console.BackgroundColor = Yellow;
-                        Console.Write(thisAsset.Symbol + " ");
-                    }
-                    else
-                    {
-                        Console.Write("  ");
-                    }
+                    setLighting(inCloseRange, inMidRange, inFarRange);
+                    printBloodSplatter(thisPoint, inCloseRange, inMidRange);
+                    printAsset(thisAsset, inCloseRange, inMidRange, inFarRange);
+            
                     Console.ResetColor();
                 }
                 Console.WriteLine();

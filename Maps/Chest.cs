@@ -15,6 +15,7 @@ namespace ProceduralDungeon
         public string Description {get; private set;}
         public Point Location {get; set;}
         public char Symbol {get; private set;} = Symbols.Chest;
+        public ConsoleColor Color {get; protected set;} = ConsoleColor.DarkYellow;
         public int TotalValue => Inventory.Sum(i => i.Value + Gold);
         public bool IsDestroyed {get; set;} = false;
         public Chest(string name, int averageGold, string description, List<Item> validItems)

@@ -41,6 +41,7 @@ namespace ProceduralDungeon
         public int Gold {get; set;}
         public Point Location {get; set;}
         public virtual char Symbol {get; protected set;} = Symbols.Player;
+        public virtual ConsoleColor Color {get; protected set;} = ConsoleColor.Black;
         public int Team {get; protected set;}
         public bool IsDead => _currentHp <= 0;
         public bool IsDestroyed {get; set;} = false;

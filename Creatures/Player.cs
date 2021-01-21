@@ -34,6 +34,7 @@ namespace ProceduralDungeon
         // e.g., with a value of .2, an item worth 10 gold is solid for 8 and purchased for 12.
         public double TradeMarkup => .2 - (Perception - 5) * .05;
         public PlayerBackground Background {get; protected set;}
+        public override ConsoleColor Color {get; protected set;} = ConsoleColor.Blue;
         public Player(string name, int id, PlayerBackground background, int level = 1, Gender gender = Gender.NonBinary, 
             Point location = null, List<INameable> memory = null) :
             base(name, id, 6, CreatureCategory.Humanoid, gender, location, background.Inventory, background.StartingGold, memory)
@@ -279,6 +280,7 @@ HP: {_currentHp}/{_maxHp} - AC: {ArmorClass} - DR: {DamageResistance} - Weight c
                         if (destroyBodyInput == ConsoleKey.Y)
                         {
                             Console.WriteLine($"{Name} destroyed {targetCreature.Name}'s body.");
+                            map.AddBloodSplatter(targetCreature.Location);
                             targetCreature.IsDestroyed = true;
                         }
                         else if (destroyBodyInput == ConsoleKey.N)

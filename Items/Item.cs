@@ -14,6 +14,7 @@ namespace ProceduralDungeon
         public virtual Point Location {get; set;}
         public virtual ItemRarity Rarity {get; protected set;}
         public virtual char Symbol {get; protected set;} = Symbols.Item;
+        public virtual ConsoleColor Color {get; protected set;} = ConsoleColor.DarkYellow;
         public bool IsDestroyed {get; set;} = false;
 
         public Item(){}

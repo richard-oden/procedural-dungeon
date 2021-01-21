@@ -9,6 +9,7 @@ namespace ProceduralDungeon
         public Point Location {get; set;}
         private Map _map {get; set;}
         public char Symbol {get; protected set;} = Symbols.Door;
+        public virtual ConsoleColor Color {get; protected set;} = ConsoleColor.Black;
         private bool _requiresKey {get; set;}
 
         public Door(Map map, Point location, bool requiresKey = true)
