@@ -551,10 +551,13 @@ namespace ProceduralDungeon
             }
         }
         
-        private void printAsset(IMappable thisAsset, bool inCloseRange, bool inMidRange, bool inFarRange)
+        private void printAsset(IMappable thisAsset, IEnumerable<IMappable> highlightedAssets, bool inCloseRange = true, bool inMidRange = true, bool inFarRange = true)
         {
-            if (thisAsset != null)
+            bool inRange = inCloseRange || inMidRange || inFarRange;
+            if (thisAsset != null && inRange)
             {
+                if (thisAsset is Barrier || thisAsset is Wall) Console.BackgroundColor = Black;
+                if (highlightedAssets.Contains(thisAsset)) Console.BackgroundColor = Yellow;
                 Console.ForegroundColor = thisAsset.Color;
                 if (inCloseRange)
                 {
@@ -622,7 +625,7 @@ namespace ProceduralDungeon
 
                     setLighting(inCloseRange, inMidRange, inFarRange);
                     printBloodSplatter(thisPoint, inCloseRange, inMidRange);
-                    printAsset(thisAsset, inCloseRange, inMidRange, inFarRange);
+                    printAsset(thisAsset, new IMappable[] {highlightedAsset}, inCloseRange, inMidRange, inFarRange);
             
                     Console.ResetColor();
                 }
@@ -631,26 +634,20 @@ namespace ProceduralDungeon
         }
 
         // Prints map only showing highlighted assets:
-        public void PrintMapWithOnlyHighlightedAssets(IEnumerable<IMappable> highlightedAssets)
+        public void PrintFloorMap(IEnumerable<IMappable> highlightedAssets)
         {
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
-                {
-                    Console.ForegroundColor = DarkGray;
-                    
+                {   
+                    Console.BackgroundColor = Gray;
                     var thisAsset = Assets.FirstOrDefault(a => 
                         a.Location.X == x && a.Location.Y == y || a is IRectangular && 
                         Rectangle.DoesRectContainPoint(new Point(x, y), (a as IRectangular).Rect));
-                    if (thisAsset != null && !(thisAsset is Npc) && 
-                        !((thisAsset is Item || thisAsset is Door) && 
-                        !highlightedAssets.Contains(thisAsset)))
+                    if (thisAsset is Barrier || thisAsset is Wall || 
+                        highlightedAssets.Contains(thisAsset))
                     {
-                        if (thisAsset is Door || thisAsset is Item) Console.BackgroundColor = Yellow;
-                        if (thisAsset is Door) Console.ForegroundColor = White;
-                        if (thisAsset is Item || thisAsset is Chest) Console.ForegroundColor = DarkYellow;
-                        if (thisAsset is Player) Console.ForegroundColor = Blue;
-                        Console.Write(thisAsset.Symbol + " ");
+                        printAsset(thisAsset, highlightedAssets);
                     }
                     else
                     {
